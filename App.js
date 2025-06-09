@@ -46,6 +46,7 @@ export default function App() {
         />
         <Stack.Screen name="CompanyStack" component={CompanyStack} options={{headerShown:false}}/>
         <Stack.Screen name='Company Details' component={CompanyDetails}/>
+         
          <Stack.Screen name="JobSeeker Dashboard" component={JobSeekerTab} options={{
         headerShown:false
       }}/>
