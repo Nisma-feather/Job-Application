@@ -1,17 +1,23 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import CompanyProfile from "./CompanyProfile";
-import CompanyProfileEdit from "./CompanyProfileEdit";
 
 import {Ionicons} from '@expo/vector-icons';
+import CompanyProfile from "./CompanyProfile";
+import CompanyProfileEdit from "./CompanyProfileEdit";
+import PostJobHome from "./PostJobHome";
+import PostJob from "./PostJob";
+import PostJobEdit from "./PostJobEdit";
+import ViewJobApplications, { ApplicationsList } from "./ViewJobApplications";
+import UserProfile from "./UserProfile";
 
 
 const Tab=createBottomTabNavigator();
 const Stack=createNativeStackNavigator();
 
+
 const CompanyDashboard = () => {
-   
+  
   return (
     <Tab.Navigator screenOptions={({route})=>({
      
@@ -36,10 +42,11 @@ const CompanyDashboard = () => {
         height:50
       }
 
-  })} initialRouteName="View Applications">
+  })} >
+      
       <Tab.Screen name="company Profile" component={CompanyProfileStack} options={{headerShown:false}}/>
-      {/* <Tab.Screen name="View Applications" component={JobApplicationStack} options={{headerShown:false}}/>
-      <Tab.Screen name="Posted Jobs" component={CompanyPostJobStack} options={{headerShown:false}}/> */}
+      <Tab.Screen name="View Applications" component={JobApplicationStack} options={{headerShown:false}}/>
+      <Tab.Screen name="Posted Jobs" component={CompanyPostJobStack} options={{headerShown:false}}/>
       {/* <Tab.Screen name="notfication" component={Notifications}/> */}
       
       
@@ -47,17 +54,17 @@ const CompanyDashboard = () => {
   )
 }
 
-// const JobApplicationStack=()=>{
-//   return(
-//     <Stack.Navigator>
-//       <Stack.Screen name="Posted Jobs" component={ViewJobApplications}/>
-//       <Stack.Screen name="Application List" component={ApplicationsList}/>
-//       <Stack.Screen name="User Profile" component={UserProfile}/>
+const JobApplicationStack=()=>{
+  return(
+    <Stack.Navigator>
+      <Stack.Screen name="Posted Jobs" component={ViewJobApplications}/>
+      <Stack.Screen name="Application List" component={ApplicationsList}/>
+      <Stack.Screen name="User Profile" component={UserProfile}/>
     
-//     </Stack.Navigator>
+    </Stack.Navigator>
      
-//   )
-// }
+  )
+}
 
 
 const CompanyProfileStack=()=>{
@@ -69,15 +76,15 @@ const CompanyProfileStack=()=>{
   
   )
 }
-// const CompanyPostJobStack=()=>{
-//   return(
-//     <Stack.Navigator>
-//       <Stack.Screen name="Post Job HomeScreen" component={PostJobHome} />
-//       <Stack.Screen name="Post Job" component={PostJob}/>
-//       <Stack.Screen name="Edit Job" component={PostJobEdit}/>
+const CompanyPostJobStack=()=>{
+  return(
+    <Stack.Navigator>
+      <Stack.Screen name="Post Job HomeScreen" component={PostJobHome} />
+      <Stack.Screen name="Post Job" component={PostJob}/>
+      <Stack.Screen name="Edit Job" component={PostJobEdit}/>
 
-//     </Stack.Navigator>
+    </Stack.Navigator>
     
-//   )
-// }
+  )
+}
 export default CompanyDashboard

@@ -1,11 +1,13 @@
-import React, { useEffect, useState,useLayoutEffect } from 'react'
+import React, {
+  useEffect,
+  useState,
+  useLayoutEffect,
+  ImageBackground,
+} from "react";
 import { SafeAreaView, View, Text, ActivityIndicator, StyleSheet, ScrollView, Image, Pressable, TextInput, TouchableOpacity } from 'react-native'
 import { auth, db } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
-
-import { ImageBackground } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons,Feather} from '@expo/vector-icons';
 
 const CompanyProfile = ({ navigation }) => {
   const [profile, setProfile] = useState({});

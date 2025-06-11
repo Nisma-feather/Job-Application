@@ -16,6 +16,7 @@ import CompanyDetails from './companyScreens/CompanyDetails';
 import JobSeekerTab from './jobSeekerScreens/JobSeekerTab';
 import JobDetail from './jobSeekerScreens/JobDetail';
 import ApplyJob from './jobSeekerScreens/ApplyJob';
+import CompanyDashboard from './companyScreens/CompanyDashboard';
 
 const Stack = createNativeStackNavigator();
 
@@ -52,6 +53,7 @@ export default function App() {
       }}/>
       <Stack.Screen name='Job Details' component={JobDetail}/>
       <Stack.Screen name="Apply Job" component={ApplyJob}/>
+      <Stack.Screen name="CompanyDashboard" component={CompanyDashboard} options={{headerShown:false}}/>
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

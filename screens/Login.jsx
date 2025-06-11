@@ -60,7 +60,7 @@ const Login=({navigation})=>{
         }
         else if(data.role === 'company'){
           Alert.alert("Login successful");
-          //  navigation.replace('CompanyDashboard');
+           navigation.replace('CompanyDashboard');
           
         } else {
           Alert.alert('Error', 'Unknown user role');
