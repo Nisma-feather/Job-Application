@@ -71,7 +71,7 @@ const JobSeekerTab=()=>{
         />
         <Tab.Screen name="Profile" component={ProfileStack} />
         <Tab.Screen name="BookMark" component={BookMarkScreen} />
-        <Tab.Screen name="Message" component={MessagesStack} />
+        <Tab.Screen name="Message" component={MessagesStack} options={{headerShown:false}}/>
       </Tab.Navigator>
     );
 }
@@ -134,7 +134,7 @@ const MessagesStack=()=>{
       elevation:0,
       shadowOpacity:0
     },
-    headerShown:false}}>
+   }}>
       <Stack.Screen name="Messages" component={Messages}/>
       <Stack.Screen name="MessageDetail" component={MessageDetail} options={({route})=>({
       headerTitle:()=>(

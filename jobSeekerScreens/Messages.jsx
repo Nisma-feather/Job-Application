@@ -6,10 +6,11 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import dummyimg from '../assets/logo.png';
 
 
-const Messages = () => {
+const Messages = ({navigation}) => {
   const [messages, setMessages] = useState([]);
+  const [selectionMode,setSelectionMode] = useState(false);
+  const [selectedMessages, setSelectedMessages] = useState([]);
   const uid = auth?.currentUser.uid;
-  const navigation = useNavigation();
 
   const fetchUserMessages = async () => {
     if (!uid) return;
@@ -24,13 +25,38 @@ const Messages = () => {
       console.log(e);
     }
   };
+ const handleToggleSelection = (messageId) => {
+  setSelectionMode(true);
+  handleSelectMessage(messageId)
+  
+ }
+  const handleSelectMessage = (messageId) => {
+    if(selectedMessages.includes(messageId)){
+      setSelectedMessages((prev)=>prev.filter((id)=>id !== messageId))
+      if(selectedMessages.length === 1){
+        setSelectionMode(false);
+      }
+    }
+    else{
+      
+     setSelectedMessages((prev)=>[...prev,messageId])
+    }
+  }
+  useEffect(()=>{
+    navigation.setOptions({
+      headerRight:()=>(
+        <Pressable>
+          <Text>Delete</Text>
+        </Pressable>
+      )
+    })
 
-
+  })
   useEffect(() => {
     fetchUserMessages();
   }, []);
   
-
+console.log("selected Message",selectedMessages)
  console.log(messages)
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -38,21 +64,24 @@ const Messages = () => {
         {messages.map((message, idx) => (
           <Pressable
             key={idx}
-            style={styles.messageCard}
+            style={[styles.messageCard,{backgroundColor:selectedMessages.includes(message.id)?"blue":null}]}
             onPress={() =>{
-
-           
+              if(selectionMode){
+                handleSelectMessage(message.id);
+              }
                navigation.navigate('MessageDetail', { message })
                 }
               }
+              onLongPress={()=>handleToggleSelection(message.id)}
+              
           >
             <Image style={styles.avatar} source={dummyimg} />
             <View style={styles.messageContent}>
                 <View style={{flexDirection:'row',justifyContent:'space-between'}}>
                 <Text style={styles.sender}>{message.from}</Text>
                 <Text style={{color:'#777'}}>{formatDate(message.messageAt)}</Text>
-
-                </View>
+            
+            </View>
               
               <Text numberOfLines={1} style={styles.preview}>{message.message}</Text>
               
