@@ -3,17 +3,25 @@ import { SafeAreaView, Text, View, ScrollView, Pressable, StyleSheet, Alert, Tou
 import { auth, db } from '../../firebaseConfig';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import {MaterialIcons,Ionicons} from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const ExperienceScreen = ({ navigation }) => {
   const [experienceDetails, setExperienceDetails] = useState([{ role: '', company: '', from: '', to: '' }]);
   const [loading, setLoading] = useState(true);
-  const [errors, setErrors] = useState([])
+  const [errors, setErrors] = useState([]);
+  const [showPicker, setShowPicker] = useState({
+    index: null,
+    field: null,
+  })
 
   const handleChange = (field, index, value) => {
     const newExperiences = [...experienceDetails];
     newExperiences[index][field] = value;
     setExperienceDetails(newExperiences);
   };
+   
+
+  
 
   const handleAddExperience = () => {
     setExperienceDetails([...experienceDetails, { role: '', company: '', from: '', to: '' }]);
@@ -81,10 +89,22 @@ const ExperienceScreen = ({ navigation }) => {
 
 
   }
+  const handleDateChange = (event, selectedDate, index, field) => {
+    if (event.type === "set") {
+      const formattedDate = selectedDate.toDateString(); // or use a better format if needed
+      const updated = [...experienceDetails];
+      updated[index][field] = formattedDate;
+      setExperienceDetails(updated);
+    }
+    setShowPicker({ index: null, field: null }); // close picker
+  };
+
+
   useEffect(() => {
     fetchExperience();
   }, []);
   console.log(errors);
+  
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollWrapper}>
@@ -98,24 +118,76 @@ const ExperienceScreen = ({ navigation }) => {
               <Text style={styles.subheading}>Experience {index + 1}</Text>
 
               <View style={styles.inputWrapper}>
-                <Text style={styles.label}>Role<Text style={styles.required}>*</Text></Text>
-                <TextInput value={exp.role} style={styles.input} onChangeText={(val) => handleChange("role", index, val)} />
-                {errors[index]?.roleError ? <Text style={styles.errorText}>{errors[index]?.roleError}</Text> : null}
+                <Text style={styles.label}>
+                  Role<Text style={styles.required}>*</Text>
+                </Text>
+                <TextInput
+                  value={exp.role}
+                  style={styles.input}
+                  onChangeText={(val) => handleChange("role", index, val)}
+                />
+                {errors[index]?.roleError ? (
+                  <Text style={styles.errorText}>
+                    {errors[index]?.roleError}
+                  </Text>
+                ) : null}
               </View>
               <View style={styles.inputWrapper}>
-                <Text style={styles.label}>Company Name<Text style={styles.required}>*</Text></Text>
-                <TextInput value={exp.company} style={styles.input} onChangeText={(val) => handleChange("company", index, val)} />
-                {errors[index]?.roleError ? <Text style={styles.errorText}>{errors[index]?.companyError}</Text> : null}
+                <Text style={styles.label}>
+                  Company Name<Text style={styles.required}>*</Text>
+                </Text>
+                <TextInput
+                  value={exp.company}
+                  style={styles.input}
+                  onChangeText={(val) => handleChange("company", index, val)}
+                />
+                {errors[index]?.roleError ? (
+                  <Text style={styles.errorText}>
+                    {errors[index]?.companyError}
+                  </Text>
+                ) : null}
               </View>
               <View style={styles.inputWrapper}>
-                <Text style={styles.label}>From<Text style={styles.required}>*</Text></Text>
-                <TextInput placeholder='(e.g., Jan 2020)' value={exp.from} style={styles.input} onChangeText={(val) => handleChange("from", index, val)} />
-                {errors[index]?.roleError ? <Text style={styles.errorText}>{errors[index]?.fromError}</Text> : null}
+                <Text style={styles.label}>
+                  From<Text style={styles.required}>*</Text>
+                </Text>
+                <Pressable
+                  style={styles.input}
+                  onPress={() => setShowPicker({ index, field: "from" })}
+                >
+                  <Text>{exp.from ? exp.from : "Select Date"}</Text>
+                </Pressable>
+
+                {errors[index]?.roleError ? (
+                  <Text style={styles.errorText}>
+                    {errors[index]?.fromError}
+                  </Text>
+                ) : null}
               </View>
+              {showPicker.index === index && showPicker.field === "from" && (
+                <DateTimePicker
+                  value={new Date()}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selectedDate) =>
+                    handleDateChange(event, selectedDate, index, "from")
+                  }
+                />
+              )}
+
               <View style={styles.inputWrapper}>
-                <Text style={styles.label}>To<Text style={styles.required}>*</Text></Text>
-                <TextInput placeholder='(e.g., Dec 2022)' value={exp.to} style={styles.input} onChangeText={(val) => handleChange("to", index, val)} />
-                {errors[index]?.roleError ? <Text style={styles.errorText}>{errors[index]?.toError}</Text> : null}
+                <Text style={styles.label}>
+                  To<Text style={styles.required}>*</Text>
+                </Text>
+                <TextInput
+                  placeholder="(e.g., Dec 2022)"
+                  value={exp.to}
+                  style={styles.input}
+                  onChangeText={(val) => handleChange("to", index, val)}
+                />
+                {errors[index]?.roleError ? (
+                  <Text style={styles.errorText}>{errors[index]?.toError}</Text>
+                ) : null}
               </View>
             </View>
           ))
@@ -128,10 +200,12 @@ const ExperienceScreen = ({ navigation }) => {
           </Pressable>
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleExperienceUpdate}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleExperienceUpdate}
+        >
           <Text style={styles.buttonText}>Update</Text>
         </TouchableOpacity>
-
       </ScrollView>
     </SafeAreaView>
   );

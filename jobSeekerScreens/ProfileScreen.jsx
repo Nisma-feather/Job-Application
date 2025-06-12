@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   sectionText: {
     fontSize: 14,
     color: '#3b4b5e',
-    fontWeight:'bold'
+    fontFamily:'Poppins-Bold',
 
   },
 });

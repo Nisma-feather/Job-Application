@@ -1,90 +1,175 @@
-import React, { useEffect, useState } from 'react';
-import { Pressable, SafeAreaView, ScrollView, Image, Text, View, StyleSheet,Button} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { auth, db } from '../firebaseConfig';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
-import dummyimg from '../assets/logo.png';
+import React, { useEffect, useState } from "react";
+import {
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  Image,
+  Text,
+  View,
+  StyleSheet,
+  Alert,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { auth, db } from "../firebaseConfig";
+import {
+  collection,
+  deleteDoc,
+  getDocs,
+  orderBy,
+  query,
+  doc,
+} from "firebase/firestore";
+import dummyimg from "../assets/logo.png";
+import {
+  MaterialCommunityIcons,
+  Ionicons,
+  Foundation,
+} from "@expo/vector-icons";
 
-
-const Messages = ({navigation}) => {
+const Messages = ({ navigation }) => {
   const [messages, setMessages] = useState([]);
-  const [selectionMode,setSelectionMode] = useState(false);
+  const [selectionMode, setSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState([]);
-  const uid = auth?.currentUser.uid;
+  const uid = auth?.currentUser?.uid;
 
   const fetchUserMessages = async () => {
     if (!uid) return;
 
     try {
-      const ref = collection(db, 'users', uid, 'messages');
-      const q = query(ref, orderBy('messageAt', 'desc'));
+      const ref = collection(db, "users", uid, "messages");
+      const q = query(ref, orderBy("messageAt", "desc"));
       const snapData = await getDocs(q);
-      const messageFetched = snapData?.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const messageFetched = snapData.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
       setMessages(messageFetched);
     } catch (e) {
       console.log(e);
     }
   };
- const handleToggleSelection = (messageId) => {
-  setSelectionMode(true);
-  handleSelectMessage(messageId)
-  
- }
+
+  const handleToggleSelection = (messageId) => {
+    setSelectionMode(true);
+    handleSelectMessage(messageId);
+  };
+
   const handleSelectMessage = (messageId) => {
-    if(selectedMessages.includes(messageId)){
-      setSelectedMessages((prev)=>prev.filter((id)=>id !== messageId))
-      if(selectedMessages.length === 1){
+    if (selectedMessages.includes(messageId)) {
+      const updated = selectedMessages.filter((id) => id !== messageId);
+      setSelectedMessages(updated);
+      if (updated.length === 0) {
         setSelectionMode(false);
       }
+    } else {
+      setSelectedMessages((prev) => [...prev, messageId]);
     }
-    else{
-      
-     setSelectedMessages((prev)=>[...prev,messageId])
-    }
-  }
-  useEffect(()=>{
-    navigation.setOptions({
-      headerRight:()=>(
-        <Pressable>
-          <Text>Delete</Text>
-        </Pressable>
-      )
-    })
+  };
 
-  })
+  const handleMessageDeletion = async () => {
+    try {
+      const deletePromises = selectedMessages.map(async (messageId) => {
+        const messageRef = doc(db, "users", uid, "messages", messageId);
+        await deleteDoc(messageRef);
+      });
+      await Promise.all(deletePromises);
+      setMessages((prev) =>
+        prev.filter((message) => !selectedMessages.includes(message.id))
+      );
+      setSelectedMessages([]);
+      setSelectionMode(false);
+      Alert.alert("Messages deleted successfully");
+    } catch (e) {
+      Alert.alert("Unable to delete the messages");
+      console.log("Error deleting the messages:", e);
+    }
+  };
+
   useEffect(() => {
     fetchUserMessages();
   }, []);
-  
-console.log("selected Message",selectedMessages)
- console.log(messages)
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () =>
+        selectionMode ? (
+          <Pressable
+            onPress={() =>
+              Alert.alert(
+                "Delete Messages",
+                "The messages will be permanently deleted from your device.",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                    onPress: () => {
+                      setSelectionMode(false);
+                      setSelectedMessages([]);
+                    },
+                  },
+                  {
+                    text: "OK",
+                    onPress: () => handleMessageDeletion(),
+                  },
+                ]
+              )
+            }
+          >
+            <Ionicons name="trash-outline" style={{marginLeft:12}} color="#000" size={24} />
+          </Pressable>
+        ) : null,
+    });
+  }, [selectionMode, selectedMessages]);
+
+  console.log(selectionMode);
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {messages.map((message, idx) => (
           <Pressable
             key={idx}
-            style={[styles.messageCard,{backgroundColor:selectedMessages.includes(message.id)?"blue":null}]}
-            onPress={() =>{
-              if(selectionMode){
+            style={[
+              {
+                backgroundColor: selectedMessages.includes(message.id)
+                  ? "rgb(232, 240, 251)"
+                  : "#f9f9f9",
+              },
+              styles.messageCard,
+              { zIndex: -1 },
+            ]}
+            onPress={() => {
+              if (selectionMode && selectedMessages.includes(message.id)) {
                 handleSelectMessage(message.id);
               }
-               navigation.navigate('MessageDetail', { message })
-                }
-              }
-              onLongPress={()=>handleToggleSelection(message.id)}
-              
+              navigation.navigate("MessageDetail", { message });
+            }}
+            onLongPress={() => handleToggleSelection(message.id)}
           >
+            {selectedMessages.includes(message.id)?<View>
+              <MaterialCommunityIcons
+                name="checkbox-marked"
+                color="blue"
+                size={24}
+              />
+            </View>:null}
             <Image style={styles.avatar} source={dummyimg} />
             <View style={styles.messageContent}>
-                <View style={{flexDirection:'row',justifyContent:'space-between'}}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
                 <Text style={styles.sender}>{message.from}</Text>
-                <Text style={{color:'#777'}}>{formatDate(message.messageAt)}</Text>
-            
-            </View>
-              
-              <Text numberOfLines={1} style={styles.preview}>{message.message}</Text>
-              
+                <Text style={{ color: "#777" }}>
+                  {formatDate(message.messageAt)}
+                </Text>
+              </View>
+              <Text numberOfLines={1} style={styles.preview}>
+                {typeof message.message === "string"
+                  ? message.message
+                  : JSON.stringify(message.message)}
+              </Text>
             </View>
           </Pressable>
         ))}
@@ -96,42 +181,41 @@ console.log("selected Message",selectedMessages)
 export default Messages;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-        backgroundColor: '#fff',
-      },
-      title: {
-        fontSize: 18,
-        fontWeight: '700',
-        marginBottom: 12,
-      },
-      body: {
-        fontSize: 16,
-        color: '#333',
-      },
+  container: {
+    flex: 1,
+
+    backgroundColor: "#fff",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 12,
+  },
+  body: {
+    fontSize: 16,
+    color: "#333",
+  },
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     paddingHorizontal: 16,
   },
   heading: {
     fontSize: 22,
-    fontWeight: '600',
+    fontWeight: "600",
     marginVertical: 16,
   },
   scrollContent: {
     paddingBottom: 20,
-    padding:20
+    paddingTop:20
   },
   messageCard: {
-    flexDirection: 'row',
-    backgroundColor: '#f9f9f9',
+    flexDirection: "row",
     padding: 12,
     borderRadius: 12,
     marginBottom: 12,
-    alignItems: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
@@ -148,39 +232,39 @@ const styles = StyleSheet.create({
   },
   sender: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   preview: {
     fontSize: 14,
-    color: '#555',
+    color: "#555",
     marginTop: 4,
   },
   Chatpagecontainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 16,
   },
   header: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 12,
-    color: '#333',
+    color: "#333",
   },
   chatContainer: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    paddingHorizontal:18,
-    paddingVertical:5
+    flexDirection: "column",
+    alignItems: "flex-start",
+    paddingHorizontal: 18,
+    paddingVertical: 5,
   },
   receivedBubble: {
-    backgroundColor: 'rgb(232, 240, 251)',
+    backgroundColor: "rgb(232, 240, 251)",
     padding: 12,
     borderRadius: 16,
     borderTopLeftRadius: 0,
-    maxWidth: '80%',
-    alignSelf: 'flex-start',
+    maxWidth: "80%",
+    alignSelf: "flex-start",
     marginVertical: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 1 },
     shadowRadius: 2,
@@ -188,49 +272,47 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
   timestamp: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
     marginTop: 6,
-    textAlign: 'right',
+    textAlign: "right",
   },
 });
 const formatDate = (timeStamp) => {
-  if (!timeStamp) return '';
+  if (!timeStamp) return "";
 
-const postedDate = timeStamp.toDate();
-const now = new Date();
-const differenceDate = Math.floor((now - postedDate) / (1000 * 60 * 60 * 24));
+  const postedDate = timeStamp.toDate();
+  const now = new Date();
+  const differenceDate = Math.floor((now - postedDate) / (1000 * 60 * 60 * 24));
 
-if (differenceDate === 0) {
-  const diffHours = Math.floor((now - postedDate) / (1000 * 60 * 60));
-  
-  if (diffHours === 0) {
-    const diffMinutes = Math.floor((now - postedDate) / (1000 * 60));
-    return diffMinutes <= 1 ? '1 m ago' : `${diffMinutes} ms ago`;
+  if (differenceDate === 0) {
+    const diffHours = Math.floor((now - postedDate) / (1000 * 60 * 60));
+
+    if (diffHours === 0) {
+      const diffMinutes = Math.floor((now - postedDate) / (1000 * 60));
+      return diffMinutes <= 1 ? "1 m ago" : `${diffMinutes} ms ago`;
+    }
+
+    return diffHours === 1 ? "1 hr ago" : `${diffHours} hrs ago`;
   }
 
-  return diffHours === 1 ? '1 hr ago' : `${diffHours} hrs ago`;
-}
-
-return differenceDate === 1 ? '1 d ago' : `${differenceDate} ds ago`;
-
-}
+  return differenceDate === 1 ? "1 d ago" : `${differenceDate} ds ago`;
+};
 
 export const MessageDetail = ({ route }) => {
-    const { message } = route.params;
-  
-    return (
-      <SafeAreaView style={styles.Chatpagecontainer}>
-        <View style={styles.chatContainer}>
-          <View style={styles.receivedBubble}>
-            <Text style={styles.messageText}>{message.message}</Text>
-            <Text style={styles.timestamp}>{formatDate(message.messageAt)}</Text>
-          </View>
+  const { message } = route.params;
+
+  return (
+    <SafeAreaView style={styles.Chatpagecontainer}>
+      <View style={styles.chatContainer}>
+        <View style={styles.receivedBubble}>
+          <Text style={styles.messageText}>{message.message}</Text>
+          <Text style={styles.timestamp}>{formatDate(message.messageAt)}</Text>
         </View>
-      </SafeAreaView>
-    );
-  };
-  
+      </View>
+    </SafeAreaView>
+  );
+};
