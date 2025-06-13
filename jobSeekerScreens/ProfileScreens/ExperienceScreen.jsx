@@ -13,7 +13,7 @@ const ExperienceScreen = ({ navigation }) => {
     index: null,
     field: null,
   })
-
+  const today=new Date()
   const handleChange = (field, index, value) => {
     const newExperiences = [...experienceDetails];
     newExperiences[index][field] = value;
@@ -32,8 +32,8 @@ const ExperienceScreen = ({ navigation }) => {
     try {
       const snap = await getDoc(doc(db, 'users', uid));
       console.log(snap.data())
-      const data = snap.data()?.experiences || [{ role: '', company: '', from: '', to: '' }];
-      console.log(data)
+      const data = snap.data()?.experience || [{ role: '', company: '', from: '', to: '' }];
+      console.log("experiences",data)
       setExperienceDetails(data);
     } catch (err) {
       Alert.alert("Error", err.message);
@@ -47,8 +47,10 @@ const ExperienceScreen = ({ navigation }) => {
       return
     }
     const uid = auth.currentUser?.uid || "fA9DeooDHHOpjgsLXiGi2VFeE4y2";
+    console.log(experienceDetails);
     try {
       const userRef = doc(db, "users", uid);
+      
       await updateDoc(userRef, { experience: experienceDetails });
       Alert.alert("Experience Details Updated");
       navigation.navigate("ProfileHome");
@@ -74,14 +76,14 @@ const ExperienceScreen = ({ navigation }) => {
         valid = false;
         expErrors.companyError = "This field is required"
       }
-      if (!item.from.trim()) {
-        valid = false;
-        expErrors.fromError = "This field is required"
-      }
-      if (!item.to.trim()) {
-        valid = false;
-        expErrors.toError = "This field is required"
-      }
+      // if (!item.from.trim()) {
+      //   valid = false;
+      //   expErrors.fromError = "This field is required"
+      // }
+      // if (!item.to.trim()) {
+      //   valid = false;
+      //   expErrors.toError = "This field is required"
+      // }
       errorsArr.push(expErrors);
     })
     setErrors(errorsArr)
@@ -91,7 +93,11 @@ const ExperienceScreen = ({ navigation }) => {
   }
   const handleDateChange = (event, selectedDate, index, field) => {
     if (event.type === "set") {
-      const formattedDate = selectedDate.toDateString(); // or use a better format if needed
+      const formattedDate = selectedDate.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }); // or use a better format if needed
       const updated = [...experienceDetails];
       updated[index][field] = formattedDate;
       setExperienceDetails(updated);
@@ -166,9 +172,11 @@ const ExperienceScreen = ({ navigation }) => {
               </View>
               {showPicker.index === index && showPicker.field === "from" && (
                 <DateTimePicker
-                  value={new Date()}
+                  value={exp.from ?new Date(exp.from):new Date()}
                   mode="date"
                   display="default"
+                 
+                  maximumDate={today}
                   onChange={(event, selectedDate) =>
                     handleDateChange(event, selectedDate, index, "from")
                   }
@@ -179,16 +187,25 @@ const ExperienceScreen = ({ navigation }) => {
                 <Text style={styles.label}>
                   To<Text style={styles.required}>*</Text>
                 </Text>
-                <TextInput
-                  placeholder="(e.g., Dec 2022)"
-                  value={exp.to}
-                  style={styles.input}
-                  onChangeText={(val) => handleChange("to", index, val)}
-                />
+                <Pressable style={styles.input} onPress={()=>setShowPicker({index,field:"to"})}>
+                  {exp.to?<Text>{exp.to}</Text>:<Text>Select Date</Text>}
+                </Pressable>
                 {errors[index]?.roleError ? (
                   <Text style={styles.errorText}>{errors[index]?.toError}</Text>
                 ) : null}
               </View>
+              {
+                showPicker.index === index && showPicker.field === "to" && (
+                  <DateTimePicker 
+                   value={exp.to?new Date(exp.to):new Date()}
+                   mode="date"
+                   display='default'
+                   
+                   maximumDate={today}
+                   onChange={(event,selectedDate)=> handleDateChange(event,selectedDate,index,"to")}
+                  />
+                )
+              }
             </View>
           ))
         )}
