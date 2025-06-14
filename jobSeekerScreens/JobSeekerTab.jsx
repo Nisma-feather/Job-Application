@@ -21,7 +21,7 @@ import { MessageDetail } from "./MessageDetail";
 import { auth, db } from "../firebaseConfig";
 import { collection, doc, getDocs, query, where,onSnapshot} from "firebase/firestore";
 import { useLayoutEffect, useState,useEffect } from "react";
-import LogOut from "./ProfileScreens/Logout";
+
 
 
 
@@ -160,7 +160,7 @@ const ProfileStack = () => {
       <Stack.Screen name="Skills" component={SkillsUpdateScreen} />
       <Stack.Screen name="Projects" component={ProjectsScreen} />
       <Stack.Screen name="Track Application" component={TrackApplications} />
-      <Stack.Screen name="Logout" component={LogOut}/>
+    
     </Stack.Navigator>
   );
 };
