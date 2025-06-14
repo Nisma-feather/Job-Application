@@ -1,89 +1,148 @@
 import React from 'react';
-import { SafeAreaView, ScrollView,View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView, ScrollView,View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { Ionicons,Octicons,MaterialCommunityIcons,Feather} from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
 
 
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const profileImage = null; // Fetch from Firestore if available
+  const profileImage = null; 
+  
+  const handleLogout=async()=>{
+    Alert.alert(
+      "Log out",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "OK",
+          onPress: () => PerformLogout(),
+          style: "destructive"
+        }
+      ]
+
+    )
+    const PerformLogout=async()=>{
+      try{
+        await signOut(auth);
+        navigation.replace("Login");
+      }
+      catch(e){
+        console.error("Error signing out:", e);
+        Alert.alert("Error", "Failed to log out. Please try again."); 
+      }
+    }
+    
+
+  }// Fetch from Firestore if available
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={{ padding: 15 }}>
           <View style={styles.profileSection}>
-             <View style={styles.profileImage}>
-             <Ionicons name="person"  color="white" size={50} />
-             </View>
-            
+            <View style={styles.profileImage}>
+              <Ionicons name="person" color="white" size={50} />
+            </View>
+
             {/* <Image
               source={profileImage ? { uri: profileImage } : <Ionicons name="person" color="white" size={24} />}
               style={styles.profileImage}
             /> */}
-            
           </View>
 
           <View style={styles.sections}>
-            <TouchableOpacity style={styles.sectionItem} onPress={() => navigation.navigate('PersonalInfo')}>
+            <TouchableOpacity
+              style={styles.sectionItem}
+              onPress={() => navigation.navigate("PersonalInfo")}
+            >
               <View style={styles.headindContainer}>
-                <Octicons name="person-add" color="#6297e0" size={24} style={{}}/>
+                <Octicons
+                  name="person-add"
+                  color="#6297e0"
+                  size={24}
+                  style={{}}
+                />
                 <Text style={styles.sectionText}>Personal Information</Text>
               </View>
               <Text style={{ color: "#3a7bd6" }}>Add +</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.sectionItem} onPress={() => navigation.navigate('Education')}>
+            <TouchableOpacity
+              style={styles.sectionItem}
+              onPress={() => navigation.navigate("Education")}
+            >
               <View style={styles.headindContainer}>
-              <Octicons name="book" color="#6297e0" size={24} />
-              <Text style={styles.sectionText}>Education Details</Text>
+                <Octicons name="book" color="#6297e0" size={24} />
+                <Text style={styles.sectionText}>Education Details</Text>
               </View>
               <Text style={{ color: "#3a7bd6" }}>Add +</Text>
-              
-              
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.sectionItem} onPress={() => navigation.navigate('Skills')}>
+            <TouchableOpacity
+              style={styles.sectionItem}
+              onPress={() => navigation.navigate("Skills")}
+            >
               <View style={styles.headindContainer}>
-              <Octicons name="file-badge" color="#6297e0" size={24} />
-              <Text style={styles.sectionText}>Skills</Text>
+                <Octicons name="file-badge" color="#6297e0" size={24} />
+                <Text style={styles.sectionText}>Skills</Text>
               </View>
               <Text style={{ color: "#3a7bd6" }}>Add +</Text>
-              
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.sectionItem} onPress={() => navigation.navigate('Experience')}>
+            <TouchableOpacity
+              style={styles.sectionItem}
+              onPress={() => navigation.navigate("Experience")}
+            >
               <View style={styles.headindContainer}>
-              <MaterialCommunityIcons name="hexagon-slice-3" color="#6297e0" size={24} />
-              <Text style={styles.sectionText}>Experience</Text>
+                <MaterialCommunityIcons
+                  name="hexagon-slice-3"
+                  color="#6297e0"
+                  size={24}
+                />
+                <Text style={styles.sectionText}>Experience</Text>
               </View>
               <Text style={{ color: "#3a7bd6" }}>Add +</Text>
-              
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.sectionItem} onPress={() => navigation.navigate('Projects')}>
+            <TouchableOpacity
+              style={styles.sectionItem}
+              onPress={() => navigation.navigate("Projects")}
+            >
               <View style={styles.headindContainer}>
-              <Feather name="pie-chart" color="#6297e0" size={24} />
-              <Text style={styles.sectionText}>Projects</Text>
+                <Feather name="pie-chart" color="#6297e0" size={24} />
+                <Text style={styles.sectionText}>Projects</Text>
               </View>
               <Text style={{ color: "#3a7bd6" }}>Add +</Text>
-              
             </TouchableOpacity>
-            <TouchableOpacity style={styles.sectionItem} onPress={() => navigation.navigate('Track Application')}>
+            <TouchableOpacity
+              style={styles.sectionItem}
+              onPress={() => navigation.navigate("Track Application")}
+            >
               <View style={styles.headindContainer}>
-              <Ionicons name="document-text" color="#6297e0" size={24} />
-              <Text style={styles.sectionText}>Track Application</Text>
+                <Ionicons name="document-text" color="#6297e0" size={24} />
+                <Text style={styles.sectionText}>Track Application</Text>
               </View>
-              
-              
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.sectionItem}
+              onPress={() => handleLogout()}
+            >
+              <View style={styles.headindContainer}>
+                <Ionicons name="document-text" color="#6297e0" size={24} />
+                <Text style={styles.sectionText}>Log Out</Text>
+              </View>
             </TouchableOpacity>
           </View>
         </View>
-
       </ScrollView>
     </SafeAreaView>
-
   );
 };
 

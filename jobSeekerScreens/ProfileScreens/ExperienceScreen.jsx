@@ -1,39 +1,54 @@
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, Text, View, ScrollView, Pressable, StyleSheet, Alert, TouchableOpacity, TextInput } from 'react-native';
-import { auth, db } from '../../firebaseConfig';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import {MaterialIcons,Ionicons} from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import React, { useEffect, useState } from "react";
+import {
+  SafeAreaView,
+  Text,
+  View,
+  ScrollView,
+  Pressable,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
+import { Fontisto } from "@expo/vector-icons";
+import { auth, db } from "../../firebaseConfig";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const ExperienceScreen = ({ navigation }) => {
-  const [experienceDetails, setExperienceDetails] = useState([{ role: '', company: '', from: '', to: '' }]);
+  const [experienceDetails, setExperienceDetails] = useState([
+    { role: "", company: "", from: "", to: "", isPresent: false },
+  ]);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
   const [showPicker, setShowPicker] = useState({
     index: null,
     field: null,
-  })
-  const today=new Date()
+  });
+  const today = new Date();
   const handleChange = (field, index, value) => {
     const newExperiences = [...experienceDetails];
     newExperiences[index][field] = value;
     setExperienceDetails(newExperiences);
   };
-   
-
-  
 
   const handleAddExperience = () => {
-    setExperienceDetails([...experienceDetails, { role: '', company: '', from: '', to: '' }]);
+    setExperienceDetails([
+      ...experienceDetails,
+      { role: "", company: "", from: "", to: "", isPresent: false },
+    ]);
   };
 
   const fetchExperience = async () => {
     const uid = auth.currentUser?.uid || "fA9DeooDHHOpjgsLXiGi2VFeE4y2";
     try {
-      const snap = await getDoc(doc(db, 'users', uid));
-      console.log(snap.data())
-      const data = snap.data()?.experience || [{ role: '', company: '', from: '', to: '' }];
-      console.log("experiences",data)
+      const snap = await getDoc(doc(db, "users", uid));
+      console.log(snap.data());
+      const data = snap.data()?.experience || [
+        { role: "", company: "", from: "", to: "", isPresent: false },
+      ];
+      console.log("experiences", data);
       setExperienceDetails(data);
     } catch (err) {
       Alert.alert("Error", err.message);
@@ -44,13 +59,13 @@ const ExperienceScreen = ({ navigation }) => {
 
   const handleExperienceUpdate = async () => {
     if (!validate()) {
-      return
+      return;
     }
     const uid = auth.currentUser?.uid || "fA9DeooDHHOpjgsLXiGi2VFeE4y2";
     console.log(experienceDetails);
     try {
       const userRef = doc(db, "users", uid);
-      
+
       await updateDoc(userRef, { experience: experienceDetails });
       Alert.alert("Experience Details Updated");
       navigation.navigate("ProfileHome");
@@ -65,52 +80,44 @@ const ExperienceScreen = ({ navigation }) => {
       const expErrors = {
         roleError: "",
         companyError: "",
-        fromError: '',
-        toError: ''
-      }
+        dateError:""
+      };
       if (!item.role.trim()) {
         valid = false;
-        expErrors.roleError = "This field is required"
+        expErrors.roleError = "This field is required";
       }
       if (!item.company.trim()) {
         valid = false;
-        expErrors.companyError = "This field is required"
+        expErrors.companyError = "This field is required";
       }
-      // if (!item.from.trim()) {
-      //   valid = false;
-      //   expErrors.fromError = "This field is required"
-      // }
-      // if (!item.to.trim()) {
-      //   valid = false;
-      //   expErrors.toError = "This field is required"
-      // }
+      if (!item.from.trim() || (!item.to.trim() && !item.isPresent)) {
+        valid = false;
+        expErrors.dateError = "This field is required";
+      }
       errorsArr.push(expErrors);
-    })
-    setErrors(errorsArr)
+    });
+    setErrors(errorsArr);
     return valid;
-
-
-  }
-  const handleDateChange = (event, selectedDate, index, field) => {
-    if (event.type === "set") {
-      const formattedDate = selectedDate.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }); // or use a better format if needed
+  };
+  const handleSelectedDate = (event, selectedDate, index, field) => {
+    if (event.type === "set" && selectedDate) {
+      const formattedDate = selectedDate.toISOString();
       const updated = [...experienceDetails];
       updated[index][field] = formattedDate;
       setExperienceDetails(updated);
     }
-    setShowPicker({ index: null, field: null }); // close picker
+    setShowPicker({ index: null, field: null });
   };
-
 
   useEffect(() => {
     fetchExperience();
   }, []);
   console.log(errors);
-  
+  const handleDelete=(id)=>{
+    const newExperiences = experienceDetails.filter((exp,index)=>index!== id);
+    setExperienceDetails(newExperiences);
+
+  }
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollWrapper}>
@@ -121,8 +128,21 @@ const ExperienceScreen = ({ navigation }) => {
         ) : (
           experienceDetails.map((exp, index) => (
             <View key={index}>
-              <Text style={styles.subheading}>Experience {index + 1}</Text>
-
+              <View style={styles.eduHeader}>
+                                <Text style={styles.subheading}>Education {index + 1}</Text>
+                                {experienceDetails.length > 1 && (
+                                  <Pressable
+                                    onPress={() => handleDelete(index)}
+                                    style={styles.removeButton}
+                                  >
+                                    <MaterialIcons
+                                      name="remove-circle"
+                                      color="#ff4444"
+                                      size={24}
+                                    />
+                                  </Pressable>
+                                )}
+                              </View>
               <View style={styles.inputWrapper}>
                 <Text style={styles.label}>
                   Role<Text style={styles.required}>*</Text>
@@ -153,59 +173,79 @@ const ExperienceScreen = ({ navigation }) => {
                   </Text>
                 ) : null}
               </View>
-              <View style={styles.inputWrapper}>
-                <Text style={styles.label}>
-                  From<Text style={styles.required}>*</Text>
-                </Text>
-                <Pressable
-                  style={styles.input}
-                  onPress={() => setShowPicker({ index, field: "from" })}
-                >
-                  <Text>{exp.from ? exp.from : "Select Date"}</Text>
-                </Pressable>
+              // From & To Dates
+              <View style={{ flexDirection: "row", gap: 20 }}>
+                <View style={[styles.inputWrapper, { flex: 1 }]}>
+                  <Text style={styles.label}>From</Text>
+                  <Pressable
+                    style={styles.input}
+                    onPress={() => setShowPicker({ index, field: "from" })}
+                  >
+                    <Text>
+                      {exp.from
+                        ? new Date(exp.from).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : "Select Date"}
+                    </Text>
+                  </Pressable>
+                </View>
 
-                {errors[index]?.roleError ? (
-                  <Text style={styles.errorText}>
-                    {errors[index]?.fromError}
+                {/* To Date */}
+                <View style={[styles.inputWrapper, { flex: 1 }]}>
+                  <Text style={styles.label}>
+                    To<Text style={styles.required}>*</Text>
                   </Text>
-                ) : null}
+                  <Pressable
+                    style={styles.input}
+                    onPress={() => setShowPicker({ index, field: "to" })}
+                    disabled={exp.isPresent}
+                  >
+                    <Text>
+                      {exp.isPresent
+                        ? "Present"
+                        : exp.to
+                        ? new Date(exp.to).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : "Select Date"}
+                    </Text>
+                  </Pressable>
+                </View>
               </View>
-              {showPicker.index === index && showPicker.field === "from" && (
-                <DateTimePicker
-                  value={exp.from ?new Date(exp.from):new Date()}
-                  mode="date"
-                  display="default"
-                 
-                  maximumDate={today}
-                  onChange={(event, selectedDate) =>
-                    handleDateChange(event, selectedDate, index, "from")
-                  }
-                />
-              )}
+              {errors[index]?.dateError && (
+                                <Text style={styles.errorText}>
+                                  {errors[index].dateError}
+                                </Text>
+                              )}
+              {!experienceDetails.some(
+                (exp, i) => i !== index && exp.isPresent
+              ) && (
+                <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
+                  <Pressable
+                    onPress={() => {
+                      const updated = [...experienceDetails];
+                      updated[index].isPresent = !updated[index].isPresent;
+                      if (updated[index].isPresent) updated[index].to = "";
+                      setExperienceDetails(updated);
+                    }}
+                  >
+                    <Fontisto
+                      name={
+                        exp.isPresent ? "checkbox-active" : "checkbox-passive"
+                      }
+                      color="#000"
+                      size={20}
+                    />
+                  </Pressable>
 
-              <View style={styles.inputWrapper}>
-                <Text style={styles.label}>
-                  To<Text style={styles.required}>*</Text>
-                </Text>
-                <Pressable style={styles.input} onPress={()=>setShowPicker({index,field:"to"})}>
-                  {exp.to?<Text>{exp.to}</Text>:<Text>Select Date</Text>}
-                </Pressable>
-                {errors[index]?.roleError ? (
-                  <Text style={styles.errorText}>{errors[index]?.toError}</Text>
-                ) : null}
-              </View>
-              {
-                showPicker.index === index && showPicker.field === "to" && (
-                  <DateTimePicker 
-                   value={exp.to?new Date(exp.to):new Date()}
-                   mode="date"
-                   display='default'
-                   
-                   maximumDate={today}
-                   onChange={(event,selectedDate)=> handleDateChange(event,selectedDate,index,"to")}
-                  />
-                )
-              }
+                  <Text>Currently studying here</Text>
+                </View>
+              )}
             </View>
           ))
         )}
@@ -224,6 +264,26 @@ const ExperienceScreen = ({ navigation }) => {
           <Text style={styles.buttonText}>Update</Text>
         </TouchableOpacity>
       </ScrollView>
+      {/* Shared Date Picker */}
+            {showPicker.index !== null && (
+              <DateTimePicker
+                value={
+                  experienceDetails[showPicker.index]?.[showPicker.field]
+                    ? new Date(experienceDetails[showPicker.index][showPicker.field])
+                    : new Date()
+                }
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) =>
+                  handleSelectedDate(
+                    event,
+                    selectedDate,
+                    showPicker.index,
+                    showPicker.field
+                  )
+                }
+              />
+            )}
     </SafeAreaView>
   );
 };
@@ -233,18 +293,44 @@ export default ExperienceScreen;
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
   scrollWrapper: { padding: 20 },
-  title: { fontSize: 20, fontWeight: "600", textAlign: "center", marginVertical: 20 },
+  title: {
+    fontSize: 20,
+    fontWeight: "600",
+    textAlign: "center",
+    marginVertical: 20,
+  },
+  eduHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  label: {
+    alignSelf: "flex-start",
+    fontFamily: "Poppins-Bold",
+    color: "#333",
+    marginVertical: 10,
+    fontSize: 15,
+  },
+  removeButton: { padding: 4 },
   inputWrapper: {},
   input: { flex: 1, paddingVertical: 12, fontSize: 14 },
-  button: { backgroundColor: "#1967d2", borderRadius: 20, paddingVertical: 14, alignItems: "center", elevation: 5 },
-  buttonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+  button: {
+    backgroundColor: "#1967d2",
+    borderRadius: 20,
+    paddingVertical: 14,
+    alignItems: "center",
+    elevation: 5,
+  },
+  buttonText: { color: "#fff",fontFamily:'Poppins-Bold', fontSize: 16 },
   addContainer: {
-    alignItems: 'center',
-    marginVertical:15
+    alignItems: "center",
+    marginVertical: 15,
+    
   },
   addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     backgroundColor: "#e1ecf7",
     paddingHorizontal: 16,
@@ -256,26 +342,29 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 14,
   },
-  subheading: { fontWeight: "bold", marginVertical: 10, fontSize: 15, marginLeft: 12 },
+  subheading: { fontSize: 17, fontFamily: "Poppins-Bold", color: "#555" },
   input: {
-    width: '100%',
+    width: "100%",
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 10,
     fontSize: 16,
-    backgroundColor: '#e6eefa'
+    backgroundColor: "#e6eefa",
   },
-  label: {
-    alignSelf: 'flex-start',
-    fontWeight: '500',
-    marginVertical: 10
+  title: {
+    fontSize: 22,
+    fontFamily: "Poppins-Bold",
+    color: "#333",
+    textAlign: "center",
+    marginVertical: 20,
   },
+  label: { alignSelf: "flex-start", fontFamily:"Poppins-Bold", color:"#333", marginVertical: 10, fontSize:15},
   required: {
-    color: "#ff2121"
+    color: "#ff2121",
   },
   errorText: {
-    color: 'red',
+    color: "red",
     marginTop: 4,
-    fontSize: 12
+    fontSize: 12,
   },
 });

@@ -299,7 +299,7 @@ const formatDate = (timeStamp) => {
     return diffHours === 1 ? "1 hr ago" : `${diffHours} hrs ago`;
   }
 
-  return differenceDate === 1 ? "1 d ago" : `${differenceDate} ds ago`;
+  return differenceDate === 1 ? "1 day ago" : `${differenceDate} days ago`;
 };
 
 export const MessageDetail = ({ route }) => {

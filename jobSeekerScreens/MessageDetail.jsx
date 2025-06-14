@@ -1,14 +1,49 @@
-import React from "react";
+import { doc, updateDoc } from "firebase/firestore";
+import React, { useEffect } from "react";
 import { SafeAreaView, Text, StyleSheet, View } from "react-native";
-
+import { auth,db } from "../firebaseConfig"
 export const MessageDetail = ({ route }) => {
   const { message } = route.params;
-  console.log(message);
+  console.log("message", message);
 
-  const formatDate = (date) => {
-    const d = new Date(date);
-    return d.toLocaleString();
+  const formatDate = (timeStamp) => {
+    if (!timeStamp) return "";
+
+    const postedDate = timeStamp.toDate();
+    const now = new Date();
+    const differenceDate = Math.floor(
+      (now - postedDate) / (1000 * 60 * 60 * 24)
+    );
+
+    if (differenceDate === 0) {
+      const diffHours = Math.floor((now - postedDate) / (1000 * 60 * 60));
+
+      if (diffHours === 0) {
+        const diffMinutes = Math.floor((now - postedDate) / (1000 * 60));
+        return diffMinutes <= 1 ? "1 m ago" : `${diffMinutes} ms ago`;
+      }
+
+      return diffHours === 1 ? "1 hr ago" : `${diffHours} hrs ago`;
+    }
+
+    return differenceDate === 1 ? "1 day ago" : `${differenceDate} days ago`;
   };
+
+  const markAsRead=async(messageId)=>{
+    try {
+      const uid = auth.currentUser?.uid;
+      if (!uid) return;
+      const ref = doc(db, "users", uid, "messages", messageId);
+      await updateDoc(ref, { read: true });
+      console.log("Marked as read:", messageId);
+    } catch (error) {
+      console.error("Failed to mark message as read:", error);
+    }
+
+  }
+  useEffect(()=>{
+    markAsRead(message.id)
+  },[])
 
   return (
     <SafeAreaView style={styles.Chatpagecontainer}>

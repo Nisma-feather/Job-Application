@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {Ionicons} from '@expo/vector-icons'
 import { View,Text,Image } from "react-native";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 import HomeScreen from "./HomeScreen";
 import FindJobScreen from "./FindJobScreen";
 import PersonalInfoScreen from "./ProfileScreens/PersonalInfoScreen";
@@ -16,14 +17,38 @@ import ApplyJob from "./ApplyJob";
 import CompanyCard from "./CompanyCard";
 import BookMarkScreen from "./BookmarkScreen";
 import Messages from "./Messages";
-import { MessageDetail } from "./Messages";
+import { MessageDetail } from "./MessageDetail";
+import { auth, db } from "../firebaseConfig";
+import { collection, doc, getDocs, query, where,onSnapshot} from "firebase/firestore";
+import { useLayoutEffect, useState,useEffect } from "react";
+import LogOut from "./ProfileScreens/Logout";
 
 
 
 const Tab=createBottomTabNavigator();
 const Stack=createNativeStackNavigator();
+const Drawer=createDrawerNavigator()
 
 const JobSeekerTab=()=>{
+  
+const [unreadCount, setUnreadCount] = useState(0);
+
+  
+
+          useEffect(() => {
+            const uid = auth.currentUser?.uid;
+               if (!uid) return;
+
+               const messagesRef = collection(db, "users", uid, "messages");
+              const q = query(messagesRef, where("read", "==", false));
+
+                 const unsubscribe = onSnapshot(q, (snapshot) => {
+                   setUnreadCount(snapshot.size); // Update count whenever data changes
+                  });
+
+                            return () => unsubscribe(); // Clean up listener on unmount
+                            }, []);
+
     return (
       <Tab.Navigator
         screenOptions={({ route }) => ({
@@ -55,7 +80,7 @@ const JobSeekerTab=()=>{
                 ? "chatbox-ellipses"
                 : "chatbox-ellipses-outline";
             }
-            return <Ionicons name={IconName} color={color} size={24} />;
+            return <Ionicons name={IconName} color={color} size={28} />;
           },
           tabBarActiveTintColor: "#0a66c2",
           tabBarInactiveTintColor: "#666",
@@ -66,14 +91,35 @@ const JobSeekerTab=()=>{
           name="Find Jobs"
           component={JobStack}
           options={{
-            tabBarIcon: () => <Ionicons name="search" color="#000" size={24} />,
+            tabBarIcon: () => <Ionicons name="search" color="#000" size={28} />,
           }}
         />
         <Tab.Screen name="Profile" component={ProfileStack} />
         <Tab.Screen name="BookMark" component={BookMarkScreen} />
-        <Tab.Screen name="Message" component={MessagesStack} options={{headerShown:false}}/>
+        <Tab.Screen name="Message" component={MessagesStack} options={{headerShown:false,
+          tabBarIcon:({focused,color,size})=>(
+            <View style={{position:'relative'}}>
+              <Ionicons name={focused? "chatbox-ellipses" : "chatbox-ellipses-outline"} color={color} size={28}/>
+              {unreadCount >0 && (
+                <View style={{ width:20,height:20,borderRadius:'50%',backgroundColor:"red",justifyContent:'center',alignItems:'center',position:'absolute',left:15,bottom:15}}>
+                  <Text style={{color:"white",fontWeight:'bold'}}>{unreadCount}</Text>
+                  </View>
+              )}
+            </View>
+
+          )
+        }}/>
       </Tab.Navigator>
     );
+}
+//Job Seeker Drawer Navigator
+
+const JobSeekerDrawer=()=>{
+  return(
+    <Drawer.Navigator >
+      <Drawer.Screen name="Profile" component={ProfileStack}/>
+    </Drawer.Navigator>
+  )
 }
 
 const HomeStack=()=>{
@@ -114,6 +160,7 @@ const ProfileStack = () => {
       <Stack.Screen name="Skills" component={SkillsUpdateScreen} />
       <Stack.Screen name="Projects" component={ProjectsScreen} />
       <Stack.Screen name="Track Application" component={TrackApplications} />
+      <Stack.Screen name="Logout" component={LogOut}/>
     </Stack.Navigator>
   );
 };
@@ -127,6 +174,7 @@ const JobStack = () => {
     </Stack.Navigator>
   );
 };
+
 const MessagesStack=()=>{
   return(
     <Stack.Navigator screenOptions={{headerStyle:{

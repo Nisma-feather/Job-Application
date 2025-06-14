@@ -15,9 +15,19 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { MaterialIcons } from "@expo/vector-icons";
 import { auth, db } from "../../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-
+import { Fontisto } from "@expo/vector-icons";
 const EducationScreen = ({ navigation }) => {
-  const [educationDetails, setEducationDetails] = useState([]);
+  const [educationDetails, setEducationDetails] = useState([
+    {
+      type: "",
+      name: "",
+      institute: "",
+      percentage: "",
+      from: "",
+      to: "",
+      isPresent: false,
+    },
+  ]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([{}]);
   const [showPicker, setShowPicker] = useState({ index: null, field: null });
@@ -29,17 +39,29 @@ const EducationScreen = ({ navigation }) => {
   };
 
   const handleAddEduInput = () => {
-    setEducationDetails([
-      ...educationDetails,
-      { type: "", name: "", institute: "", percentage: "", from: "", to: "" },
+    setEducationDetails((prev) => [
+      ...prev,
+      {
+        type: "",
+        name: "",
+        institute: "",
+        percentage: "",
+        from: "",
+        to: "",
+        isPresent: false,
+      },
     ]);
+    setErrors((prev) => [...prev, {}]);
   };
 
   const handleRemoveEduInput = (index) => {
     if (educationDetails.length > 1) {
       const newEducationDetails = [...educationDetails];
       newEducationDetails.splice(index, 1);
+      const newErrors = [...errors];
+      newErrors.splice(index, 1);
       setEducationDetails(newEducationDetails);
+      setErrors(newErrors);
     } else {
       Alert.alert(
         "Cannot remove",
@@ -65,14 +87,24 @@ const EducationScreen = ({ navigation }) => {
             percentage: "",
             from: "",
             to: "",
+            isPresent: false,
           },
         ];
         setEducationDetails(eduData);
+        setErrors(eduData.map(() => ({})));
       }
     } catch (err) {
       console.error("Error fetching education:", err);
       setEducationDetails([
-        { type: "", name: "", institute: "", percentage: "", from: "", to: "" },
+        {
+          type: "",
+          name: "",
+          institute: "",
+          percentage: "",
+          from: "",
+          to: "",
+          isPresent: false,
+        },
       ]);
     } finally {
       setLoading(false);
@@ -80,7 +112,7 @@ const EducationScreen = ({ navigation }) => {
   };
 
   const handleSelectedDate = (event, selectedDate, index, field) => {
-    if (event.type === "set") {
+    if (event.type === "set" && selectedDate) {
       const formattedDate = selectedDate.toISOString();
       const updated = [...educationDetails];
       updated[index][field] = formattedDate;
@@ -91,12 +123,22 @@ const EducationScreen = ({ navigation }) => {
 
   const validate = () => {
     let valid = true;
+    console.log("Validating education details...");
     const newErrors = educationDetails.map((edu) => {
       const errors = {
         typeError: "",
         nameError: "",
         instituteError: "",
         percentageError: "",
+        dateError:""
+      };const handleSelectedDate = (event, selectedDate, index, field) => {
+        if (event.type === "set" && selectedDate) {
+          const formattedDate = selectedDate.toISOString();
+          const updated = [...educationDetails];
+          updated[index][field] = formattedDate;
+          setEducationDetails(updated);
+        }
+        setShowPicker({ index: null, field: null });
       };
       if (!edu.type.trim()) {
         errors.typeError = "This Field is Required";
@@ -111,12 +153,18 @@ const EducationScreen = ({ navigation }) => {
         valid = false;
       }
       if (edu.percentage.trim()) {
-        if (!(edu.percentage >= 1 && edu.percentage <= 100)) {
+        const value = parseFloat(edu.percentage);
+        if (!(value >= 1 && value <= 100)) {
           errors.percentageError = "CGPA/Percentage must be between 1 and 100";
           valid = false;
         }
       }
+      if ((!edu.from.trim()) || !(edu.to.trim() || edu.isPresent)) {
+        valid = false;
+        errors.dateError = "This field is required";
+      }
       return errors;
+      
     });
 
     setErrors(newErrors);
@@ -124,8 +172,11 @@ const EducationScreen = ({ navigation }) => {
   };
 
   const handleEducationUpdate = async () => {
-    if (!validate()) return;
-
+    if (!validate()) {
+      console.log("Validation failed, errors:");
+      return;
+      
+    }
     const uid = auth.currentUser?.uid;
     if (!uid) return;
 
@@ -149,7 +200,7 @@ const EducationScreen = ({ navigation }) => {
   useEffect(() => {
     fetchEducation();
   }, []);
-
+  console.log();
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollWrapper}>
@@ -257,65 +308,80 @@ const EducationScreen = ({ navigation }) => {
                 </View>
 
                 {/* From Date */}
-                <View style={styles.inputWrapper}>
-                  <Text style={styles.label}>From</Text>
-                  <Pressable
-                    style={styles.input}
-                    onPress={() => setShowPicker({ index, field: "from" })}
-                  >
-                    <Text>
-                      {edu.from
-                        ? new Date(edu.from).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
-                        : "Select Date"}
-                    </Text>
-                  </Pressable>
-                  {showPicker.index === index &&
-                    showPicker.field === "from" && (
-                      <DateTimePicker
-                        value={edu.from ? new Date(edu.from) : new Date()}
-                        mode="date"
-                        display="default"
-                        onChange={(event, selectedDate) =>
-                          handleSelectedDate(event, selectedDate, index, "from")
-                        }
-                      />
-                    )}
-                </View>
+                <View style={{ flexDirection: "row", gap: 20 }}>
+                  <View style={[styles.inputWrapper, { flex: 1 }]}>
+                    <Text style={styles.label}>From</Text>
+                    <Pressable
+                      style={styles.input}
+                      onPress={() => setShowPicker({ index, field: "from" })}
+                    >
+                      <Text>
+                        {edu.from
+                          ? new Date(edu.from).toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })
+                          : "Select Date"}
+                      </Text>
+                    </Pressable>
+                  </View>
 
-                {/* To Date */}
-                <View style={styles.inputWrapper}>
-                  <Text style={styles.label}>
-                    To<Text style={styles.required}>*</Text>
-                  </Text>
-                  <Pressable
-                    style={styles.input}
-                    onPress={() => setShowPicker({ index, field: "to" })}
-                  >
-                    <Text>
-                      {edu.to
-                        ? new Date(edu.to).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
-                        : "Select Date"}
+                  {/* To Date */}
+                  <View style={[styles.inputWrapper, { flex: 1 }]}>
+                    <Text style={styles.label}>
+                      To<Text style={styles.required}>*</Text>
                     </Text>
-                  </Pressable>
-                  {showPicker.index === index && showPicker.field === "to" && (
-                    <DateTimePicker
-                      value={edu.to ? new Date(edu.to) : new Date()}
-                      mode="date"
-                      display="default"
-                      onChange={(event, selectedDate) =>
-                        handleSelectedDate(event, selectedDate, index, "to")
-                      }
-                    />
-                  )}
+                    <Pressable
+                      style={styles.input}
+                      onPress={() => setShowPicker({ index, field: "to" })}
+                      disabled={edu.isPresent}
+                    >
+                      <Text>
+                        {edu.isPresent
+                          ? "Present"
+                          : edu.to
+                          ? new Date(edu.to).toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })
+                          : "Select Date"}
+                      </Text>
+                    </Pressable>
+                  </View>
                 </View>
+                {errors[index]?.dateError && (
+                  <Text style={styles.errorText}>
+                    {errors[index].dateError}
+                  </Text>
+                )}
+                {!educationDetails.some(
+                  (edu, i) => i !== index && edu.isPresent
+                ) && (
+                  <View
+                    style={{ flexDirection: "row", gap: 10, marginTop: 10 }}
+                  >
+                    <Pressable
+                      onPress={() => {
+                        const updated = [...educationDetails];
+                        updated[index].isPresent = !updated[index].isPresent;
+                        if (updated[index].isPresent) updated[index].to = "";
+                        setEducationDetails(updated);
+                      }}
+                    >
+                      <Fontisto
+                        name={
+                          edu.isPresent ? "checkbox-active" : "checkbox-passive"
+                        }
+                        color="#000"
+                        size={20}
+                      />
+                    </Pressable>
+
+                    <Text>Currently studying here</Text>
+                  </View>
+                )}
               </View>
             ))}
 
@@ -338,6 +404,27 @@ const EducationScreen = ({ navigation }) => {
           </>
         )}
       </ScrollView>
+
+      {/* Shared Date Picker */}
+      {showPicker.index !== null && (
+        <DateTimePicker
+          value={
+            educationDetails[showPicker.index]?.[showPicker.field]
+              ? new Date(educationDetails[showPicker.index][showPicker.field])
+              : new Date()
+          }
+          mode="date"
+          display="default"
+          onChange={(event, selectedDate) =>
+            handleSelectedDate(
+              event,
+              selectedDate,
+              showPicker.index,
+              showPicker.field
+            )
+          }
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -347,7 +434,7 @@ const styles = StyleSheet.create({
   scrollWrapper: { padding: 20, paddingBottom: 40 },
   title: {
     fontSize: 22,
-    fontWeight: "700",
+    fontFamily: "Poppins-Bold",
     color: "#333",
     textAlign: "center",
     marginVertical: 20,
@@ -358,7 +445,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 20,
   },
-  label: { alignSelf: "flex-start", fontWeight: "500", marginVertical: 10 },
+  label: { alignSelf: "flex-start", fontFamily:"Poppins-Bold", color:"#333", marginVertical: 10, fontSize:15},
   required: { color: "#ff2121" },
   eduHeader: {
     flexDirection: "row",
@@ -366,7 +453,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  subheading: { fontSize: 16, fontWeight: "600", color: "#555" },
+  subheading: { fontSize: 17, fontFamily:'Poppins-Bold', color: "#555" },
   pickerWrapper: { overflow: "hidden" },
   picker: {
     height: 50,
