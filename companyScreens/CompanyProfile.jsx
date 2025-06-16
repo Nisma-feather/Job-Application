@@ -8,6 +8,8 @@ import { SafeAreaView, View, Text, ActivityIndicator, StyleSheet, ScrollView, Im
 import { auth, db } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import { Ionicons,Feather} from '@expo/vector-icons';
+import { useFocusEffect } from "@react-navigation/native";
+import { Linking } from "react-native";
 
 const CompanyProfile = ({ navigation }) => {
   const [profile, setProfile] = useState({});
@@ -43,9 +45,12 @@ const CompanyProfile = ({ navigation }) => {
         title:profile.companyName
      })
     },[navigation,profile])
-  useEffect(() => {
-    fetchCompanay();
-  }, [])
+    useFocusEffect(
+      React.useCallback(() => {
+        fetchCompanay();
+      }, [])
+    );
+    
   console.log(profile)
 
   if (loading) {
@@ -65,27 +70,40 @@ const CompanyProfile = ({ navigation }) => {
             <Ionicons name="business" size={70} color="white" />
           </View>
         </View>
-
         {/* Company Info */}
         <View style={styles.content}>
           <Text style={styles.name}>{profile.companyName}</Text>
-          <Text style={styles.subtitle}>Building the future, one line at a time.</Text>
+          <Text style={styles.subtitle}>{profile?.shortDescription}</Text>
 
           <View style={styles.infoSection}>
             <Text style={styles.sectionTitle}>About</Text>
-            <Text style={styles.sectionText}>{profile.basicInfo || 'N/A'}</Text>
+            <Text style={styles.sectionText}>{profile.basicInfo || "N/A"}</Text>
 
             <Text style={styles.sectionTitle}>Website</Text>
-            <Text style={styles.sectionText}>{profile.website || 'N/A'}</Text>
-
+            {profile.website ? (
+              <Pressable onPress={() => Linking.openURL(profile.website)}>
+                <Text
+                  style={[
+                    styles.sectionText,
+                    { color: "blue", textDecorationLine: "underline" },
+                  ]}
+                >
+                  {profile.website}
+                </Text>
+              </Pressable>
+            ) : (
+              <Text style={styles.sectionText}>N/A</Text>
+            )}
             <Text style={styles.sectionTitle}>Location</Text>
-            <Text style={styles.sectionText}>{profile.locations || 'N/A'}</Text>
+            <Text style={styles.sectionText}>{profile.locations || "N/A"}</Text>
 
             <Text style={styles.sectionTitle}>Established Year</Text>
-            <Text style={styles.sectionText}>{profile.startYear || 'N/A'}</Text>
+            <Text style={styles.sectionText}>{profile.startYear || "N/A"}</Text>
 
             <Text style={styles.sectionTitle}>Employee Count</Text>
-            <Text style={styles.sectionText}>{profile.employeeCount || 'N/A'}</Text>
+            <Text style={styles.sectionText}>
+              {profile.employeeCount || "N/A"}
+            </Text>
           </View>
 
           {/* Edit Button */}
@@ -135,13 +153,14 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontFamily:'Poppins-Bold',
     textAlign: 'center',
     color: '#333',
   },
   subtitle: {
     fontSize: 14,
     textAlign: 'center',
+    fontFamily:'Poppins-Regular',
     color: '#666',
     marginBottom: 20,
   },
@@ -152,13 +171,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   sectionTitle: {
-    fontWeight: 'bold',
+    fontFamily:'Poppins-Bold',
     fontSize:16,
     color: '#444',
     marginTop: 10,
   },
   sectionText: {
     color: '#333',
+    fontFamily:'Poppins-Regular',
     fontSize: 14,
     marginTop: 2,
   },

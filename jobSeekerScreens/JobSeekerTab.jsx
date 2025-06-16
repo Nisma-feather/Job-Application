@@ -36,6 +36,7 @@ const [unreadCount, setUnreadCount] = useState(0);
   
 
           useEffect(() => {
+            
             const uid = auth.currentUser?.uid;
                if (!uid) return;
 

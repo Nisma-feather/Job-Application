@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useFocusEffect} from 'react';
 import {
   SafeAreaView,
   View,
@@ -24,6 +24,7 @@ export default function CompanyProfileEdit({navigation}) {
       locations: '',
       website:'',
       basicInfo: '',
+      shortDescription:'',
   });
   const [errors, setErrors] = useState({
       nameError: '',
@@ -91,6 +92,7 @@ export default function CompanyProfileEdit({navigation}) {
             locations: '',
             website: '',
             basicInfo: '',
+            shortDescription:''
           });
         }
       } catch (error) {
@@ -101,14 +103,17 @@ export default function CompanyProfileEdit({navigation}) {
   
   }
   const handleUpdate=async()=>{
+    console.log("updating...");
     if(!validate()){
         return
     }
-    const companyUID= "vm5dkIUfk0WxgnXT34QBttxA3kV2";
+    const companyUID= auth.currentUser.uid;
+  
     if(!companyUID){
         return
     }
     try{
+        console.log("updating...")
       await updateDoc(doc(db,'companies',companyUID),{...company});
       navigation.navigate("Profile")
     }
@@ -121,66 +126,91 @@ export default function CompanyProfileEdit({navigation}) {
   useEffect(()=>{
     fetchCompany()
   },[])
-    return(
+    return (
       <SafeAreaView style={styles.container}>
-              <ScrollView contentContainerStyle={styles.scroll}>
-                  <Text style={styles.header}>Complete the Company Profile</Text>
-                  
-                  <Text style={styles.label}>Name<Text style={styles.required}>*</Text></Text>
-                  <TextInput 
-                      style={[styles.input, errors.nameError && styles.errorBorder]} 
-                      value={company.companyName}
-                      onChangeText={(val) => setCompany({ ...company, companyName: val })}
-                  />
-                  {errors.nameError && <Text style={styles.errorText}>{errors.nameError}</Text>}
-  
-                  <Text style={styles.label}>Established Year<Text style={styles.required}>*</Text></Text>
-                  <TextInput 
-                      style={[styles.input, errors.yearError && styles.errorBorder]}
-                      value={company.startYear}
-                      onChangeText={(val) => setCompany({ ...company, startYear: val })}
-                      keyboardType="numeric"
-                  />
-                  {errors.yearError && <Text style={styles.errorText}>{errors.yearError}</Text>}
-                  <Text style={styles.label}>Website</Text>
-                  <TextInput 
-                      style={[styles.input, errors.countError && styles.errorBorder]}
-                      value={company.website}
-                      onChangeText={(val) => setCompany({ ...company, website: val })}
-                     
-                  />
-  
-                  <Text style={styles.label}>Employee Count<Text style={styles.required}>*</Text></Text>
-                  <TextInput 
-                      style={[styles.input, errors.countError && styles.errorBorder]}
-                      value={company.employeeCount}
-                      onChangeText={(val) => setCompany({ ...company, employeeCount: val })}
-                      keyboardType="numeric"
-                  />
-                  {errors.countError && <Text style={styles.errorText}>{errors.countError}</Text>}
-  
-                  <Text style={styles.label}>Location<Text style={styles.required}>*</Text></Text>
-                  <TextInput 
-                      style={[styles.input, errors.locationError && styles.errorBorder]}
-                      value={company.locations}
-                      onChangeText={(val) => setCompany({ ...company, locations: val })}
-                  />
-                  {errors.locationError && <Text style={styles.errorText}>{errors.locationError}</Text>}
-  
-                  <Text style={styles.label}>About the Company</Text>
-                  <TextInput 
-                      style={[styles.input, { height: 100 }]}
-                      value={company.basicInfo}
-                      onChangeText={(val) => setCompany({ ...company, basicInfo: val })}
-                      multiline
-                  />
-                 
-                  <TouchableOpacity style={styles.button} onPress={handleUpdate}>
-                      <Text style={styles.buttonText}>Update Profile</Text>
-                  </TouchableOpacity>
-              </ScrollView>
-          </SafeAreaView>
-    )
+        <ScrollView contentContainerStyle={styles.scroll}>
+          <Text style={styles.header}>Complete the Company Profile</Text>
+
+          <Text style={styles.label}>
+            Name<Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={[styles.input, errors.nameError && styles.errorBorder]}
+            value={company.companyName}
+            onChangeText={(val) => setCompany({ ...company, companyName: val })}
+          />
+          {errors.nameError && (
+            <Text style={styles.errorText}>{errors.nameError}</Text>
+          )}
+
+          <Text style={styles.label}>
+            Established Year<Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={[styles.input, errors.yearError && styles.errorBorder]}
+            value={company.startYear}
+            onChangeText={(val) => setCompany({ ...company, startYear: val })}
+            keyboardType="numeric"
+          />
+          {errors.yearError && (
+            <Text style={styles.errorText}>{errors.yearError}</Text>
+          )}
+          <Text style={styles.label}>
+            Description<Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={[styles.input, errors.nameError && styles.errorBorder]}
+            value={company.shortDescription}
+            onChangeText={(val) => setCompany({ ...company, shortDescription: val })}
+          />
+          <Text style={styles.label}>Website</Text>
+          <TextInput
+            style={[styles.input, errors.countError && styles.errorBorder]}
+            value={company.website}
+            onChangeText={(val) => setCompany({ ...company, website: val })}
+          />
+
+          <Text style={styles.label}>
+            Employee Count<Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={[styles.input, errors.countError && styles.errorBorder]}
+            value={company.employeeCount}
+            onChangeText={(val) =>
+              setCompany({ ...company, employeeCount: val })
+            }
+            keyboardType="numeric"
+          />
+          {errors.countError && (
+            <Text style={styles.errorText}>{errors.countError}</Text>
+          )}
+
+          <Text style={styles.label}>
+            Location<Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={[styles.input, errors.locationError && styles.errorBorder]}
+            value={company.locations}
+            onChangeText={(val) => setCompany({ ...company, locations: val })}
+          />
+          {errors.locationError && (
+            <Text style={styles.errorText}>{errors.locationError}</Text>
+          )}
+
+          <Text style={styles.label}>About the Company</Text>
+          <TextInput
+            style={[styles.input, { height: 100 }]}
+            value={company.basicInfo}
+            onChangeText={(val) => setCompany({ ...company, basicInfo: val })}
+            multiline
+          />
+
+          <TouchableOpacity style={styles.button} onPress={handleUpdate}>
+            <Text style={styles.buttonText}>Update Profile</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </SafeAreaView>
+    );
     
   }
   
@@ -194,14 +224,17 @@ export default function CompanyProfileEdit({navigation}) {
     },
 
   header: {
-      fontSize: 18,
-      fontWeight: 'bold',
+      fontSize: 20,
+      fontFamily:'Poppins-Bold',
       marginVertical: 10,
+
       textAlign: 'center'
   },
   label: {
       alignSelf: 'flex-start',
-      fontWeight: '500',
+      fontFamily:"Poppins-Bold",
+      color: '#333',
+      fontSize: 16,
       marginBottom: 5,
       marginTop: 10
   },
@@ -213,8 +246,9 @@ export default function CompanyProfileEdit({navigation}) {
       borderRadius: 8,
       paddingHorizontal: 10,
       paddingVertical: 10,
-      fontSize: 16,
+      fontSize: 13,
       backgroundColor: '#e6eefa',
+      fontFamily:'Poppins-Regular',
       marginBottom: 4
   },
   errorBorder: {

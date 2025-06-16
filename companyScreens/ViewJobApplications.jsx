@@ -12,6 +12,7 @@ import {
   TextInput,
   Alert,
   StyleSheet,
+  ActivityIndicator
 } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, Feather, Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -35,11 +36,13 @@ const formatDate = (date) => {
 }
 const ViewJobApplications = ({navigation}) => {
     const [joblist,setJobList]=useState();
+    const [loading,setLoading]=useState(false);
     const companyUID = auth.currentUser?.uid ;
         // || "vm5dkIUfk0WxgnXT34QBttxA3kV2";
     console.log(companyUID)
      const fetchJobList=async()=>{
         try{
+            setLoading(true);
             if (!companyUID){
                 return
             }
@@ -52,6 +55,9 @@ const ViewJobApplications = ({navigation}) => {
         catch(e){
             console.log(e);
         }
+        finally{
+            setLoading(false);
+        }
      }
     
      useEffect(()=>{
@@ -60,65 +66,74 @@ const ViewJobApplications = ({navigation}) => {
      console.log("Joblist",joblist)
 
   return (
-   <SafeAreaView style={styles.container}>
-  
-    <Text style={styles.heading}>Recently Posted Jobs</Text>
-
-    {joblist?.length > 0 ? (
-      <FlatList
-        data={joblist}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.jobCard}>
-            <View style={styles.jobHeader}>
-              <Text style={styles.jobTitle}>{item.jobrole}</Text>
-              <Pressable
-                style={styles.buttonSmall}
-                onPress={() =>
-                  navigation.navigate("Application List", {
-                    JobId: item.id,
-                  })
-                }
-              >
-                <Text style={styles.buttonTextSmall}>View Applications</Text>
-              </Pressable>
-            </View>
-
-            <View style={styles.metaInfo}>
-              <View style={styles.metaRow}>
-                <Entypo name="location-pin" color="#6B7280" size={16} />
-                <Text style={styles.metaText}>{item.locations}</Text>
+    
+      <SafeAreaView style={styles.container}>
+        {loading ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#2563EB" />
+          </View>
+        ) : joblist?.length > 0 ? (
+          <FlatList
+            data={joblist}
+            keyExtractor={(item) => item.id.toString()}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            ListHeaderComponent={() => (
+              <View style={{ marginVertical: 10, marginBottom: 6 }}>
+                <Text style={[styles.heading, { textAlign: "center" }]}>
+                  Posted Jobs
+                </Text>
               </View>
-              <Text style={styles.metaText}>{formatDate(item.postedAt)}</Text>
-            </View>
+            )}
+            renderItem={({ item }) => (
+              <View style={styles.jobCard}>
+                <View style={styles.jobHeader}>
+                  <Text style={styles.jobTitle}>{item.jobrole}</Text>
+                  <Pressable
+                    style={styles.buttonSmall}
+                    onPress={() =>
+                      navigation.navigate("Application List", {
+                        JobId: item.id,
+                      })
+                    }
+                  >
+                    <Text style={styles.buttonTextSmall}>View Applications</Text>
+                  </Pressable>
+                </View>
+    
+                <View style={styles.metaInfo}>
+                  <View style={styles.metaRow}>
+                    <Entypo name="location-pin" color="#6B7280" size={16} />
+                    <Text style={styles.metaText}>{item.locations}</Text>
+                  </View>
+                  <Text style={styles.metaText}>{formatDate(item.postedAt)}</Text>
+                </View>
+              </View>
+            )}
+          />
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Image
+              source={require("../assets/emptyfolder.png")}
+              style={styles.emptyImage}
+            />
+            <Text style={styles.emptyText}>No jobs posted yet</Text>
           </View>
         )}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
-    ) : (
-      <View style={styles.emptyContainer}>
-        <Image
-          source={require('../assets/emptyfolder.png')}
-          style={styles.emptyImage}
-        />
-        <Text style={styles.emptyText}>No jobs posted yet</Text>
-      </View>
-    )}
-
-</SafeAreaView>
+      </SafeAreaView>
+    );
     
-                    
-                  
-  )
+  
 }
 
 export default ViewJobApplications
 
 const ApplicationsList = ({ route }) => {
+
    const { JobId } = route.params;
   const [modalVisible,setModalVisible]=useState(false);
   const [applications, setApplications] = useState([]);
-  
+  const [loading, setLoading] = useState(false);
+
   const [disableBtn,setDisableBtn]=useState(false);
 
   const [status,setStatus]=useState("");
@@ -134,6 +149,7 @@ const ApplicationsList = ({ route }) => {
     if (!JobId) return;
 
     try {
+      setLoading(true);
       const q = query(collection(db, 'jobApplications'), where('jobId', '==', JobId));
       const snapData = await getDocs(q);
       const appList = snapData.docs.map(doc => ({
@@ -144,13 +160,15 @@ const ApplicationsList = ({ route }) => {
     } catch (e) {
       console.log('Error fetching applications:', e);
     }
+    finally{
+      setLoading(false);
+    }
   };
   const fetchCompanyDetails=async()=>{
     const jobsnap=await getDoc(doc(db,'jobs',JobId));
     setJobData(jobsnap.data());
 
   }
-  setMessage
   const updateStatus=async()=>{
     try{
       
@@ -212,10 +230,11 @@ console.log(applications)
 console.log(message)
   return (
    <SafeAreaView style={styles.safeContainer}>
-      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-        <Text style={styles.heading}>Applications</Text>
-
-        {
+     
+        { loading ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}> 
+            <ActivityIndicator size="large" color="#2563EB" />
+          </View>) :
           applications.length === 0 ? (
             <View style={styles.emptyContainer}>
               {/* <Image source={require('../assets/emptyfolder.png')} style={styles.emptyImage} /> */}
@@ -225,6 +244,9 @@ console.log(message)
             <FlatList
               data={applications}
               keyExtractor={(item) => item.id}
+              ListHeaderComponent={() => (
+                <Text style={styles.heading}>Applications</Text>
+              )}
               renderItem={renderItem}
               contentContainerStyle={styles.list}
             />
@@ -290,7 +312,7 @@ console.log(message)
             </View>
           </View>
         </Modal>
-      </ScrollView>
+    
     </SafeAreaView>
   );
 };
@@ -346,23 +368,8 @@ shortlistBackground:{
 notShortlistBackground:{
 backgroundColor:'#FF6464'
 },
-jobCard: {
-    // backgroundColor: '#e6eefa',
-    padding: 16,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#2563EB',
-    shadowColor: '#2563EB',
-    shadowOffset: {
-        width: 0,
-        height: 4,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 6, // For Android
-},
 jobTitle: {
-    fontWeight: 'bolder',
+    fontFamily:'Poppins-Bold',
     color: "#555"
 },
 jobContainer: {
@@ -395,9 +402,9 @@ buttonText:{
    fontWeight:"bold"
 },
 heading: {
-  fontSize: 28,
-  fontWeight: '700',
-  marginBottom: 20,
+  fontSize: 20,
+  fontFamily: 'Poppins-Bold',     
+  marginBottom: 10,
   color: '#1F2937',
   textAlign: 'center',
 },
@@ -531,12 +538,6 @@ sendText: {
     padding: 16,
     paddingBottom: 30,
   },
-  heading: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 16,
-  },
   jobCard: {
     backgroundColor: '#fff',
     padding: 16,
@@ -548,16 +549,18 @@ sendText: {
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
+    marginHorizontal:20
   },
   jobHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    fontFamily: 'Poppins-Bold',
     marginBottom: 12,
   },
   jobTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'Poppins-Bold',
     color: '#1F2937',
     flex: 1,
     marginRight: 10,
@@ -570,7 +573,7 @@ sendText: {
   },
   buttonTextSmall: {
     color: '#fff',
-    fontWeight: '600',
+    fontFamily:'Poppins-Bold',
     fontSize: 13,
   },
   metaInfo: {
