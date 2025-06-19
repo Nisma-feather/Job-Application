@@ -135,7 +135,7 @@ export default function SignupScreen({navigation}) {
         </Pressable>
       </View> */}
 
-   <Pressable onPress={()=>navigation.replace("Login")}>
+   <Pressable  onPress={()=>navigation.replace("Login")}>
     <Text style={styles.footerText}>
         Already have an account? <Text style={styles.signInText}>Sign In</Text>
       </Text>

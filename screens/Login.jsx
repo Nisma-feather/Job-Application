@@ -1,10 +1,11 @@
 
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from "react";
-import { Alert, View, Button, SafeAreaView, TextInput, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Alert, View, Button, SafeAreaView, TextInput, Text, TouchableOpacity, StyleSheet, Pressable } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from "../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
+import { sendPasswordResetEmail } from 'firebase/auth/cordova';
 const Login=({navigation})=>{
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -82,54 +83,82 @@ const Login=({navigation})=>{
       console.log(err);
     }
   };
-    return(
-        <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <View style={styles.logoContainer}>
-          <View style={styles.logoOuter}>
-            <MaterialIcons name="double-arrow" color="#fff" size={28} />
+  const handleForgotPassword = () => {
+    if(!email.trim()){
+      Alert.alert("Please enter your email to reset password");
+      return;
+    }
+    sendPasswordResetEmail(auth,email).then(()=>{
+      Alert.alert("Password reset email sent. Please check your inbox.");
+    }).catch((e)=>{
+      console.log(e);
+      Alert.alert("Error sending password reset email");
+    })
+  }
+    return (
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.container}>
+          <View style={styles.logoContainer}>
+            <View style={styles.logoOuter}>
+              <MaterialIcons name="double-arrow" color="#fff" size={28} />
+            </View>
+            <View>
+              <Text style={styles.logoText}>Karier</Text>
+              <Text style={styles.logoSubText}>Job Portal App</Text>
+            </View>
           </View>
-          <View>
-            <Text style={styles.logoText}>Karier</Text>
-            <Text style={styles.logoSubText}>Job Portal App</Text>
-          </View>
+
+          <Text style={styles.label}>
+            Email<Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            style={styles.input}
+          />
+          {emailError ? (
+            <Text style={styles.errorText}>{emailError}</Text>
+          ) : null}
+
+          <Text style={styles.label}>
+            Password<Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            style={styles.input}
+          />
+          {passwordError ? (
+            <Text style={styles.errorText}>{passwordError}</Text>
+          ) : null}
+          <Pressable
+            style={{
+              marginTop: 7,
+              flexDirection: "row",
+              justifyContent: "flex-end",
+            }}
+            onPress={handleForgotPassword}
+          >
+            <Text style={{ fontSize: 14}}>Forgot Password?</Text>
+          </Pressable>
+
+          <TouchableOpacity style={styles.LoginButton} onPress={handleLogin}>
+            <Text style={styles.LoginButtonText}>Login</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.replace("Role")}>
+            <Text style={styles.signupText}>
+              Don't have an account?{" "}
+              <Text style={{ color: "blue" }}> Creat one </Text>
+            </Text>
+          </TouchableOpacity>
         </View>
-
-        <Text style={styles.label}>Email<Text style={styles.required}>*</Text></Text>
-        <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          style={styles.input}
-        />
-        {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-
-          <Text  style={styles.label}>Password<Text style={styles.required}>*</Text></Text>
-        <TextInput
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          style={styles.input}
-        />
-        {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
-
-
-
-
-      <TouchableOpacity style={styles.LoginButton} onPress={handleLogin}>
-        <Text style={styles.LoginButtonText}>Login</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={()=>navigation.replace("Role")}>
-        <Text style={styles.signupText}>Don't have an account? <Text style={{color:'blue'}}> Creat one </Text></Text>
-      </TouchableOpacity>
-
-    </View>
-      
-    </SafeAreaView >
+      </SafeAreaView>
     );
 }
 export default Login 
@@ -167,7 +196,7 @@ const styles = StyleSheet.create({
     fontFamily:'Poppins-Regular'
   },
   label: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '500',
     marginVertical:10,
     fontFamily:"Poppins-Bold"

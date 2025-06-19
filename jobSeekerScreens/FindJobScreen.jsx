@@ -437,6 +437,7 @@ const FindJobScreen = ({ navigation }) => {
       fontFamily: "Poppins-Bold",
     },
   });
+  console.log("filtered Jobs",filteredJobs)
 
   if ((options === 'jobs' && loading) || (options === 'companies' && loadingCompanies) || loadingBookmarks) {
     return (
@@ -571,12 +572,14 @@ const FindJobScreen = ({ navigation }) => {
                   <View style={{ justifyContent: "space-between" }}>
                     <Text style={styles.CompanyTitle}>{item.companyName}</Text>
                     <View style={{ flexDirection: "row", gap: 5 }}>
-                      {item.reviewAvg? <FontAwesome
-                        style={{ marginTop: 2 }}
-                        name="star"
-                        color="#FFD700"
-                        size={14}
-                      />: null}
+                      {item.reviewAvg ? (
+                        <FontAwesome
+                          style={{ marginTop: 2 }}
+                          name="star"
+                          color="#FFD700"
+                          size={14}
+                        />
+                      ) : null}
                       <Text
                         style={{
                           fontSize: 12,
@@ -618,6 +621,119 @@ const FindJobScreen = ({ navigation }) => {
       />
 
       {/* Filter Panel */}
+      {/* <Modal visible={showFilter} animationType="slide" transparent={true}>
+        <View style={{height:300,position:'absolute',bottom:20,marginHorizontal:20,width:"90%"}}>
+          <ScrollView
+            contentContainerStyle={{
+              paddingBottom: 100,
+              flexGrow: 1,
+              backgroundColor: "white",
+           
+            }}
+            showsVerticalScrollIndicator={false}
+          >
+            <Pressable
+              onPress={() => setShowFilters(false)}
+              style={styles.closeButton}
+            >
+              <FontAwesome name="close" color="#000" size={24} />
+            </Pressable>
+
+            <Text style={styles.sectionTitle}>Experience</Text>
+            <View style={styles.filtersRow}>
+              {expYeardata.map((exp) => (
+                <TouchableOpacity
+                  key={exp}
+                  onPress={() => togglefilters(expFilter, setExpFilter, exp)}
+                  style={[
+                    styles.filterOptionButton,
+                    expFilter.includes(exp) &&
+                      styles.filterOptionButtonSelected,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.filterButtonText,
+                      expFilter.includes(exp) &&
+                        styles.filterButtonTextSelected,
+                    ]}
+                  >
+                    {exp}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={styles.sectionTitle}>Job Type</Text>
+            <View style={styles.filtersRow}>
+              {JobTypedata.map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  onPress={() =>
+                    togglefilters(jobTypeFilter, setJobTypeFilter, type)
+                  }
+                  style={[
+                    styles.filterOptionButton,
+                    jobTypeFilter.includes(type) &&
+                      styles.filterOptionButtonSelected,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.filterButtonText,
+                      jobTypeFilter.includes(type) &&
+                        styles.filterButtonTextSelected,
+                    ]}
+                  >
+                    {type}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={styles.sectionTitle}>Job Mode</Text>
+            <View style={styles.filtersRow}>
+              {JobModedata.map((mode) => (
+                <TouchableOpacity
+                  key={mode}
+                  onPress={() =>
+                    togglefilters(jobModeFilter, setJobModeFilter, mode)
+                  }
+                  style={[
+                    styles.filterOptionButton,
+                    jobModeFilter.includes(mode) &&
+                      styles.filterOptionButtonSelected,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.filterButtonText,
+                      jobModeFilter.includes(mode) &&
+                        styles.filterButtonTextSelected,
+                    ]}
+                  >
+                    {mode}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={handleApplyFilters}
+            >
+              <Text style={styles.buttonText}>Apply Filters</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.resetButton}
+              onPress={resetAllFilters}
+            >
+              <Text style={styles.resetButtonText}>Reset Filters</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </Modal> */}
       {showFilter && (
         <>
           <Pressable

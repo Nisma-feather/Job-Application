@@ -77,7 +77,7 @@ const HomeScreen = ({ navigation }) => {
 
       if (jobs.length === 0) {
         console.log("No recommendations foundso fetching skill based job",userData.skills)
-        const skillJobs = await fetchSkillBasedJobs(userData.skills, recommendData);
+        const skillJobs = await fetchSkillBasedJobs(userData?.userInterest?.skills, recommendData);
         console.log(skillJobs)
         jobs = [...jobs, ...skillJobs];
       }
@@ -124,8 +124,8 @@ const HomeScreen = ({ navigation }) => {
           setRecommend(updatedRecommend);
           setJobs(jobs);
 
-          if (userData?.skills?.length > 0) {
-            const skillJobs = await fetchSkillBasedJobs(userData.skills, updatedRecommend);
+          if (userData?.userInterest?.skills?.length > 0) {
+            const skillJobs = await fetchSkillBasedJobs(userData?.userInterest?.skills, updatedRecommend);
             setJobsForYou(skillJobs);
           }
         } catch (err) {

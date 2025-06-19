@@ -204,27 +204,48 @@ const ApplicationsList = ({ route }) => {
  console.log(jobData)
 console.log(applications)
   const renderItem = ({ item }) => (
-    <View style={styles.card}>
-    <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-      <View>
-      <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.label}>Website:</Text>
-      <Text style={styles.website}>{item.website}</Text>
-      <Text style={styles.label}>Cover Letter:</Text>
-      <Text style={styles.coverLetter}>{item.coverLetter}</Text>
-
+    <View style={[styles.card, { marginHorizontal: 20 }]}>
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <Text style={styles.name}>{item.name}</Text>
+        <Text>Applied {formatDate(item.submittedAt)}</Text>
       </View>
-      <Text>Applied {formatDate(item.submittedAt)}</Text>
-      
-    </View>
-      
+      <View>
+        <Text style={styles.label}>Website:</Text>
+        <Text style={styles.website}>{item.website}</Text>
+        <Text style={styles.label}>Cover Letter:</Text>
+        <Text style={styles.coverLetter}>{item.coverLetter}</Text>
+      </View>
+
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('User Profile', { uid: item.userId })}
+        onPress={() =>
+          navigation.navigate("User Profile", { uid: item.userId })
+        }
       >
         <Text style={styles.buttonText}>View Full Profile</Text>
       </TouchableOpacity>
-      <TouchableOpacity  style={[styles.button,item.status === "shortlisted" && styles.shortlistBackground, item.status === "notShortlisted" && styles.notShortlistBackground]} onPress={()=>{setModalVisible(true),setCurrentApplication(item)}} disabled={item.status === "shortlisted" || item.status === "notShortlisted"}> <Text style={styles.buttonText}>{item.status==="shortlisted"?"Shortlisted":item.status==="notShortlisted"?"Not Shortlisted":"Update Status"}</Text></TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.button,
+          item.status === "shortlisted" && styles.shortlistBackground,
+          item.status === "notShortlisted" && styles.notShortlistBackground,
+        ]}
+        onPress={() => {
+          setModalVisible(true), setCurrentApplication(item);
+        }}
+        disabled={
+          item.status === "shortlisted" || item.status === "notShortlisted"
+        }
+      >
+     
+        <Text style={styles.buttonText}>
+          {item.status === "shortlisted"
+            ? "Shortlisted"
+            : item.status === "notShortlisted"
+            ? "Not Shortlisted"
+            : "Update Status"}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 console.log(message)
@@ -360,7 +381,6 @@ buttonText: {
 heading: {
     fontWeight: 'bold',
     fontSize: 14,
-    marginVertical: 10,
 },
 shortlistBackground:{
  backgroundColor:"#59CE8F"
@@ -404,7 +424,7 @@ buttonText:{
 heading: {
   fontSize: 20,
   fontFamily: 'Poppins-Bold',     
-  marginBottom: 10,
+  marginVertical: 18,
   color: '#1F2937',
   textAlign: 'center',
 },

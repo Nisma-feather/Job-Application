@@ -13,11 +13,11 @@ import * as DocumentPicker from "expo-document-picker";
 import { useState } from "react";
 import { auth, db } from "../firebaseConfig";
 import { addDoc, collection } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { storage } from "../firebaseConfig";
 
-const storage = getStorage();
 
 const ApplyJob = ({ navigation, route }) => {
   const [jobForm, setJobForm] = useState({
@@ -33,15 +33,20 @@ const ApplyJob = ({ navigation, route }) => {
   const [fileName, setFileName] = useState("No file chosen");
 
   const chooseFile = async () => {
+    console.log("Choosing File")
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: "*/*",
         copyToCacheDirectory: true,
       });
+      console.log(result)
 
-      if (result.type === "success") {
-        setCvFile(result);
-        setFileName(result.name);
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const file = result.assets[0];
+        setCvFile(file);
+        setFileName(file.name);
+      } else {
+        console.log("User cancelled or no file selected.");
       }
     } catch (error) {
       console.error("Error picking document:", error);
@@ -50,11 +55,13 @@ const ApplyJob = ({ navigation, route }) => {
 
   const handleSubmit = async () => {
     try {
+      console.log("trying to submit")
       let cvURL = null;
 
       if (cvFile) {
         const response = await fetch(cvFile.uri);
         const blob = await response.blob();
+        console.log("blob",blob)
 
         const storageRef = ref(
           storage,
@@ -76,12 +83,14 @@ const ApplyJob = ({ navigation, route }) => {
         submittedAt: new Date(),
         status: "applied",
       };
+      console.log(data)
 
       await addDoc(collection(db, "jobApplications"), data);
-      navigation.navigate("Application successfull");
+      console.log("Apllied Successfull")
+      // navigation.navigate("Application successfull");
     } catch (e) {
       console.log("Error submitting job application:", e);
-      Alert.alert("Error", "Failed to apply for the job. Try again.");
+      Alert.alert("Error", "Failed to apply for the job. Try again.",e);
     }
   };
 

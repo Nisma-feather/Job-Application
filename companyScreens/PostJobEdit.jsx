@@ -80,7 +80,7 @@ console.log(job)
   console.log("Job Mode Value:", job.jobMode);
   return (
     <SafeAreaView style={styles.formContainer}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <Text style={styles.label}>Job Role <Text style={styles.required}>*</Text></Text>
         <TextInput
           style={styles.input}
@@ -203,8 +203,9 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 16,
+    color: '#333',
+    fontFamily: 'Poppins-Bold',
     marginVertical:8
   },
   picker: {
@@ -225,7 +226,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     padding: 12,
-    fontSize: 16,
+    fontSize: 15,
     textAlignVertical: 'top',
     minHeight: 100,
     marginBottom: 8,
@@ -249,10 +250,11 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: 'white',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '800',
   },
   input: {
     backgroundColor: '#e6eefa',
+    fontSize: 15,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 10,
