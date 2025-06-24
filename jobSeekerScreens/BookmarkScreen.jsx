@@ -52,14 +52,17 @@ const BookMarkScreen = ({ navigation }) => {
         if (jobSnap.exists()) {
           const jobData = jobSnap.data();
           let companyName = "Unknown Company";
+          let companyLogo;
           console.log(jobData.companyUID);
           if (jobData.companyUID) {
             const companyRef = doc(db, "companies", jobData.companyUID);
             const companysnap = await getDoc(companyRef);
 
             companyName = companysnap.data().companyName || companyName;
+            companyLogo=companysnap.data().profileImg ;
+            console.log("company Logo url",companyLogo)
           }
-          bookmarkdatas.push({ id: jobId, ...jobData, companyName });
+          bookmarkdatas.push({ id: jobId, ...jobData, companyName,companyLogo });
         }
       }
       setLoading(false);
@@ -176,7 +179,9 @@ const BookMarkScreen = ({ navigation }) => {
                               borderRadius: 6,
                             }}
                           >
-                            <Image source={dummyimg} style={styles.logo} />
+                            <View style={{width:40,height:40,borderWidth:1,borderColor:'#dedede',justifyContent:'center',alignItems:'center',borderRadius:6,}}>
+                                                        <Image source={item.companyLogo?{uri:item.companyLogo}:dummyimg} style={styles.logo} />
+                           </View>
                           </View>
 
                           <View style={{ justifyContent: "space-between" }}>
@@ -260,11 +265,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logo: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 12,
-    alignSelf: "center",
+    flexDirection: "row",
+    width: 40,
+    height: 40,
+    borderRadius: 10,
   },
   jobItem: {
     padding: 10,
@@ -275,7 +279,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 6,
     elevation: 5,
-    marginHorizontal:10,
+    marginHorizontal: 10,
     gap: 10,
   },
   jobTitle: {

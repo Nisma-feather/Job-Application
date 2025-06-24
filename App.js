@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons'; // ❗ Fix: Move Ionicons import 
 import { useFonts } from '@expo-google-fonts/poppins';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import 'react-native-get-random-values';
 import Login from './screens/Login';
 import RoleSelectionScreen from './screens/RoleSelectionScreen';
 import SignupScreen from './screens/SignupScreen';

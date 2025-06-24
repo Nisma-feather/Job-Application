@@ -393,11 +393,7 @@ const FindJobScreen = ({ navigation }) => {
       color: "#5c88ea",
       marginBottom: 4,
     },
-    logo: {
-      flexDirection: "row",
-      width: 50,
-      height: 50,
-    },
+
     filterButtonTextSelected: {
       color: "white",
     },
@@ -435,6 +431,12 @@ const FindJobScreen = ({ navigation }) => {
       fontSize: 16,
       color: "#333",
       fontFamily: "Poppins-Bold",
+    },
+    logo: {
+      flexDirection: "row",
+      width: 40,
+      height: 40,
+      borderRadius: 10,
     },
   });
   console.log("filtered Jobs",filteredJobs)
@@ -566,7 +568,9 @@ const FindJobScreen = ({ navigation }) => {
                       borderRadius: 6,
                     }}
                   >
-                    <Image source={dummyimg} style={styles.logo} />
+                  <View style={{width:40,height:40,borderWidth:1,borderColor:'#dedede',justifyContent:'center',alignItems:'center',borderRadius:6,}}>
+                             <Image source={item.profileImg?{uri:item.profileImg}:dummyimg} style={styles.logo} />
+                             </View>
                   </View>
 
                   <View style={{ justifyContent: "space-between" }}>

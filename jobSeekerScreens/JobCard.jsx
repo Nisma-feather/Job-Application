@@ -14,6 +14,7 @@ const dummyimg = require('../assets/logo.png'); // Replace with actual image pat
 const JobCard = ({ item }) => {
   console.log(item)
   const navigation = useNavigation();
+  const [logo,setLogo]=useState("");
   const [reviewAvg,setReviewAvg]=useState(0);
   const [bookmarkJobs, setBookmarkJobs] = useState([]);
   const uid = auth.currentUser?.uid;
@@ -33,6 +34,14 @@ const JobCard = ({ item }) => {
     console.log(snapData.data());
     setReviewAvg(snapData.data()?.reviewAvg);
 
+
+  }
+  const fetchCompany=async()=>{
+    const ref=await getDoc(doc(db,'companies',item.companyUID));
+    console.log("Fetching logo",ref)
+    const profileImage=ref.data()?.profileImg;
+    setLogo(profileImage)
+    
 
   }
 
@@ -87,9 +96,11 @@ const JobCard = ({ item }) => {
 console.log(reviewAvg)
 useFocusEffect(
   useCallback(() => {
-    fetchBookMarks(); // re-fetch to reflect latest bookmarks
+    fetchBookMarks();
+    fetchCompany(); // re-fetch to reflect latest bookmarks
   }, [])
 );
+console.log("logo",logo)
   return (
     <Pressable onPress={() => navigation.navigate("Job Details", { currentJob: item })}>
       <View style={styles.jobItem}>
@@ -97,7 +108,7 @@ useFocusEffect(
         <View style={{flexDirection:"row",gap:10,}}>
           
             <View style={{width:40,height:40,borderWidth:1,borderColor:'#dedede',justifyContent:'center',alignItems:'center',borderRadius:6,}}>
-          <Image source={dummyimg} style={styles.logo} />
+          <Image source={logo?{uri:logo}:dummyimg} style={styles.logo} />
           </View>
          
           <View style={{justifyContent:'space-between'}}>
@@ -165,9 +176,9 @@ const styles = StyleSheet.create({
   },
   logo: {
     flexDirection:'row',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 40,
+    height: 40,
+    borderRadius: 10,
   },
   jobTitle: {
     fontSize: 16,

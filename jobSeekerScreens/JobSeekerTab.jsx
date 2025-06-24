@@ -21,6 +21,8 @@ import { MessageDetail } from "./MessageDetail";
 import { auth, db } from "../firebaseConfig";
 import { collection, doc, getDocs, query, where,onSnapshot} from "firebase/firestore";
 import { useLayoutEffect, useState,useEffect } from "react";
+import Resume from "./ProfileScreens/Resume";
+
 
 
 
@@ -161,6 +163,8 @@ const ProfileStack = () => {
       <Stack.Screen name="Skills" component={SkillsUpdateScreen} />
       <Stack.Screen name="Projects" component={ProjectsScreen} />
       <Stack.Screen name="Track Application" component={TrackApplications} />
+      <Stack.Screen name="Resume" component={Resume}/>
+    
     
     </Stack.Navigator>
   );

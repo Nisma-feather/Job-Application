@@ -152,10 +152,18 @@ const JobDetail = ({ route, navigation }) => {
         <View style={styles.jobCard}>
           <View style={styles.jobInfo}>
             <Text style={styles.role}>{currentJob.jobrole}</Text>
-            <Text style={styles.location}>{currentJob.locations}</Text>
+            <View style={{ flexDirection: "row" }}>
+              <Ionicons name="location" color="#fff" size={22} />
+              <Text style={styles.location}>{currentJob.locations}</Text>
+            </View>
+
             <View style={styles.tags}>
-              {currentJob.jobType && <Text style={styles.tag}>{currentJob.jobType}</Text>}
-              {currentJob.jobMode && <Text style={styles.tag}>{currentJob.jobMode}</Text>}
+              {currentJob.jobType && (
+                <Text style={styles.tag}>{currentJob.jobType}</Text>
+              )}
+              {currentJob.jobMode && (
+                <Text style={styles.tag}>{currentJob.jobMode}</Text>
+              )}
               <Text style={styles.tag}>{currentJob.jobrole}</Text>
             </View>
           </View>
@@ -163,70 +171,104 @@ const JobDetail = ({ route, navigation }) => {
 
         {/* Tabs */}
 
-      <View style={styles.tabs}>
-  <TouchableOpacity
-    onPress={() => setActiveTab('description')}
-    style={activeTab === 'description' ? styles.activeTab : styles.tab}
-  >
-    <Text style={activeTab === 'description' ? styles.activeTabText : styles.tabText}>
-      Job Description
-    </Text>
-  </TouchableOpacity>
+        <View style={styles.tabs}>
+          <TouchableOpacity
+            onPress={() => setActiveTab("description")}
+            style={activeTab === "description" ? styles.activeTab : styles.tab}
+          >
+            <Text
+              style={
+                activeTab === "description"
+                  ? styles.activeTabText
+                  : styles.tabText
+              }
+            >
+              Job Description
+            </Text>
+          </TouchableOpacity>
 
-  <TouchableOpacity
-    onPress={() => setActiveTab('company')}
-    style={activeTab === 'company' ? styles.activeTab : styles.tab}
-  >
-    <Text style={activeTab === 'company' ? styles.activeTabText : styles.tabText}>
-      Company
-    </Text>
-  </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setActiveTab("company")}
+            style={activeTab === "company" ? styles.activeTab : styles.tab}
+          >
+            <Text
+              style={
+                activeTab === "company" ? styles.activeTabText : styles.tabText
+              }
+            >
+              Company
+            </Text>
+          </TouchableOpacity>
 
-  <TouchableOpacity
-    onPress={() => setActiveTab('review')}
-    style={activeTab === 'review' ? styles.activeTab : styles.tab}
-  >
-    <Text style={activeTab === 'review' ? styles.activeTabText : styles.tabText}>
-      Review
-    </Text>
-  </TouchableOpacity>
-</View>
+          <TouchableOpacity
+            onPress={() => setActiveTab("review")}
+            style={activeTab === "review" ? styles.activeTab : styles.tab}
+          >
+            <Text
+              style={
+                activeTab === "review" ? styles.activeTabText : styles.tabText
+              }
+            >
+              Review
+            </Text>
+          </TouchableOpacity>
+        </View>
 
- 
         {/* Tab Content */}
         <View style={styles.content}>
-          {activeTab === 'description' && (
+          {activeTab === "description" && (
             <>
-              <Text style={styles.heading}>About The Role</Text>
-              {currentJob.responsibilities.map((line, idx) => (
-
-                <View key={idx} style={styles.bulletRow}>
-                  <Text style={styles.bullet}>•</Text>
-                  <Text style={styles.bulletText}>{line.trim()}</Text>
+              {currentJob.responsibilities && (
+                <View>
+                  <Text style={styles.heading}>About The Role</Text>
+                  {currentJob.responsibilities.map((line, idx) => (
+                    <View key={idx} style={styles.bulletRow}>
+                      <Text style={styles.bullet}>•</Text>
+                      <Text style={styles.bulletText}>{line.trim()}</Text>
+                    </View>
+                  ))}
                 </View>
+              )}
 
-              ))}
-
-
-              <Text style={styles.heading}>Required Skills</Text>
-              {currentJob.requirements.map((line, idx) => (
-
-                <View key={idx} style={styles.bulletRow}>
-                  <Text style={styles.bullet}>•</Text>
-                  <Text style={styles.bulletText}>{line.trim()}</Text>
+              {currentJob.requirements && (
+                <View>
+                  <Text style={styles.heading}>Requirements</Text>
+                  {currentJob.requirements.map((line, idx) => (
+                    <View key={idx} style={styles.bulletRow}>
+                      <Text style={styles.bullet}>•</Text>
+                      <Text style={styles.bulletText}>{line.trim()}</Text>
+                    </View>
+                  ))}
                 </View>
-
-              ))}
+              )}
+              {currentJob.skillsRequired && (
+                <View>
+                  <Text style={styles.heading}>Skills</Text>
+                  <View
+                    style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}
+                  >
+                    {currentJob.skillsRequired.map((line, idx) => (
+                      <View key={idx} style={styles.skillOuter}>
+                        <Text style={styles.bulletText}>{line.trim()}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
             </>
           )}
 
-          {activeTab === 'company' && (
+          {activeTab === "company" && (
             <>
               <Text style={styles.heading}>About Company</Text>
               <Text>{company.basicInfo}</Text>
               <View style={styles.companyIconlist}>
                 <View style={styles.companyIconpart}>
-                  <MaterialCommunityIcons name="web" color="#2969ff" size={24} />
+                  <MaterialCommunityIcons
+                    name="web"
+                    color="#2969ff"
+                    size={24}
+                  />
                   <Text style={styles.iconText}>Website</Text>
                 </View>
 
@@ -235,11 +277,9 @@ const JobDetail = ({ route, navigation }) => {
               <View style={styles.companyIconlist}>
                 <View style={styles.companyIconpart}>
                   <Ionicons name="location-outline" color="#ffd175" size={24} />
-                  <Text style={styles.iconText} >Headquarters</Text>
+                  <Text style={styles.iconText}>Headquarters</Text>
                 </View>
                 <Text>{company.locations}</Text>
-
-
               </View>
               <View style={styles.companyIconlist}>
                 <View style={styles.companyIconpart}>
@@ -256,128 +296,173 @@ const JobDetail = ({ route, navigation }) => {
                 </View>
 
                 <Text>{company.employeeCount}</Text>
-
               </View>
-
-
-
             </>
           )}
 
-     {activeTab === 'review' && (
-  <View style={styles.reviewContainer}>
-    {ratingStats.total > 0 ? (
-      <View style={styles.ratingSummaryContainer}>
-        <View style={styles.ratingOverview}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={styles.ratingOutOf}>
-              <Text style={styles.averageRating}>{Math.round(ratingStats.average)}</Text>/5
-            </Text>
-            <AnimatedCircularProgress
-              size={30}
-              width={5}
-              fill={ratingStats.average * 20}
-              tintColor="#FFD700"
-              backgroundColor="#f0f0f0"
-            />
-          </View>
+          {activeTab === "review" && (
+            <View style={styles.reviewContainer}>
+              {ratingStats.total > 0 ? (
+                <View style={styles.ratingSummaryContainer}>
+                  <View style={styles.ratingOverview}>
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}
+                    >
+                      <Text style={styles.ratingOutOf}>
+                        <Text style={styles.averageRating}>
+                          {Math.round(ratingStats.average)}
+                        </Text>
+                        /5
+                      </Text>
+                      <AnimatedCircularProgress
+                        size={30}
+                        width={5}
+                        fill={ratingStats.average * 20}
+                        tintColor="#FFD700"
+                        backgroundColor="#f0f0f0"
+                      />
+                    </View>
 
-          <Text style={styles.totalReviews}>Based on {formatNumber(ratingStats.total)} reviews</Text>
+                    <Text style={styles.totalReviews}>
+                      Based on {formatNumber(ratingStats.total)} reviews
+                    </Text>
 
-          <View style={styles.starsContainer}>
-            {[1, 2, 3, 4, 5].map(num => (
-              <AntDesign key={num} name="star" color={num <= Math.round(ratingStats.average) ? "#FFD700" : "#CCCCCC"} size={22} />
-            ))}
-          </View>
-        </View>
+                    <View style={styles.starsContainer}>
+                      {[1, 2, 3, 4, 5].map((num) => (
+                        <AntDesign
+                          key={num}
+                          name="star"
+                          color={
+                            num <= Math.round(ratingStats.average)
+                              ? "#FFD700"
+                              : "#CCCCCC"
+                          }
+                          size={22}
+                        />
+                      ))}
+                    </View>
+                  </View>
 
-        {/* Rating Distribution */}
-        <View style={styles.ratingDistribution}>
-          {[5, 4, 3, 2, 1].map(stars => (
-            <View key={stars} style={styles.ratingBarContainer}>
-              <Text style={styles.ratingLabel}>{stars} star</Text>
-              <View style={styles.ratingBarBackground}>
-                <View
-                  style={[
-                    styles.ratingBarFill,
-                    {
-                      width: `${ratingStats.total > 0
-                        ? (ratingStats.distribution[stars] / ratingStats.total) * 100
-                        : 0}%`,
-                    },
-                  ]}
+                  {/* Rating Distribution */}
+                  <View style={styles.ratingDistribution}>
+                    {[5, 4, 3, 2, 1].map((stars) => (
+                      <View key={stars} style={styles.ratingBarContainer}>
+                        <Text style={styles.ratingLabel}>{stars} star</Text>
+                        <View style={styles.ratingBarBackground}>
+                          <View
+                            style={[
+                              styles.ratingBarFill,
+                              {
+                                width: `${
+                                  ratingStats.total > 0
+                                    ? (ratingStats.distribution[stars] /
+                                        ratingStats.total) *
+                                      100
+                                    : 0
+                                }%`,
+                              },
+                            ]}
+                          />
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              ) : (
+                <View style={{ height: 50 }}>
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: 16,
+                      textAlign: "center",
+                    }}
+                  >
+                    No Reviews Yet
+                  </Text>
+                </View>
+              )}
+
+              {/* Reviews List */}
+              <Text style={styles.reviewSectionTitle}>Employee Reviews</Text>
+              {company.reviews?.map((item, index) => (
+                <View style={styles.reviewCard} key={index}>
+                  <View style={styles.reviewHeader}>
+                    <Text style={styles.reviewerName}>{item.userName}</Text>
+                    <Text style={styles.reviewTime}>
+                      {formatReviewTime(item.reviewedAt)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.starContainer}>
+                    {[1, 2, 3, 4, 5].map((num) => (
+                      <AntDesign
+                        key={num}
+                        name="star"
+                        color={item.star >= num ? "#FFD700" : "#CCCCCC"}
+                        size={16}
+                      />
+                    ))}
+                  </View>
+
+                  <Text style={styles.reviewText}>
+                    {item.reviewDescription}
+                  </Text>
+                </View>
+              ))}
+
+              {/* Add Review Section */}
+              <View style={styles.addReviewContainer}>
+                <Text style={styles.addReviewTitle}>Add Your Review</Text>
+
+                <View style={styles.starRatingContainer}>
+                  {[1, 2, 3, 4, 5].map((num) => (
+                    <Pressable
+                      key={num}
+                      onPress={() => handleReviewSelection(num)}
+                    >
+                      <AntDesign
+                        name="star"
+                        color={star >= num ? "#FFD700" : "#CCCCCC"}
+                        size={18}
+                      />
+                    </Pressable>
+                  ))}
+                </View>
+
+                <TextInput
+                  multiline
+                  placeholder="Write your review here..."
+                  style={styles.reviewInput}
+                  value={review.reviewDescription}
+                  onChangeText={(val) =>
+                    setReview({ ...review, reviewDescription: val })
+                  }
                 />
+
+                <Pressable style={styles.postButton} onPress={handlePostReview}>
+                  <Text style={styles.postButtonText}>Post Review</Text>
+                </Pressable>
               </View>
             </View>
-          ))}
+          )}
         </View>
+      </ScrollView>
+
+      {/* Bottom Button */}
+      <View style={styles.bottomButton}>
+        <TouchableOpacity
+          style={styles.applyBtn}
+          onPress={() =>
+            navigation.navigate("Apply Job", {
+              JobId: currentJob.id,
+              companyUID: currentJob.companyUID,
+            })
+          }
+        >
+          <Text style={styles.applyText}>Apply This Job</Text>
+        </TouchableOpacity>
       </View>
-    ):<View style={{height:200}}><Text style={{fontWeight:'bold',fontSize:16,textAlign:'center'}}>No Reviews Yet</Text></View>}
-
-    {/* Reviews List */}
-    <Text style={styles.reviewSectionTitle}>Employee Reviews</Text>
-    {
-      company.reviews?.map((item,index)=>(
-           <View style={styles.reviewCard} key={index}>
-          <View style={styles.reviewHeader}>
-            <Text style={styles.reviewerName}>{item.userName}</Text>
-            <Text style={styles.reviewTime}>{formatReviewTime(item.reviewedAt)}</Text>
-          </View>
-
-          <View style={styles.starContainer}>
-            {[1, 2, 3, 4, 5].map(num => (
-              <AntDesign key={num} name="star" color={item.star >= num ? "#FFD700" : "#CCCCCC"} size={16} />
-            ))}
-          </View>
-
-          <Text style={styles.reviewText}>{item.reviewDescription}</Text>
-        </View>
-      ))
-    }
-     
-       
-      
-
-    {/* Add Review Section */}
-    <View style={styles.addReviewContainer}>
-      <Text style={styles.addReviewTitle}>Add Your Review</Text>
-
-      <View style={styles.starRatingContainer}>
-        {[1, 2, 3, 4, 5].map(num => (
-          <Pressable key={num} onPress={() => handleReviewSelection(num)}>
-            <AntDesign name="star" color={star >= num ? "#FFD700" : "#CCCCCC"} size={18} />
-          </Pressable>
-        ))}
-      </View>
-
-      <TextInput
-        multiline
-        placeholder="Write your review here..."
-        style={styles.reviewInput}
-        value={review.reviewDescription}
-        onChangeText={(val) => setReview({ ...review, reviewDescription: val })}
-      />
-
-      <Pressable style={styles.postButton} onPress={handlePostReview}>
-        <Text style={styles.postButtonText}>Post Review</Text>
-      </Pressable>
     </View>
-  </View>
-)}
-     
-    </View>
-      </ScrollView >
-
-  {/* Bottom Button */ }
-  < View style = { styles.bottomButton } >
-    <TouchableOpacity style={styles.applyBtn} onPress={() => navigation.navigate("Apply Job", {
-      JobId: currentJob.id,
-      companyUID: currentJob.companyUID
-    })}>
-      <Text style={styles.applyText}>Apply This Job</Text>
-    </TouchableOpacity>
-      </View >
-    </View >
   );
 };
 
@@ -386,40 +471,39 @@ export default JobDetail;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   scroll: {
     paddingBottom: 100,
   },
   jobCard: {
-    backgroundColor: '#6C63FF',
+    backgroundColor: "#6C63FF",
     borderRadius: 12,
     margin: 16,
     padding: 16,
   },
   jobInfo: {
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
   },
   role: {
     fontSize: 22,
-    fontFamily:'Poppins-Bold',
-    color: '#fff',
+    fontFamily: "Poppins-Bold",
+    color: "#fff",
   },
   location: {
     fontSize: 14,
-    color: '#ddd',
+    color: "#ddd",
     marginVertical: 4,
-
   },
   tags: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
     marginTop: 8,
   },
   tag: {
-    backgroundColor: '#fff',
-    color: '#333',
+    backgroundColor: "#fff",
+    color: "#333",
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 20,
@@ -427,266 +511,268 @@ const styles = StyleSheet.create({
     marginRight: 8,
     marginTop: 4,
   },
- tabs: {
-    flexDirection: 'row',
+  tabs: {
+    flexDirection: "row",
     marginHorizontal: 16,
     marginTop: 12,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: "#f0f4ff",
     borderRadius: 12,
     padding: 4,
   },
+  skillOuter: {
+    backgroundColor: "#e6eefa",
+    padding: 5,
+    borderRadius: 20,
+    paddingHorizontal:12
+  },
   tab: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 15,
-    paddingVertical:5,
-    backgroundColor: '#fff', // Corrected from "fff"
+    paddingVertical: 5,
+    backgroundColor: "#fff", // Corrected from "fff"
   },
   tabText: {
-    color: '#3d77ff',
-    fontSize:14,
-    fontWeight:'bold',
-    textAlign: 'center',
+    color: "#3d77ff",
+    fontSize: 14,
+    fontWeight: "bold",
+    textAlign: "center",
   },
   activeTab: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 15,
 
-    backgroundColor: '#3d77ff',
+    backgroundColor: "#3d77ff",
   },
   activeTabText: {
-    color: '#fff',
-    fontWeight:'bold',
-    textAlign: 'center',
-     fontSize:14,
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center",
+    fontSize: 14,
   },
   content: {
     paddingHorizontal: 16,
     paddingTop: 16,
   },
   heading: {
-    fontFamily:'Poppins-Bold',
+    fontFamily: "Poppins-Bold",
     fontSize: 16,
     marginBottom: 6,
   },
   paragraph: {
-    color: '#444',
+    color: "#444",
     marginBottom: 16,
     lineHeight: 22,
   },
   bulletRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     marginBottom: 8,
   },
   bullet: {
     marginRight: 6,
     fontSize: 18,
-    color: '#6C63FF',
+    color: "#6C63FF",
   },
   bulletText: {
     flex: 1,
-    color: '#333',
+    color: "#333",
     fontSize: 14,
-    fontFamily:'Poppins-Regular'
+    fontFamily: "Poppins-Regular",
   },
   bottomButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
-    width: '100%',
+    width: "100%",
     paddingHorizontal: 20,
   },
   applyBtn: {
-    backgroundColor: '#4169e1',
+    backgroundColor: "#4169e1",
     paddingVertical: 16,
     borderRadius: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
   applyText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 16,
   },
   companyIconlist: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
 
-    alignItems: 'center'
+    alignItems: "center",
   },
   companyIconpart: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
-    marginTop: 10
+    marginTop: 10,
   },
   iconText: {
-    fontFamily:'Poppins-Bold',
+    fontFamily: "Poppins-Bold",
   },
   reviewContainer: {
-
     padding: 16,
   },
   ratingSummaryContainer: {
-
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
   },
   ratingOverview: {
-
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 16,
     gap: 10,
-    justifyContent: 'center'
+    justifyContent: "center",
   },
   averageRating: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
     marginRight: 4,
   },
   ratingOutOf: {
     fontSize: 16,
-    color: '#666',
-    fontWeight: 'bold',
+    color: "#666",
+    fontWeight: "bold",
     marginRight: 16,
   },
   starsContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginRight: 16,
-    gap: 3
+    gap: 3,
   },
   totalReviews: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
   ratingDistribution: {
     marginTop: 8,
   },
   ratingBarContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
   },
   ratingLabel: {
     width: 60,
     fontSize: 12,
-    color: '#666',
+    color: "#666",
   },
   ratingBarBackground: {
     flex: 1,
     height: 8,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
     borderRadius: 4,
     marginHorizontal: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   ratingBarFill: {
-    height: '100%',
-    backgroundColor: '#FFD700',
+    height: "100%",
+    backgroundColor: "#FFD700",
     borderRadius: 4,
   },
   ratingCount: {
     width: 30,
     fontSize: 12,
-    color: '#666',
-    textAlign: 'right',
+    color: "#666",
+    textAlign: "right",
   },
   reviewSectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
-    color: '#000',
+    color: "#000",
   },
   reviewCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
   },
   reviewHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 8,
   },
   reviewerName: {
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
   },
   reviewTime: {
-    color: '#666',
+    color: "#666",
     fontSize: 12,
   },
   starContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 8,
   },
   reviewText: {
-    color: '#333',
+    color: "#333",
     lineHeight: 20,
   },
   addReviewContainer: {
     marginTop: 20,
     padding: 16,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
     borderRadius: 8,
   },
   addReviewTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
-    color: '#000',
+    color: "#000",
   },
   starRatingContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 16,
   },
   reviewInput: {
-    width: '100%',
+    width: "100%",
     minHeight: 100,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
-    color: '#333',
-    textAlignVertical: 'top',
+    color: "#333",
+    textAlignVertical: "top",
   },
   postButton: {
-    backgroundColor: '#1967d2',
+    backgroundColor: "#1967d2",
     padding: 12,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   postButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
   circularRatingContainer: {
     height: 10,
-    width: '100%',
-    backgroundColor: '#f0f0f0',
+    width: "100%",
+    backgroundColor: "#f0f0f0",
     borderRadius: 5, // Makes it circular
-    overflow: 'hidden', // Ensures the fill stays within bounds
+    overflow: "hidden", // Ensures the fill stays within bounds
     marginVertical: 8,
   },
   circularRatingFill: {
-    height: '100%',
-    backgroundColor: '#FFD700', // Gold color for rating
+    height: "100%",
+    backgroundColor: "#FFD700", // Gold color for rating
     borderRadius: 5, // Match container radius
   },
-
 });

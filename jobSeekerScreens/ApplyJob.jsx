@@ -8,32 +8,58 @@ import {
   StyleSheet,
   Alert,
   Linking,
+  Pressable,
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { auth, db } from "../firebaseConfig";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection,getDoc,doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { storage } from "../firebaseConfig";
-
+import axios from "axios";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
+import {AntDesign,MaterialCommunityIcons} from '@expo/vector-icons'
 
 const ApplyJob = ({ navigation, route }) => {
+  const [resumeSelect,setResumeSelect]=useState(false);
+  const [selectedResumeIndex,setSelectedResumeIndex]=useState()
+  const [cvURL,setCvURL]=useState("");
+  const [cvFile,setCvFile]=useState()
   const [jobForm, setJobForm] = useState({
     name: "",
     website: "",
     coverLetter: "",
   });
-
+  
+  const CLOUDINARY_UPLOAD_PRESET = "unsigned_preset";
+  const CLOUDINARY_CLOUD_NAME = "dkxi9qvpw";
   const uid = auth.currentUser?.uid || "fA9DeooDHHOpjgsLXiGi2VFeE4y2";
   const { companyUID, JobId } = route.params;
-
-  const [cvFile, setCvFile] = useState(null);
+  
+  const [resumeDetails, setResumeDetails] = useState([]);
   const [fileName, setFileName] = useState("No file chosen");
+
+  const fetchResumeDetails = async () => {
+      if (!uid) {
+        return;
+      }
+      try {
+        const ref = await getDoc(doc(db, "users", uid));
+        if (ref.exists()) {
+          const data = ref.data().resumeDetails || [];
+          setResumeDetails(data);
+        }
+      } catch (e) {
+        console.log("Unable to fetch the resume details", e);
+      }
+    };
 
   const chooseFile = async () => {
     console.log("Choosing File")
+    setResumeSelect(false)
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: "*/*",
@@ -54,52 +80,96 @@ const ApplyJob = ({ navigation, route }) => {
   };
 
   const handleSubmit = async () => {
+    console.log("sumbit")
     try {
-      console.log("trying to submit")
-      let cvURL = null;
 
-      if (cvFile) {
-        const response = await fetch(cvFile.uri);
-        const blob = await response.blob();
-        console.log("blob",blob)
-
-        const storageRef = ref(
-          storage,
-          `cvUploads/${uid}_${Date.now()}_${cvFile.name}`
+  
+      if (cvFile && !resumeSelect) {
+        const fileUri = cvFile.uri;
+        const fileName = cvFile.name || "document.pdf";
+  
+        const formData = new FormData();
+        formData.append("file", {
+          uri: fileUri,
+          name: fileName,
+          type: "application/pdf",
+        });
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+  
+        const res = await axios.post(
+          `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              "X-Requested-With": "XMLHttpRequest"
+            },
+          }
         );
-
-        await uploadBytes(storageRef, blob);
-
-        cvURL = await getDownloadURL(storageRef);
+  
+        const uploadedURL = res.data.secure_url;
+        setCvURL(uploadedURL);
+        console.log("Cloudinary response:", res.data);
       }
-
       const data = {
         userId: uid,
         companyUID: companyUID,
         jobId: JobId,
         ...jobForm,
-        cvUrl: cvURL,
+        cvUrl: cvURL || "",
         notified: false,
         submittedAt: new Date(),
         status: "applied",
       };
-      console.log(data)
 
       await addDoc(collection(db, "jobApplications"), data);
-      console.log("Apllied Successfull")
-      // navigation.navigate("Application successfull");
+
+      Alert.alert("Success", "Applied successfully.");
+      console.log("Applied Successfully");
     } catch (e) {
       console.log("Error submitting job application:", e);
-      Alert.alert("Error", "Failed to apply for the job. Try again.",e);
+      Alert.alert("Error", "Failed to apply for the job.");
     }
   };
-
+  const handleDownload = async (url, fileName) => {
+      try {
+        const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+        const downloadResumable = FileSystem.createDownloadResumable(
+          url,
+          fileUri
+        );
+        const { uri } = await downloadResumable.downloadAsync();
+        if (uri) {
+          console.log("Downloaded to:", uri);
+          Alert.alert("Success", "Resume downloaded successfully!");
+  
+          // ✅ Ask to open the file
+          const canShare = await Sharing.isAvailableAsync();
+          if (canShare) {
+            await Sharing.shareAsync(uri);
+          } else {
+            Alert.alert("Note", "Sharing not available on this device.");
+          }
+        } else {
+          throw new Error("Download failed");
+        }
+      } catch (e) {
+        console.log("Error downloading file:", e);
+        Alert.alert("Error", "Download failed");
+      }
+    };
+    useEffect(() => {
+      if (uid) {
+        fetchResumeDetails();
+      }
+    }, [uid]);
+    
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Text style={styles.sectionTitle}>Apply Job</Text>
 
-        <View style={styles.section}>
+        {/* <View style={styles.section}>
           <Text style={styles.label}>Full name*</Text>
           <TextInput
             style={styles.input}
@@ -109,7 +179,7 @@ const ApplyJob = ({ navigation, route }) => {
             }
             placeholder="Type your name"
           />
-        </View>
+        </View> */}
 
         <View style={styles.section}>
           <Text style={styles.label}>Website, Blog, or Portfolio*</Text>
@@ -131,11 +201,57 @@ const ApplyJob = ({ navigation, route }) => {
               <Text style={styles.uploadText}>Browse Files</Text>
             </View>
           </TouchableOpacity>
-          <Text style={styles.fileName}>{fileName}</Text>
+          <Text style={styles.fileName}>{resumeSelect ?"":fileName}</Text>
+          <View>
+            {resumeDetails.length > 0 &&
+              resumeDetails.map((item, index) => (
+                <View
+                  key={index}
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 10,
+                    backgroundColor: "#f1f1f1",
+                    padding: 10,
+                    borderRadius: 6,
+                  }}
+                >
+                  <Pressable onPress={()=>{
+                    setResumeSelect(true)
+                    setSelectedResumeIndex(index)
+                    setFileName(item.fileName)
+                    setCvURL(item.cvURL);
+                  }}>
+                    <MaterialCommunityIcons
+                      name={resumeSelect && selectedResumeIndex===index?"checkbox-marked-circle-outline":"checkbox-blank-circle-outline"}
+                      color="#000"
+                      size={24}
+                    />
+                  </Pressable>
+                  <AntDesign
+                    name="pdffile1"
+                    color="#000"
+                    size={24}
+                    style={{ marginRight: 10 }}
+                  />
+                  <Text style={{ flex: 1 }}>{item.fileName}</Text>
+                  <TouchableOpacity
+                    style={{
+                      padding: 8,
+                      borderRadius: 5,
+                    }}
+                    onPress={() => handleDownload(item.cvURL, item.fileName)}
+                  >
+                    <AntDesign name="download" color="#000" size={24} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+          </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.label}>Motivational Letter</Text>
+          <Text style={styles.label}>cover Letter</Text>
           <TextInput
             style={[styles.input, styles.textArea]}
             value={jobForm.coverLetter}

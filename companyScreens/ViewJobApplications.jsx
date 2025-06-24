@@ -12,7 +12,8 @@ import {
   TextInput,
   Alert,
   StyleSheet,
-  ActivityIndicator
+  ActivityIndicator,
+  Linking
 } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, Feather, Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -126,95 +127,144 @@ const ViewJobApplications = ({navigation}) => {
 }
 
 export default ViewJobApplications
-
 const ApplicationsList = ({ route }) => {
-
-   const { JobId } = route.params;
-  const [modalVisible,setModalVisible]=useState(false);
+  const { JobId } = route.params;
+  const [modalVisible, setModalVisible] = useState(false);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const [disableBtn,setDisableBtn]=useState(false);
-
-  const [status,setStatus]=useState("");
-  const [message,setMessage]=useState("");
-  const [jobData,setJobData]=useState("");
-  const [currentApplication,setCurrentApplication]=useState({})
+  const [status, setStatus] = useState("");
+  const [message, setMessage] = useState("");
+  const [jobData, setJobData] = useState({});
+  const [currentApplication, setCurrentApplication] = useState({});
   const navigation = useNavigation();
-  const selectionMsg=`We are pleased to inform you that you have been shortlisted for the position of ${jobData.jobrole} at ${jobData.companyName} and we look forward to the next steps in the selection process. Our team will be in touch with you shortly regarding further details.`
-  const rejectionMSg=`Thank you for your interest in the ${jobData.jobrole} position at ${jobData.companyName}.we regret to inform you that you have not been shortlisted for the next stage of the selection process. `
-
 
   const fetchApplications = async () => {
     if (!JobId) return;
 
     try {
       setLoading(true);
-      const q = query(collection(db, 'jobApplications'), where('jobId', '==', JobId));
-      const snapData = await getDocs(q);
-      const appList = snapData.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setApplications(appList);
+      const q = query(
+        collection(db, "jobApplications"),
+        where("jobId", "==", JobId)
+      );
+      const snap = await getDocs(q);
+      const apps = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setApplications(apps);
     } catch (e) {
-      console.log('Error fetching applications:', e);
-    }
-    finally{
+      console.log("Error fetching applications:", e);
+    } finally {
       setLoading(false);
     }
   };
-  const fetchCompanyDetails=async()=>{
-    const jobsnap=await getDoc(doc(db,'jobs',JobId));
-    setJobData(jobsnap.data());
 
-  }
-  const updateStatus=async()=>{
-    try{
-      
-      const jobref=doc(db,'jobApplications',currentApplication.id);
-      await updateDoc(jobref,{status:status,statusAt:new Date()});
-  
-      const MessageRef=collection(db,'users',currentApplication.userId,'messages');
-      await addDoc(MessageRef,{
-        message:message,
-        messageAt: new Date(),
-        from:jobData.companyName,
-        type: 'status_update',
-        status: status,
-        read: false
-      })
-      setMessage('');
-      setStatus('');
-      setModalVisible(false);
-      fetchApplications();
-     
-      console.log("status updated successfully")
+  const fetchJobData = async () => {
+    if (!JobId) return;
+
+    try {
+      const jobSnap = await getDoc(doc(db, "jobs", JobId));
+      if (jobSnap.exists()) setJobData(jobSnap.data());
+    } catch (e) {
+      console.log("Error fetching job:", e);
     }
-   catch(e){
-    console.log(e);
-    Alert.alert("can't able to send the messages")
-   }
-  }
+  };
+
+  const openCV = async (cvUrl) => {
+    if (!cvUrl || typeof cvUrl !== "string") {
+      Alert.alert("Error", "Invalid CV URL");
+      return;
+    }
+
+    try {
+      const supported = await Linking.canOpenURL(cvUrl);
+      if (supported) await Linking.openURL(cvUrl);
+      else Alert.alert("Error", "Cannot open the CV URL");
+    } catch (e) {
+      console.log("Error opening CV:", e);
+      Alert.alert("Error", "Something went wrong");
+    }
+  };
+
+  const handleViewStatus = async (app) => {
+    if (app.status !== "applied") return;
+
+    try {
+      await updateDoc(doc(db, "jobApplications", app.id), {
+        status: "viewed",
+        viewedAt: new Date(),
+      });
+    } catch (e) {
+      console.log("Failed to mark as viewed", e);
+    }
+  };
+
+  const handleStatusUpdate = async () => {
+    if (!status || !currentApplication?.id) return;
+
+    const finalMsg =
+      status === "shortlisted"
+        ? `We are pleased to inform you that you have been shortlisted for the position of ${jobData.jobrole} at ${jobData.companyName}.`
+        : `Thank you for your interest in the ${jobData.jobrole} position at ${jobData.companyName}. Unfortunately, you were not shortlisted.`;
+
+    try {
+      const appRef = doc(db, "jobApplications", currentApplication.id);
+      await updateDoc(appRef, {
+        status,
+        statusAt: new Date(),
+      });
+
+      const msgRef = collection(
+        db,
+        "users",
+        currentApplication.userId,
+        "messages"
+      );
+      await addDoc(msgRef, {
+        message: message || finalMsg,
+        messageAt: new Date(),
+        from: jobData.companyName,
+        type: "status_update",
+        status,
+        read: false,
+      });
+
+      setModalVisible(false);
+      setStatus("");
+      setMessage("");
+      fetchApplications();
+    } catch (e) {
+      console.log("Error updating status:", e);
+      Alert.alert("Failed to update status");
+    }
+  };
 
   useEffect(() => {
     fetchApplications();
-    fetchCompanyDetails();
+    fetchJobData();
   }, []);
- console.log(jobData)
-console.log(applications)
+
   const renderItem = ({ item }) => (
     <View style={[styles.card, { marginHorizontal: 20 }]}>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <Text style={styles.name}>{item.name}</Text>
         <Text>Applied {formatDate(item.submittedAt)}</Text>
       </View>
-      <View>
-        <Text style={styles.label}>Website:</Text>
-        <Text style={styles.website}>{item.website}</Text>
-        <Text style={styles.label}>Cover Letter:</Text>
-        <Text style={styles.coverLetter}>{item.coverLetter}</Text>
-      </View>
+
+      <Text style={styles.label}>Website:</Text>
+      <Text style={styles.website}>{item.website}</Text>
+
+      <Text style={styles.label}>Cover Letter:</Text>
+      <Text style={styles.coverLetter}>{item.coverLetter}</Text>
+
+      {item.cvUrl && (
+        <TouchableOpacity
+          onPress={async () => {
+            await openCV(item.cvUrl);
+            await handleViewStatus(item);
+          }}
+        >
+          <Text style={{ color: "blue", marginTop: 5 }}>View CV</Text>
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity
         style={styles.button}
@@ -224,20 +274,19 @@ console.log(applications)
       >
         <Text style={styles.buttonText}>View Full Profile</Text>
       </TouchableOpacity>
+
       <TouchableOpacity
         style={[
           styles.button,
           item.status === "shortlisted" && styles.shortlistBackground,
           item.status === "notShortlisted" && styles.notShortlistBackground,
         ]}
+        disabled={["shortlisted", "notShortlisted"].includes(item.status)}
         onPress={() => {
-          setModalVisible(true), setCurrentApplication(item);
+          setCurrentApplication(item);
+          setModalVisible(true);
         }}
-        disabled={
-          item.status === "shortlisted" || item.status === "notShortlisted"
-        }
       >
-     
         <Text style={styles.buttonText}>
           {item.status === "shortlisted"
             ? "Shortlisted"
@@ -248,96 +297,99 @@ console.log(applications)
       </TouchableOpacity>
     </View>
   );
-console.log(message)
+
   return (
-   <SafeAreaView style={styles.safeContainer}>
-     
-        { loading ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}> 
-            <ActivityIndicator size="large" color="#2563EB" />
-          </View>) :
-          applications.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              {/* <Image source={require('../assets/emptyfolder.png')} style={styles.emptyImage} /> */}
-              <Text style={styles.emptyText}>No Applications Yet</Text>
+    <SafeAreaView style={styles.safeContainer}>
+      {loading ? (
+        <ActivityIndicator size="large" color="#2563EB" style={{ flex: 1 }} />
+      ) : applications.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No Applications Yet</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={applications}
+          keyExtractor={(item) => item.id}
+          ListHeaderComponent={() => (
+            <Text style={styles.heading}>Applications</Text>
+          )}
+          renderItem={renderItem}
+          contentContainerStyle={styles.list}
+        />
+      )}
+
+      {/* Modal */}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.title}>Update Status</Text>
+
+            <View style={styles.buttonGroup}>
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  status === "shortlisted" && styles.selected,
+                ]}
+                onPress={() => {
+                  setStatus("shortlisted");
+                  setMessage(""); // optional: customize message
+                }}
+              >
+                <Text style={styles.modalButtonText}>Shortlisted</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  status === "notShortlisted" && styles.selected,
+                ]}
+                onPress={() => {
+                  setStatus("notShortlisted");
+                  setMessage(""); // optional: customize message
+                }}
+              >
+                <Text style={styles.modalButtonText}>Rejected</Text>
+              </TouchableOpacity>
             </View>
-          ) : (
-            <FlatList
-              data={applications}
-              keyExtractor={(item) => item.id}
-              ListHeaderComponent={() => (
-                <Text style={styles.heading}>Applications</Text>
-              )}
-              renderItem={renderItem}
-              contentContainerStyle={styles.list}
+
+            <TextInput
+              style={styles.textInput}
+              multiline
+              placeholder="Enter message..."
+              value={message}
+              onChangeText={setMessage}
             />
-          )
-        }
 
-        <Modal
-          visible={modalVisible}
-          animationType='slide'
-          onRequestClose={() => setModalVisible(false)}
-          transparent
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
-              <Text style={styles.title}>Update Status</Text>
+            <View style={styles.footerButtons}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => {
+                  setModalVisible(false);
+                  setStatus("");
+                  setMessage("");
+                }}
+              >
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
 
-              <View style={styles.buttonGroup}>
-                <TouchableOpacity
-                  style={[styles.optionButton, status === 'shortlisted' && styles.selected]}
-                  onPress={() => {
-                    setMessage(selectionMsg);
-                    setStatus('shortlisted');
-                  }}
-                >
-                  <Text style={styles.modalButtonText}>Shortlisted</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.optionButton, status === 'notShortlisted' && styles.selected]}
-                  onPress={() => {
-                    setMessage(rejectionMSg);
-                    setStatus('notShortlisted');
-                  }}
-                >
-                  <Text style={styles.modalButtonText}>Rejected</Text>
-                </TouchableOpacity>
-              </View>
-
-              <TextInput
-                style={styles.textInput}
-                multiline
-                placeholder="Enter message..."
-                value={message}
-                onChangeText={(val) => setMessage(val)}
-              />
-
-              <View style={styles.footerButtons}>
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => {
-                    setModalVisible(false);
-                    setStatus('');
-                    setMessage('');
-                  }}
-                >
-                  <Text style={styles.cancelText}>Cancel</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.sendButton} onPress={updateStatus}>
-                  <Text style={styles.sendText}>Send</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                style={styles.sendButton}
+                onPress={handleStatusUpdate}
+              >
+                <Text style={styles.sendText}>Send</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </Modal>
-    
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
-
 export  {ApplicationsList}
 
 const styles=StyleSheet.create({
