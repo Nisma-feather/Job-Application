@@ -99,10 +99,11 @@ const [unreadCount, setUnreadCount] = useState(0);
         />
         <Tab.Screen name="Profile" component={ProfileStack} options={{
           headerStyle:{
-           
+            backgroundColor:"#f0f5fa",
           elevation: 0, // Android
           shadowOpacity: 0, // iOS
-          borderBottomWidth: 0 }}}/>
+          borderBottomWidth: 0 },
+          headerShown:false}}/>
         <Tab.Screen name="BookMark" component={BookMarkScreen} />
         <Tab.Screen name="Message" component={MessagesStack} options={{headerShown:false,
           tabBarIcon:({focused,color,size})=>(

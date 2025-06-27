@@ -337,7 +337,9 @@ const ApplicationsList = ({ route }) => {
                 ]}
                 onPress={() => {
                   setStatus("shortlisted");
-                  setMessage(""); // optional: customize message
+                  setMessage(
+                    `We are pleased to inform you that you have been shortlisted for the position of ${jobData.jobrole} at ${jobData.companyName}.`
+                  );
                 }}
               >
                 <Text style={styles.modalButtonText}>Shortlisted</Text>
@@ -350,7 +352,9 @@ const ApplicationsList = ({ route }) => {
                 ]}
                 onPress={() => {
                   setStatus("notShortlisted");
-                  setMessage(""); // optional: customize message
+                  setMessage(
+                    `Thank you for your interest in the ${jobData.jobrole} position at ${jobData.companyName}. Unfortunately, you were not shortlisted.`
+                  );
                 }}
               >
                 <Text style={styles.modalButtonText}>Rejected</Text>
