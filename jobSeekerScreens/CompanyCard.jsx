@@ -237,10 +237,16 @@ const CompanyCard = ({ route, navigation }) => {
           </ImageBackground> */}
 
           <View style={styles.whiteContainer}>
-            {/* <Image source={require("../assets/user.png")} style={styles.logo} /> */}
-            <View>
-              <Ionicons name="person" color="white" size={75} />
-            </View>
+            {company.profileImg ? (
+              <Image
+                source={{uri:company.profileImg}}
+                style={[{resizeMode:'cover'},styles.logo]}
+              />
+            ) : (
+              <View>
+                <Ionicons name="person" color="white" size={75} />
+              </View>
+            )}
           </View>
         </View>
         <View style={styles.headerText}>
@@ -385,9 +391,15 @@ const CompanyCard = ({ route, navigation }) => {
         {/* Open Jobs Content */}
         {activeTab === "open jobs" && (
           <View style={{ padding: 15 }}>
-            {jobs.length===0? <View><Text style={styles.emptyText}>Currently No Job Openings</Text></View>:jobs.map((item, idx) => (
-              <JobCard key={idx} item={item} navigation={navigation} />
-            ))}
+            {jobs.length === 0 ? (
+              <View>
+                <Text style={styles.emptyText}>Currently No Job Openings</Text>
+              </View>
+            ) : (
+              jobs.map((item, idx) => (
+                <JobCard key={idx} item={item} navigation={navigation} />
+              ))
+            )}
             {/* <FlatList
               data={jobs}
               renderItem={({ item }) => (
@@ -469,7 +481,6 @@ const CompanyCard = ({ route, navigation }) => {
                 </View>
               </View>
             )}
-           
 
             {/* Reviews List */}
             <Text style={styles.reviewSectionTitle}>Employee Reviews</Text>
@@ -594,9 +605,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  emptyText:{
-   fontFamily:"Poppins-Medium",
-   textAlign:'center'
+  emptyText: {
+    fontFamily: "Poppins-Medium",
+    textAlign: "center",
   },
   banner: {
     height: 200,
@@ -617,11 +628,7 @@ const styles = StyleSheet.create({
     padding: 12,
     elevation: 5,
   },
-  logo: {
-    height: 60,
-    width: 60,
-    resizeMode: "contain",
-  },
+
   headerText: {
     marginTop: 50,
     alignItems: "center",
@@ -629,8 +636,8 @@ const styles = StyleSheet.create({
   role: {
     color: "#333",
     fontSize: 19,
-    fontFamily:'Poppins-Bold',
-    marginTop:5
+    fontFamily: "Poppins-Bold",
+    marginTop: 5,
   },
   company: {
     color: "#666",
@@ -646,13 +653,22 @@ const styles = StyleSheet.create({
     left: 50,
     alignSelf: "center",
     backgroundColor: "#d5e1f2",
-    borderRadius: 60,
+    borderRadius: 55,
+    overflow: "hidden", // ✅ ensures image stays within circle
     elevation: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
+
+  logo: {
+    height: "100%", // ✅ fills container vertically
+    width: "100%",
+    borderRadius: 55, // ✅ fills container horizontally
+    resizeMode: "cover", // ✅ makes image fill without distortion
+  },
+
   aboutContainer: {
     marginHorizontal: 16,
     marginTop: 20,
@@ -660,13 +676,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: "#111",
     fontSize: 17,
-    fontFamily:"Poppins-Bold",
+    fontFamily: "Poppins-Bold",
     marginBottom: 10,
   },
   description: {
     color: "#444",
     lineHeight: 20,
-    fontFamily:"Poppins-Medium",
+    fontFamily: "Poppins-Medium",
     marginBottom: 15,
   },
   infoRow: {
@@ -677,12 +693,12 @@ const styles = StyleSheet.create({
   label: {
     color: "#555",
 
-    fontFamily:"Poppins-Medium"
+    fontFamily: "Poppins-Medium",
   },
   value: {
     color: "#222",
-    fontSize:15,
-    fontFamily:"Poppins-Bold"
+    fontSize: 15,
+    fontFamily: "Poppins-Bold",
   },
   galleryImage: {
     height: 100,
@@ -905,7 +921,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 14,
   },
-
 });
 
 export default CompanyCard;

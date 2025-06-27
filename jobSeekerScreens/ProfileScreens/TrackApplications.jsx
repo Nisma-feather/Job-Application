@@ -85,52 +85,72 @@ console.log(applications)
           const step = calculateStep(job);
           return (
             <View key={idx} style={styles.card}>
-              <View style={{flexWrap:'wrap'}}>
-              <Text style={styles.title}>{job.role}</Text>
-               <View style={{flexDirection:'row',gap:3}}>
-                 <Octicons name="square-fill" color="blue" size={15} />
-                  <Text style={styles.dateText}>{job.companyName}</Text>
-                  <Pressable onPress={()=>{
-                    const updatedApplications = [...applications];
-  updatedApplications[idx].viewStatus = !(job.viewStatus);
-  setApplications(updatedApplications);
-                  }}><Text style={{color:'blue'}}>View status</Text></Pressable>
-               </View>
-               {  job.viewStatus && (<>
-              {/* Step 1 - Applied */}
-              <View style={styles.stepRow}>
-                <StepDot active={step >= 1} />
-                <View>
-                  <Text style={styles.stepLabel}>Applied</Text>
-                  <Text style={styles.dateText}>{formatDate(job.submittedAt)}</Text>
+              <View style={{ gap:10}}>
+                <View style={{ flexDirection: "row", gap: 3,justifyContent:'space-between' }}>
+                  <Text style={styles.title}>{job.role}</Text>
+                  <Pressable
+                    style={{
+                      backgroundColor: "blue",
+                      padding: 5,
+                      paddingHorizontal:10,
+                      borderRadius: 5,
+                    }}
+                    onPress={() => {
+                      const updatedApplications = [...applications];
+                      updatedApplications[idx].viewStatus = !job.viewStatus;
+                      setApplications(updatedApplications);
+                    }}
+                  >
+                    <Text style={{ color: "white",fontWeight:'bold' }}>View status</Text>
+                  </Pressable>
                 </View>
-              </View>
+                {/* <Octicons name="square-fill" color="blue" size={15} /> */}
+                <Text style={styles.companyName}>{job.companyName}</Text>
 
-              {/* Step 2 - Viewed */}
-              <View style={styles.stepRow}>
-                <StepDot active={step >= 2} />
-                <View>
-                  <Text style={styles.stepLabel}>Viewed</Text>
-                  <Text style={styles.dateText}>{job.viewedAt ? formatDate(job.viewedAt) : '—'}</Text>
-                </View>
-              </View>
+                {job.viewStatus && (
+                  <>
+                    {/* Step 1 - Applied */}
+                    <View style={styles.stepRow}>
+                      <StepDot active={step >= 1} />
+                      <View>
+                        <Text style={styles.stepLabel}>Applied</Text>
+                        <Text style={styles.dateText}>
+                          {formatDate(job.submittedAt)}
+                        </Text>
+                      </View>
+                    </View>
 
-              {/* Step 3 - Shortlisted / Rejected */}
-              <View style={styles.stepRow}>
-                <StepDot active={step >= 3} />
-                <View>
-                  <Text style={styles.stepLabel}>
-                    {job.status === 'shortlisted' ? 'Shortlisted' : job.status === 'notShortlisted' ? 'Rejected' : '—'}
-                  </Text>
-                  <Text style={styles.dateText}>{job.statusAt ? formatDate(job.statusAt) : '—'}</Text>
-                </View>
+                    {/* Step 2 - Viewed */}
+                    <View style={styles.stepRow}>
+                      <StepDot active={step >= 2} />
+                      <View>
+                        <Text style={styles.stepLabel}>Viewed</Text>
+                        <Text style={styles.dateText}>
+                          {job.viewedAt ? formatDate(job.viewedAt) : "—"}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Step 3 - Shortlisted / Rejected */}
+                    <View style={styles.stepRow}>
+                      <StepDot active={step >= 3} />
+                      <View>
+                        <Text style={styles.stepLabel}>
+                          {job.status === "shortlisted"
+                            ? "Shortlisted"
+                            : job.status === "notShortlisted"
+                            ? "Rejected"
+                            : "—"}
+                        </Text>
+                        <Text style={styles.dateText}>
+                          {job.statusAt ? formatDate(job.statusAt) : "—"}
+                        </Text>
+                      </View>
+                    </View>
+                  </>
+                )}
               </View>
-              </>)
-      }
-               </View>
-        
             </View>
-            
           );
         })
       }
@@ -169,9 +189,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
   },
   title: {
-    fontWeight: 'bold',
+    fontFamily:'Poppins-Bold',
     fontSize: 16,
-    marginBottom: 8,
+
   },
   dateText: {
     fontSize: 13,
@@ -203,10 +223,15 @@ const styles = StyleSheet.create({
     marginVertical:6
   },
   stepLabel: {
-    fontWeight: '600',
+    fontFamily:"Poppins-Medium",
     fontSize: 14,
     marginBottom: 4,
   },
+  companyName:{
+    fontFamily:"Poppins-Regular",
+    fontSize:15,
+    color:"#555"
+  }
 
 });
 

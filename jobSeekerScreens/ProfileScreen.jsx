@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView, ScrollView,View, Text, StyleSheet, TouchableOpacity, Image, Alert, Pressable } from 'react-native';
 import { Ionicons,Octicons,MaterialCommunityIcons,Feather,MaterialIcons} from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -13,6 +13,7 @@ import axios from 'axios';
 const ProfileScreen = () => {
   const CLOUDINARY_UPLOAD_PRESET = "unsigned_preset";
   const CLOUDINARY_CLOUD_NAME = "dkxi9qvpw";
+
   const [loading,setLoading]=useState(false)
   const [image,setImage]=useState();
   const [personalData,setPersonalData]=useState({})
@@ -155,6 +156,52 @@ const ProfileScreen = () => {
   useEffect(()=>{
  fetchUserDetails();
   },[uid])
+
+ 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <View style={styles.profileSection}>
+          <View style={styles.imageContainer}>
+            {personalData.imageUrl ? (
+              <Image
+                source={{ uri: personalData.imageUrl }}
+                style={styles.profileImage}
+              />
+            ) : (
+              <View style={[styles.profileImage, styles.placeholder]}>
+                <Ionicons name="person" color="white" size={50} />
+              </View>
+            )}
+
+            <Pressable style={styles.editIcon} onPress={chooseFile}>
+              <MaterialIcons name="edit" color="#333" size={22} />
+            </Pressable>
+          </View>
+          <View style={{ marginLeft: 20, justifyContent: "center" }}>
+            <Text
+              style={{
+                color: "#3b4b5e",
+                fontFamily: "Poppins-Bold",
+                fontSize: 18,
+              }}
+            >
+              {personalData?.name}
+            </Text>
+            <Text
+              style={{
+                color: "#5c93df",
+                fontFamily: "Poppins-Bold",
+                fontSize: 16,
+              }}
+            >
+              Web Designer
+            </Text>
+          </View>
+        </View>
+      ),
+    });
+  }, [navigation, personalData.imageUrl]);
  
   return (
     <SafeAreaView style={styles.container}>
@@ -165,25 +212,6 @@ const ProfileScreen = () => {
           </View>
         ) : (
           <View style={{ padding: 15 }}>
-            <View style={styles.profileSection}>
-              <View style={styles.imageContainer}>
-                {personalData.imageUrl ? (
-                  <Image
-                    source={{ uri: personalData.imageUrl }}
-                    style={styles.profileImage}
-                  />
-                ) : (
-                  <View style={[styles.profileImage, styles.placeholder]}>
-                    <Ionicons name="person" color="white" size={50} />
-                  </View>
-                )}
-
-                <Pressable style={styles.editIcon} onPress={chooseFile}>
-                  <MaterialIcons name="edit" color="#444" size={22} />
-                </Pressable>
-              </View>
-            </View>
-
             <View style={styles.sections}>
               <TouchableOpacity
                 style={styles.sectionItem}
@@ -289,12 +317,17 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
   profileSection: {
-    alignItems: "center",
-    marginVertical: 20,
+    flexDirection: "row",
+    backgroundColor: "#f0f5fa",
+    margin:0,
   },
   imageContainer: {
-    width: 120,
-    height: 120,
+    width: 110,
+    height: 110,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#d7e3f3",
+    borderRadius: "50%",
     position: "relative",
   },
   profileImage: {
@@ -359,3 +392,26 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Bold",
   },
 });
+
+export const ProfileHeader=()=>{
+  return (
+    <View style={styles.profileSection}>
+      <View style={styles.imageContainer}>
+        {personalData.imageUrl ? (
+          <Image
+            source={{ uri: personalData.imageUrl }}
+            style={styles.profileImage}
+          />
+        ) : (
+          <View style={[styles.profileImage, styles.placeholder]}>
+            <Ionicons name="person" color="white" size={50} />
+          </View>
+        )}
+
+        <Pressable style={styles.editIcon} onPress={chooseFile}>
+          <MaterialIcons name="edit" color="#444" size={22} />
+        </Pressable>
+      </View>
+    </View>
+  );
+}

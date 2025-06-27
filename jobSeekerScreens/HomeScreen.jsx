@@ -165,35 +165,7 @@ console.log(recommend);
   contentContainerStyle={{ paddingBottom: 100, backgroundColor: '#fff', flexGrow: 1,}}
   showsVerticalScrollIndicator={false}
 >
-      {/* Top Bar */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, gap: 12 }}>
-        <Ionicons name="menu" size={24} />
-        <Pressable onPressIn={() => navigation.navigate("Find Job")} style={{ flex: 1, }}>
-          <TextInput
-            placeholder="Search Jobs..."
-            placeholderTextColor="#666"
-            
-            editable={false}
-            style={{
-
-              backgroundColor: 'white',
-              borderRadius: 20,
-              paddingVertical: 10,
-              paddingHorizontal: 12,
-              shadowColor:'#000',
-              shadowOpacity:0.2,
-              shadowOffset:{
-                height:1,
-                width:0
-              },
-              shadowRadius:2
-
-
-            }}
-          />
-        </Pressable>
-        <Ionicons name="notifications-outline" size={24} />
-      </View>
+     
 
       {/* Recommend Job */}
       <View style={{ padding: 16, backgroundColor: '#f2f7fc', paddingRight: 0 }}>
@@ -252,38 +224,48 @@ console.log(recommend);
   );
 };
 export const Customheader=({navigation})=>{
-  return(
-    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, gap: 12,backgroundColor:'white'}}>
-    <Ionicons name="menu" size={24} />
-    <Pressable onPressIn={() => navigation.navigate("Find Job")} style={{ flex: 1, }}>
-      <TextInput
-        placeholder="Search Jobs..."
-        placeholderTextColor="#666"
-        
-        editable={false}
-        style={{
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 12,
+        backgroundColor: "white",
+        height: 80,
+        shadowOpacity:0,
 
-          backgroundColor: 'white',
-          borderRadius: 20,
-          paddingVertical: 10,
-          paddingHorizontal: 12,
-          shadowColor:'#000',
-          shadowOpacity:0.2,
-          shadowOffset:{
-            height:1,
-            width:0
-          },
-          shadowRadius:2
-
-
-        }}
-      />
-    </Pressable>
-    <Ionicons name="notifications-outline" size={24} />
-  </View>
-
-
-  )
+      }}
+    >
+      <Ionicons name="menu" size={24} />
+      <Pressable
+        onPressIn={() => navigation.navigate("Find Job")}
+        style={{ flex: 1 }}
+      >
+        <TextInput
+          placeholder="Search Jobs..."
+          placeholderTextColor="#666"
+          editable={false}
+          style={{
+            backgroundColor: "white",
+            borderRadius: 20,
+            fontSize: 16,
+            paddingVertical: 10,
+            paddingHorizontal: 12,
+            shadowColor: "#000",
+            shadowOpacity: 0.2,
+            shadowOffset: {
+              height: 2,
+              width: 0,
+            },
+            shadowRadius: 2,
+            elevation: 2,
+            margin:10
+          }}
+        />
+      </Pressable>
+      <Ionicons name="notifications-outline" size={24} />
+    </View>
+  );
 }
 
 export default HomeScreen;

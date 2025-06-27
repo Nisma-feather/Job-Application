@@ -88,6 +88,7 @@ const JobSeekerStack = () => {
           elevation: 0,
           shadowOpacity: 0,
           borderBottomWidth: 1,
+          
         },
         headerTintColor: 'blue',
         headerLeft: () => {

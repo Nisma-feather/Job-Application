@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {Ionicons} from '@expo/vector-icons'
 import { View,Text,Image } from "react-native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import HomeScreen from "./HomeScreen";
+import HomeScreen, { Customheader } from "./HomeScreen";
 import FindJobScreen from "./FindJobScreen";
 import PersonalInfoScreen from "./ProfileScreens/PersonalInfoScreen";
 import EducationScreen from "./ProfileScreens/EducationScreen";
@@ -11,7 +11,7 @@ import ExperienceScreen from "./ProfileScreens/ExperienceScreen";
 import SkillsUpdateScreen from "./ProfileScreens/SkillsScreen";
 import ProjectsScreen from "./ProfileScreens/ProjectsScreen";
 import TrackApplications from "./ProfileScreens/TrackApplications";
-import ProfileScreen from "./ProfileScreen";
+import ProfileScreen, { ProfileHeader } from "./ProfileScreen";
 import JobDetail from "./JobDetail";
 import ApplyJob from "./ApplyJob";
 import CompanyCard from "./CompanyCard";
@@ -89,7 +89,7 @@ const [unreadCount, setUnreadCount] = useState(0);
           tabBarInactiveTintColor: "#666",
         })}
       >
-        <Tab.Screen name="Home" component={HomeStack} />
+        <Tab.Screen name="Home" component={HomeStack} options={{headerShown:false}}/>
         <Tab.Screen
           name="Find Jobs"
           component={JobStack}
@@ -97,7 +97,12 @@ const [unreadCount, setUnreadCount] = useState(0);
             tabBarIcon: () => <Ionicons name="search" color="#000" size={28} />,
           }}
         />
-        <Tab.Screen name="Profile" component={ProfileStack} />
+        <Tab.Screen name="Profile" component={ProfileStack} options={{
+          headerStyle:{
+            backgroundColor:"#f0f5fa",
+          elevation: 0, // Android
+          shadowOpacity: 0, // iOS
+          borderBottomWidth: 0 }}}/>
         <Tab.Screen name="BookMark" component={BookMarkScreen} />
         <Tab.Screen name="Message" component={MessagesStack} options={{headerShown:false,
           tabBarIcon:({focused,color,size})=>(
@@ -126,28 +131,26 @@ const JobSeekerDrawer=()=>{
 }
 
 const HomeStack=()=>{
-  return(
-    <Stack.Navigator screenOptions={{headerShown:'false'}}>
-      <Stack.Screen name="HomeScreen" component={HomeScreen} options={({navigation})=>({
-        header:()=>(
-          <Customheader navigation={navigation} />
-        ),
-        headerStyle:{
-          height:60,
-          backgroundColor:'#fff',
-          shadowOpacity:0,
-          elevation:0
-        },
-        headerShown:false
-      }
-      )}/>
-      <Stack.Screen name="Find Job" component={FindJobScreen}/>
-      
-      
-     
-    
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: "false" }}>
+      <Stack.Screen
+        name="HomeScreen"
+        component={HomeScreen}
+        options={({ navigation }) => ({
+       
+          headerTitle: () => <Customheader navigation={navigation} />,
+          headerStyle: {
+            margin:10,
+            backgroundColor: "#fff",
+            shadowOpacity: 0,
+            elevation: 0,
+          },
+          
+        })}
+      />
+      <Stack.Screen name="Find Job" component={FindJobScreen} />
     </Stack.Navigator>
-  )
+  );
 }
 const ProfileStack = () => {
   return (
@@ -155,7 +158,7 @@ const ProfileStack = () => {
       <Stack.Screen
         name="ProfileHome"
         component={ProfileScreen}
-        options={{ headerShown: false }}
+       
       />
       <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
       <Stack.Screen name="Education" component={EducationScreen} />

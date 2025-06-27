@@ -34,6 +34,7 @@ import JobCard from "./JobCard";
 const BookMarkScreen = ({ navigation }) => {
   // const navigation=useNavigation();
   const [loading, setLoading] = useState(false);
+  const dummyimg = require("../assets/logo.png"); 
   const uid = auth.currentUser?.uid;
   console.log(uid);
   const [bookmarks, setBookmarks] = useState([]);
@@ -151,6 +152,7 @@ const BookMarkScreen = ({ navigation }) => {
           ) : (
             <View style={styles.listJobs}>
               <FlatList
+               ItemSeparatorComponent={() => (<View style={{ height: 15 }} />)}
                 data={bookmarks}
                 renderItem={({ item }) => (
                   <Pressable
@@ -163,8 +165,7 @@ const BookMarkScreen = ({ navigation }) => {
                         style={{
                           flexDirection: "row",
                           justifyContent: "space-between",
-                          height: "40%",
-                          maxHeight: 45,
+                          
                         }}
                       >
                         <View style={{ flexDirection: "row", gap: 10 }}>
@@ -179,9 +180,26 @@ const BookMarkScreen = ({ navigation }) => {
                               borderRadius: 6,
                             }}
                           >
-                            <View style={{width:40,height:40,borderWidth:1,borderColor:'#dedede',justifyContent:'center',alignItems:'center',borderRadius:6,}}>
-                                                        <Image source={item.companyLogo?{uri:item.companyLogo}:dummyimg} style={styles.logo} />
-                           </View>
+                            <View
+                              style={{
+                                width: 40,
+                                height: 40,
+                                borderWidth: 1,
+                                borderColor: "#dedede",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                borderRadius: 6,
+                              }}
+                            >
+                              <Image
+                                source={
+                                  item.companyLogo
+                                    ? { uri: item.companyLogo }
+                                    : dummyimg
+                                }
+                                style={styles.logo}
+                              />
+                            </View>
                           </View>
 
                           <View style={{ justifyContent: "space-between" }}>

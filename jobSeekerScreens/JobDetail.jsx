@@ -1,11 +1,14 @@
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc,addDoc,getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert, FlatList, Pressable, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert, FlatList, Pressable, TextInput,Image } from 'react-native';
 import { auth, db } from '../firebaseConfig';
 import { Ionicons, Entypo, MaterialCommunityIcons, AntDesign, Foundation,FontAwesome} from '@expo/vector-icons';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
 const JobDetail = ({ route, navigation }) => {
+  const uid=auth.currentUser?.uid
+  const dummyimg = require('../assets/logo.png'); 
+  const [bookmark,setBookMark]=useState();
   const calculateRatingStats = (reviews = []) => {
     if (!reviews || reviews.length === 0) return {
       average: 0,
@@ -29,6 +32,7 @@ const JobDetail = ({ route, navigation }) => {
   };
 
   const { currentJob } = route.params;
+  console.log("current Job",currentJob.id)
   console.log(currentJob.companyUID)
   const [company, setCompany] = useState({});
   const [star, setStar] = useState(0);
@@ -88,11 +92,61 @@ const JobDetail = ({ route, navigation }) => {
       Alert.alert("Error", "Cannot fetch user details");
     }
   };
+  // Fetch Bookmarks
 
+ const fetchBookmarks=async()=>{
+  if (!uid || !currentJob?.id) return;
+  const ref = query(
+    collection(db, "bookmarks"),
+    where("userId", "==", uid),
+    where("jobId", "==", currentJob.id)
+  );
+  const snapDoc=await getDocs(ref);
+   if(!snapDoc.empty){
+    setBookMark(true)
+   }
+   else{
+    setBookMark(false)
+   }
+ }
+ //bookmark toggle
+ const toggleBookmark=async()=>{
+  if (!uid || !currentJob?.id) return;
+ try{
+ if(bookmark){
+
+   const SnapData=await getDocs(
+     query(
+       collection(db, "bookmarks"),
+       where("userId", "==", uid),
+       where("jobId", "==", currentJob.id)
+     )
+   );
+   if(!SnapData.empty){
+    await deleteDoc(doc(db,'bookmarks',SnapData.docs[0].id));
+    setBookMark(false);
+
+   }
+
+   
+  }
+  else{
+    await addDoc(collection(db, "bookmarks"), {
+      userId: uid,
+      jobId: currentJob.id,
+    });
+    setBookMark(true)
+  }
+ }
+ catch(e){
+  console.log("unable to toggle bookamrk",e)
+}
+}
   useEffect(() => {
+    fetchBookmarks();
     fetchCompany();
     fetchUserData();
-  }, [])
+  }, [currentJob?.id, uid]);
   const handleReviewSelection = (val) => {
     if (val === star) {
       setStar(0);
@@ -151,12 +205,73 @@ const JobDetail = ({ route, navigation }) => {
         {/* Top Job Card */}
         <View style={styles.jobCard}>
           <View style={styles.jobInfo}>
-            <Text style={styles.role}>{currentJob.jobrole}</Text>
-            <View style={{ flexDirection: "row" }}>
-              <Ionicons name="location" color="#fff" size={22} />
-              <Text style={styles.location}>{currentJob.locations}</Text>
+            {/* Top Row: Logo, Company Info & Bookmark */}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              {/* Left Section: Logo + Job Details */}
+              <View
+                style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
+              >
+                <View
+                  style={{
+                    width: 60,
+                    height: 60,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: 20,
+                    overflow: "hidden",
+                    shadowColor: "#000",
+                    shadowOffset: {
+                      height: 2,
+                      width: 0,
+                    },
+                    shadowRadius: 2,
+                    shadowOpacity: 0.4,
+                    elevation: 3,
+                  }}
+                >
+                  <Image
+                    source={
+                      company.profileImg
+                        ? { uri: company.profileImg }
+                        : dummyimg
+                    }
+                    style={styles.logo}
+                  />
+                </View>
+
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={styles.role}>{currentJob.jobrole}</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Text
+                      style={{
+                        fontSize: 15,
+                        fontFamily: "Poppins-Medium",
+                        color: "#666",
+                      }}
+                    >
+                      {company.companyName}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Right Section: Bookmark Icon */}
+              <Pressable onPress={toggleBookmark} style={{ paddingLeft: 10 }}>
+                <Ionicons
+                  name={bookmark ? "bookmark" : "bookmark-outline"}
+                  color={bookmark ? "blue" : "#555"}
+                  size={24}
+                />
+              </Pressable>
             </View>
 
+            {/* Job Tags */}
             <View style={styles.tags}>
               {currentJob.jobType && (
                 <Text style={styles.tag}>{currentJob.jobType}</Text>
@@ -477,7 +592,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   jobCard: {
-    backgroundColor: "#6C63FF",
+    backgroundColor: "#f0f5fa",
     borderRadius: 12,
     margin: 16,
     padding: 16,
@@ -486,13 +601,13 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   role: {
-    fontSize: 22,
+    fontSize: 18,
     fontFamily: "Poppins-Bold",
-    color: "#fff",
+    color: "#444",
   },
   location: {
     fontSize: 14,
-    color: "#ddd",
+    color: "#444",
     marginVertical: 4,
   },
   tags: {
@@ -523,7 +638,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e6eefa",
     padding: 5,
     borderRadius: 20,
-    paddingHorizontal:12
+    paddingHorizontal: 12,
   },
   tab: {
     flex: 1,
@@ -774,5 +889,20 @@ const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: "#FFD700", // Gold color for rating
     borderRadius: 5, // Match container radius
+  },
+  logo: {
+    flexDirection: "row",
+    width: "100%",
+    height: "100%",
+    borderRadius: 15,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: {
+      height: 2,
+      width: 0,
+    },
+    shadowRadius: 2,
+    shadowOpacity: 0.4,
+    elevation: 5,
   },
 });
