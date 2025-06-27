@@ -173,7 +173,7 @@ const ExperienceScreen = ({ navigation }) => {
                   </Text>
                 ) : null}
               </View>
-              // From & To Dates
+           
               <View style={{ flexDirection: "row", gap: 20 }}>
                 <View style={[styles.inputWrapper, { flex: 1 }]}>
                   <Text style={styles.label}>From</Text>

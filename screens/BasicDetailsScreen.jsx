@@ -96,9 +96,11 @@ const BasicDetailsScreen = ({navigation,route}) => {
             if(!handleValidation()){
                 return
             }
-            navigation.navigate('User Interest',{loginData:loginData,
-                         personalData:formData
-            })
+            navigation.navigate("EmailVerification", {
+              loginData: loginData,
+              personalData: formData,
+            });
+            
         }}>
           <Text style={styles.buttonText}>Complete Profile</Text>
         </TouchableOpacity>

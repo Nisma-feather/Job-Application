@@ -99,7 +99,7 @@ const [unreadCount, setUnreadCount] = useState(0);
         />
         <Tab.Screen name="Profile" component={ProfileStack} options={{
           headerStyle:{
-            backgroundColor:"#f0f5fa",
+           
           elevation: 0, // Android
           shadowOpacity: 0, // iOS
           borderBottomWidth: 0 }}}/>
@@ -122,13 +122,7 @@ const [unreadCount, setUnreadCount] = useState(0);
 }
 //Job Seeker Drawer Navigator
 
-const JobSeekerDrawer=()=>{
-  return(
-    <Drawer.Navigator >
-      <Drawer.Screen name="Profile" component={ProfileStack}/>
-    </Drawer.Navigator>
-  )
-}
+
 
 const HomeStack=()=>{
   return (
@@ -158,7 +152,7 @@ const ProfileStack = () => {
       <Stack.Screen
         name="ProfileHome"
         component={ProfileScreen}
-       
+        options={{headerShown:true}}
       />
       <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
       <Stack.Screen name="Education" component={EducationScreen} />
@@ -182,6 +176,14 @@ const JobStack = () => {
     </Stack.Navigator>
   );
 };
+export const JobSeekerDrawer=()=>{
+  return (
+    <Drawer.Navigator screenOptions={{headerShown:false}}>
+      <Drawer.Screen name="Home" component={JobSeekerTab} />
+      <Drawer.Screen name="Profile" component={ProfileStack} />
+    </Drawer.Navigator>
+  );
+}
 
 const MessagesStack=()=>{
   return(

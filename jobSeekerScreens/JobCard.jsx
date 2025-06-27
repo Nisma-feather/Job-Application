@@ -117,7 +117,7 @@ console.log("logo",logo)
             <Text style={styles.companyName}>{item.companyName}</Text>
             
             <FontAwesome style={{marginTop:2}} name="star"  color="#FFD700"  size={14} />
-            <Text style={{fontSize:12,fontWeight:'500',color:"#777"}}>{reviewAvg}.0 Review</Text>
+            <Text style={{fontSize:12,fontWeight:'500',color:"#777"}}>{(reviewAvg && reviewAvg > 0 )? `${reviewAvg}.0 Review` : "No Reviews"}</Text>
 
             </View>
             
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   },
   companyName: {
     fontSize: 13,
-    color: '#666',
+ 
     color:"#5c88ea",
 
     marginBottom: 4,

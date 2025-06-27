@@ -318,7 +318,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
   profileSection: {
     flexDirection: "row",
-    backgroundColor: "#f0f5fa",
     margin:0,
   },
   imageContainer: {
@@ -335,7 +334,7 @@ const styles = StyleSheet.create({
     height: "100%",
     borderRadius: 60,
     resizeMode: "cover",
-    borderWidth: 1,
+
   },
   placeholder: {
     backgroundColor: "#ccc",

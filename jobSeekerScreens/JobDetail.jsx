@@ -370,6 +370,27 @@ const JobDetail = ({ route, navigation }) => {
                   </View>
                 </View>
               )}
+              {currentJob.expYear && (
+                <View style={{ marginTop: 8 }}>
+                  <Text style={styles.heading}>Experience</Text>
+                  <View style={styles.bulletRow}>
+                    <Text style={styles.bullet}>•</Text>
+                    <Text style={styles.bulletText}>{currentJob.expYear}</Text>
+                  </View>
+                </View>
+              )}
+
+              {currentJob.salaryPack && (
+                <View style={{ marginTop: 8 }}>
+                  <Text style={styles.heading}>CTC</Text>
+                  <View style={styles.bulletRow}>
+                    <Text style={styles.bullet}>•</Text>
+                    <Text style={styles.bulletText}>
+                      {currentJob.salaryPacks}
+                    </Text>
+                  </View>
+                </View>
+              )}
             </>
           )}
 

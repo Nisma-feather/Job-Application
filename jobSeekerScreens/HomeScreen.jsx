@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Pressable, Alert, ActivityIndicator, SafeAreaView,FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { auth, db } from '../firebaseConfig';
-import { getDoc, doc, collection, where, query, getDocs } from 'firebase/firestore';
+import { getDoc, doc, collection, where, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import JobCard from './JobCard';
+import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = ({ navigation }) => {
   const [userData, setUserData] = useState({});
@@ -51,94 +52,103 @@ const HomeScreen = ({ navigation }) => {
     return newRecommend;
   };
 
-  const fetchRecommendJobs = async (recommendData,userData) => {
+  const fetchRecommendJobs = async (recommendData) => {
     try {
-      const jobRef = collection(db, 'jobs');
+      const jobRef = collection(db, "jobs");
       const queryConditions = [];
 
-      if (recommendData?.position) {
-        queryConditions.push(where('jobrole', '==', recommendData.position));
-      }
-      if (recommendData?.jobType) {
-        queryConditions.push(where('jobType', '==', recommendData.jobType));
-      }
-      if (recommendData?.experienceLevel) {
-        queryConditions.push(where('expYear', '==', recommendData.experienceLevel));
-      }
+      if (recommendData?.position)
+        queryConditions.push(where("jobrole", "==", recommendData.position));
+      if (recommendData?.jobType)
+        queryConditions.push(where("jobType", "==", recommendData.jobType));
+      if (recommendData?.experienceLevel)
+        queryConditions.push(
+          where("expYear", "==", recommendData.experienceLevel)
+        );
 
-      let jobs = [];
+      if (!queryConditions.length) return [];
 
-      if (queryConditions.length > 0) {
-        const q = query(jobRef, ...queryConditions);
-        const querySnapshot = await getDocs(q);
-        jobs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      }
-      console.log(jobs);
-
-      if (jobs.length === 0) {
-        console.log("No recommendations foundso fetching skill based job",userData.skills)
-        const skillJobs = await fetchSkillBasedJobs(userData?.userInterest?.skills, recommendData);
-        console.log(skillJobs)
-        jobs = [...jobs, ...skillJobs];
-      }
-
-      return jobs;
-    } catch (err) {
-      console.error('Error fetching recommended jobs:', err);
-      throw err;
-    }
-  };
-
-  const fetchSkillBasedJobs = async (skills, recommendData) => {
-    try {
-      if (!skills || skills.length === 0) return [];
-      const conditions = [
-        where('skillsRequired', 'array-contains-any', skills)
-      ];
-
-      // if (recommendData?.experienceLevel) {
-      //   conditions.push(where('expYear', '==', recommendData.experienceLevel));
-      // }
-
-      const q = query(collection(db, 'jobs'), ...conditions);
+      const q = query(jobRef, ...queryConditions);
       const querySnapshot = await getDocs(q);
-
-      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     } catch (err) {
-      console.error('Error fetching skill-based jobs:', err);
+      console.error("Error fetching recommended jobs:", err);
       return [];
     }
   };
-  console.log(jobsForYou)
-  console.log(jobs)
+  
+  const fetchSkillBasedJobs = async (skills) => {
+    try {
+      if (!skills || skills.length === 0) return [];
+
+      const q = query(
+        collection(db, "jobs"),
+        where("skillsRequired", "array-contains-any", skills)
+      );
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    } catch (err) {
+      console.error("Error fetching skill-based jobs:", err);
+      return [];
+    }
+  };
+  
+  const fetchLatestJobs = async () => {
+    try {
+      const q = query(
+        collection(db, "jobs"),
+        orderBy("postedAt", "desc"),
+        limit(5)
+      );
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    } catch (err) {
+      console.error("Error fetching latest jobs:", err);
+      return [];
+    }
+  };
+  
   useEffect(() => {
     const fetchData = async () => {
-      if (uid) {
-        try {
-          setLoading(true);
-          const userData = await fetchUserData();
-     
-          const updatedRecommend = format(userData?.userInterest || {});
-          const jobs = await fetchRecommendJobs(updatedRecommend, userData);
-          setUserData(userData || {});
-          setRecommend(updatedRecommend);
-          setJobs(jobs);
+      if (!uid) return;
 
-          if (userData?.userInterest?.skills?.length > 0) {
-            const skillJobs = await fetchSkillBasedJobs(userData?.userInterest?.skills, updatedRecommend);
-            setJobsForYou(skillJobs);
+      try {
+        setLoading(true);
+        const userData = await fetchUserData();
+        const recommendData = format(userData?.userInterest || {});
+        const skills = userData?.skills || [];
+
+        // ✅ 1. Recommended Section
+        let recommended = await fetchRecommendJobs(recommendData);
+        if (recommended.length === 0) {
+          recommended = await fetchSkillBasedJobs(skills);
+          if (recommended.length === 0) {
+            recommended = await fetchLatestJobs();
           }
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setLoading(false);
         }
+
+        // ✅ 2. Jobs for You Section
+        let forYou = await fetchSkillBasedJobs(skills);
+        if (forYou.length === 0) {
+          forYou = await fetchLatestJobs();
+        }
+
+        // Set state
+        setUserData(userData);
+        setRecommend(recommendData);
+        setJobs(recommended); // Recommended Jobs
+        setJobsForYou(forYou); // Jobs for You
+      } catch (err) {
+        console.error("Error loading job data:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
   }, [uid]);
-
+  
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -157,7 +167,7 @@ const HomeScreen = ({ navigation }) => {
       </View>
     );
   }
-console.log(recommend);
+
 
   return (
     <SafeAreaView style={{flex:1}}>
@@ -217,13 +227,14 @@ console.log(recommend);
       contentContainerStyle={{ gap: 10 }}
     />
       </View>
-    </ScrollView>
 
+    </ScrollView>
     </SafeAreaView>
    
   );
 };
-export const Customheader=({navigation})=>{
+export const Customheader=()=>{
+  const navigation=useNavigation();
   return (
     <View
       style={{
@@ -232,11 +243,12 @@ export const Customheader=({navigation})=>{
         gap: 12,
         backgroundColor: "white",
         height: 80,
-        shadowOpacity:0,
-
+        shadowOpacity: 0,
       }}
     >
-      <Ionicons name="menu" size={24} />
+      <Pressable onPress={()=>navigation.openDrawer()}>
+        <Ionicons name="menu" size={24} />
+      </Pressable>
       <Pressable
         onPressIn={() => navigation.navigate("Find Job")}
         style={{ flex: 1 }}
@@ -259,7 +271,7 @@ export const Customheader=({navigation})=>{
             },
             shadowRadius: 2,
             elevation: 2,
-            margin:10
+            margin: 10,
           }}
         />
       </Pressable>

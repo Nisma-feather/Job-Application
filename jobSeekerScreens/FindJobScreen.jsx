@@ -273,9 +273,11 @@ const FindJobScreen = ({ navigation }) => {
       shadowOffset: { width: 0, height: 1 },
       shadowRadius: 2,
       shadowOpacity: 0.2,
+      elevation: 3,
+      fontFamily: "Poppins-Regular",
     },
     filterButton: {
-      backgroundColor: "#0a66c2",
+      backgroundColor: "#5c88ea",
       padding: 12,
       borderRadius: 6,
       alignItems: "center",
@@ -284,6 +286,7 @@ const FindJobScreen = ({ navigation }) => {
     filterButtonText: {
       color: "steelblue",
       fontWeight: "bold",
+      fontFamily: "Poppins-Bold",
     },
     companyName: {
       fontSize: 14,
@@ -311,7 +314,8 @@ const FindJobScreen = ({ navigation }) => {
     },
     showfilterText: {
       color: "white",
-      fontWeight: "bold",
+      fontSize:15,
+      fontFamily: "Poppins-Bold",
     },
     filtersContainer: {
       position: "absolute",
@@ -387,6 +391,7 @@ const FindJobScreen = ({ navigation }) => {
       fontSize: 15,
       fontWeight: "700",
       color: "#555",
+      marginBottom: 10,
     },
     yearStyle: {
       fontSize: 13,
@@ -414,7 +419,7 @@ const FindJobScreen = ({ navigation }) => {
       padding: 10,
     },
     dropdownActive: {
-      backgroundColor: "#f0f0f0",
+      backgroundColor: "#e6eefa",
     },
     dropdownItemText: {
       fontSize: 16,
@@ -470,9 +475,10 @@ const FindJobScreen = ({ navigation }) => {
                     placeholder={
                       options === "jobs" ? "search jobs" : "search companies"
                     }
-                    style={styles.inputField}
+                    style={[styles.inputField]}
                     value={searchQuery}
                     onChangeText={handlesearch}
+                    
                   />
                   <TouchableOpacity
                     style={{ right: 15, top: 10, position: "absolute" }}
@@ -545,7 +551,7 @@ const FindJobScreen = ({ navigation }) => {
           ) : (
             //Company Card
             <Pressable
-              style={styles.jobItem}
+              style={[styles.jobItem]}
               onPress={() =>
                 navigation.navigate("Company Page", { companyUID: item.id })
               }
@@ -556,7 +562,7 @@ const FindJobScreen = ({ navigation }) => {
                   justifyContent: "space-between",
                 }}
               >
-                <View style={{ flexDirection: "row", gap: 10 }}>
+                <View style={{ flexDirection: "row", gap: 15 }}>
                   <View
                     style={{
                       width: 40,
@@ -576,14 +582,14 @@ const FindJobScreen = ({ navigation }) => {
                   <View style={{ justifyContent: "space-between" }}>
                     <Text style={styles.CompanyTitle}>{item.companyName}</Text>
                     <View style={{ flexDirection: "row", gap: 5 }}>
-                      {item.reviewAvg ? (
+                   
                         <FontAwesome
                           style={{ marginTop: 2 }}
                           name="star"
                           color="#FFD700"
                           size={14}
                         />
-                      ) : null}
+                 
                       <Text
                         style={{
                           fontSize: 12,
@@ -591,7 +597,7 @@ const FindJobScreen = ({ navigation }) => {
                           color: "#777",
                         }}
                       >
-                        {item.reviewAvg ? `${item.reviewAvg}.0 reviews` : null}
+                        {item.reviewAvg ? `${item.reviewAvg}.0 reviews` : "No Review"}
                       </Text>
                     </View>
                   </View>
@@ -617,7 +623,7 @@ const FindJobScreen = ({ navigation }) => {
         }
         keyExtractor={(item) => item.id.toString()}
         ListEmptyComponent={
-          <Text style={{ textAlign: "center", marginTop: 20 }}>
+          <Text style={{ textAlign: "center", marginTop: 20,fontFamily:"Poppins-Medium" }}>
             {options === "jobs" ? "No Jobs Found" : "No Companies Found"}
           </Text>
         }
@@ -625,8 +631,8 @@ const FindJobScreen = ({ navigation }) => {
       />
 
       {/* Filter Panel */}
-      {/* <Modal visible={showFilter} animationType="slide" transparent={true}>
-        <View style={{height:300,position:'absolute',bottom:20,marginHorizontal:20,width:"90%"}}>
+      <Modal visible={showFilter} animationType="slide" transparent={true}>
+        <View style={{height:400,position:'absolute',bottom:30,marginHorizontal:20,width:"90%"}}>
           <ScrollView
             contentContainerStyle={{
               paddingBottom: 100,
@@ -737,8 +743,8 @@ const FindJobScreen = ({ navigation }) => {
             </TouchableOpacity>
           </ScrollView>
         </View>
-      </Modal> */}
-      {showFilter && (
+      </Modal>
+      {/* {showFilter && (
         <>
           <Pressable
             style={styles.filterOverlay}
@@ -857,7 +863,7 @@ const FindJobScreen = ({ navigation }) => {
             </ScrollView>
           </Animated.View>
         </>
-      )}
+      )} */}
     </SafeAreaView>
   );
 };

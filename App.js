@@ -1,3 +1,5 @@
+
+import "react-native-gesture-handler";
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // ❗ Fix: Move Ionicons import here
@@ -13,12 +15,16 @@ import UserInterestForm from './screens/UserInterest';
 import CompanyLogin from './companyScreens/CompanyLogin';
 import CompanySignUp from './companyScreens/CompanySignUp';
 import CompanyDetails from './companyScreens/CompanyDetails';
-import JobSeekerTab from './jobSeekerScreens/JobSeekerTab';
+import JobSeekerTab, { JobSeekerDrawer } from './jobSeekerScreens/JobSeekerTab';
 import JobDetail from './jobSeekerScreens/JobDetail';
 import ApplyJob from './jobSeekerScreens/ApplyJob';
 import CompanyDashboard from './companyScreens/CompanyDashboard';
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import ProfileScreen from "./jobSeekerScreens/ProfileScreen";
+import EmailVerificationScreen from "./screens/EmailVerificationScreen";
 
 const Stack = createNativeStackNavigator();
+const Drawer=createDrawerNavigator();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -48,7 +54,7 @@ export default function App() {
         <Stack.Screen name="CompanyStack" component={CompanyStack} options={{headerShown:false}}/>
         <Stack.Screen name='Company Details' component={CompanyDetails}/>
          
-         <Stack.Screen name="JobSeeker Dashboard" component={JobSeekerTab} options={{
+         <Stack.Screen name="JobSeeker Dashboard" component={JobSeekerDrawer} options={{
         headerShown:false
       }}/>
       <Stack.Screen name='Job Details' component={JobDetail}/>
@@ -82,22 +88,24 @@ const JobSeekerStack = () => {
     <Stack.Navigator
       initialRouteName="SignUp"
       screenOptions={({ navigation, route }) => ({
-        headerTitle: '',
+        headerTitle: "",
         headerBackTitleVisible: false,
         headerStyle: {
           elevation: 0,
           shadowOpacity: 0,
           borderBottomWidth: 1,
-          
         },
-        headerTintColor: 'blue',
+        headerTintColor: "blue",
         headerLeft: () => {
           if (navigation.canGoBack()) {
             return (
-              <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 20 }}>
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ marginLeft: 20 }}
+              >
                 <View
                   style={{
-                    backgroundColor: '#e6eefa',
+                    backgroundColor: "#e6eefa",
                     borderRadius: 20,
                     padding: 8,
                   }}
@@ -111,13 +119,17 @@ const JobSeekerStack = () => {
         },
       })}
     >
+      <Stack.Screen
+        name="EmailVerification"
+        component={EmailVerificationScreen}
+      />
       <Stack.Screen name="SignUp" component={SignupScreen} />
-       <Stack.Screen name="Basic Info" component={BasicDetailsScreen}/>
-       <Stack.Screen name="User Interest" component={UserInterestForm} />
-       
+      <Stack.Screen name="Basic Info" component={BasicDetailsScreen} />
+      <Stack.Screen name="User Interest" component={UserInterestForm} />
     </Stack.Navigator>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
