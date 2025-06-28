@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Pressable,
-  SafeAreaView,
+
   ScrollView,
   Image,
   Text,
@@ -26,6 +26,7 @@ import {
   Ionicons,
   Foundation,
 } from "@expo/vector-icons";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Messages = ({ navigation }) => {
   const [messages, setMessages] = useState([]);

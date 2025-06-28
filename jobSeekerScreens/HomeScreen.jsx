@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Pressable, Alert, ActivityIndicator, SafeAreaView,FlatList } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Pressable, Alert, ActivityIndicator,FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { auth, db } from '../firebaseConfig';
 import { getDoc, doc, collection, where, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import JobCard from './JobCard';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HomeScreen = ({ navigation }) => {
   const [userData, setUserData] = useState({});
@@ -180,8 +181,8 @@ const HomeScreen = ({ navigation }) => {
       {/* Recommend Job */}
       <View style={{ padding: 16, backgroundColor: '#f2f7fc', paddingRight: 0 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold',fontFamily:'Poppins-Bold' }}>Recommend Job</Text>
-          <Text style={{ color: 'blue', paddingRight: 16 }}>See All</Text>
+          <Text style={{ fontSize: 16, fontWeight: 'bold',fontFamily:'Poppins-Bold' }}>Recommend Job</Text>
+          <Text style={{ color: 'blue', paddingRight: 16,fontSize: 13 }}>See All</Text>
         </View>
        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
   {jobs.map((job, idx) => (
@@ -203,11 +204,11 @@ const HomeScreen = ({ navigation }) => {
         justifyContent: 'space-between'
       }}>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontWeight: 'bold', marginBottom: 8, maxWidth: '70%' }}>
+          <Text style={{ fontWeight: 'bold', marginBottom: 8, maxWidth: '70%',fontSize:12 }}>
             Boost Your Interview Success with JobBoard Team Tips
           </Text>
-          <TouchableOpacity style={{ backgroundColor: '#0a66c2', padding: 8, borderRadius: 8, width: '80%', maxWidth: 120 }}>
-            <Text style={{ color: 'white', fontSize: 14, fontWeight: 'bold' }}>Start Preparing</Text>
+          <TouchableOpacity style={{ backgroundColor: '#0a66c2', padding: 8, borderRadius: 8, width: '80%', maxWidth: 150 }}>
+            <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>Start Preparing</Text>
           </TouchableOpacity>
         </View>
         <Image
@@ -218,7 +219,7 @@ const HomeScreen = ({ navigation }) => {
 
       {/* Jobs for You */}
       <View style={{ paddingHorizontal: 16 }}>
-        <Text style={{ fontSize: 18, marginBottom: 13, marginTop: 6,fontFamily:'Poppins-Bold'}}>Jobs for you</Text>
+        <Text style={{ fontSize: 16, marginBottom: 13, marginTop: 6,fontFamily:'Poppins-Bold'}}>Jobs for you</Text>
         <FlatList
       data={jobsForYou}
       renderItem={({ item }) => <JobCard item={item} />}
@@ -259,8 +260,8 @@ export const Customheader=()=>{
           editable={false}
           style={{
             backgroundColor: "white",
-            borderRadius: 20,
-            fontSize: 16,
+            borderRadius: 26,
+            fontSize: 13,
             paddingVertical: 10,
             paddingHorizontal: 12,
             shadowColor: "#000",
@@ -270,7 +271,7 @@ export const Customheader=()=>{
               width: 0,
             },
             shadowRadius: 2,
-            elevation: 2,
+            elevation: 3,
             margin: 10,
           }}
         />

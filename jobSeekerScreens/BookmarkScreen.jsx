@@ -8,8 +8,10 @@ import {
   FlatList,
   Pressable,
   ActivityIndicator,
-  SafeAreaView,
+
 } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { auth, db } from "../firebaseConfig";
 import {
   collection,
@@ -223,9 +225,10 @@ const BookMarkScreen = ({ navigation }) => {
                             paddingVertical: 5,
                             paddingHorizontal: 12,
                             backgroundColor: "#e8f0fb",
+                            borderRadius:5
                           }}
                         >
-                          <Text style={{ fontWeight: "bold", fontSize: 12 }}>
+                          <Text style={{ fontWeight: "bold", fontSize: 11,color:"#555" }}>
                             {item.jobType}
                           </Text>
                         </View>
@@ -234,9 +237,10 @@ const BookMarkScreen = ({ navigation }) => {
                             paddingVertical: 5,
                             paddingHorizontal: 12,
                             backgroundColor: "#e8f0fb",
+                            borderRadius:5
                           }}
                         >
-                          <Text style={{ fontWeight: "bold", fontSize: 12 }}>
+                          <Text style={{ fontWeight: "bold", fontSize: 11,color:"#555" }}>
                             {item.jobMode}
                           </Text>
                         </View>
@@ -301,7 +305,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   jobTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "700",
     color: "#333",
   },
@@ -318,7 +322,7 @@ const styles = StyleSheet.create({
   },
 
   metaText: {
-    fontSize: 13,
+    fontSize: 11,
     color: "#555",
     marginLeft: 4,
   },

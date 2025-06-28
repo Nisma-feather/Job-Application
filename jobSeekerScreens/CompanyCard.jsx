@@ -10,9 +10,11 @@ import {
   TextInput,
   Alert,
   FlatList,
-  SafeAreaView,
+
   ImageBackground,
 } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { auth, db } from "../firebaseConfig";
 import { useEffect, useState } from "react";
 import JobCard from "./JobCard";
@@ -198,7 +200,7 @@ const CompanyCard = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         {/* Top Banner */}
         {/* <View style={{ position: 'relative' }}>
           <ImageBackground
@@ -483,7 +485,7 @@ const CompanyCard = ({ route, navigation }) => {
             )}
 
             {/* Reviews List */}
-            <Text style={styles.reviewSectionTitle}>Employee Reviews</Text>
+            <Text style={styles.reviewSectionTitle}> Reviews</Text>
 
             {(company?.reviews?.length ?? 0) === 0 ? (
               <View>
@@ -608,11 +610,13 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: "Poppins-Medium",
     textAlign: "center",
+    fontSize:12
   },
   banner: {
     height: 200,
     width: "100%",
     justifyContent: "flex-end",
+    
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
@@ -635,7 +639,7 @@ const styles = StyleSheet.create({
   },
   role: {
     color: "#333",
-    fontSize: 19,
+    fontSize: 16,
     fontFamily: "Poppins-Bold",
     marginTop: 5,
   },
@@ -675,29 +679,32 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: "#111",
-    fontSize: 17,
+    fontSize: 14,
     fontFamily: "Poppins-Bold",
-    marginBottom: 10,
+
+    marginBottom: 4,
   },
   description: {
     color: "#444",
     lineHeight: 20,
     fontFamily: "Poppins-Medium",
     marginBottom: 15,
+    fontSize: 12,
   },
   infoRow: {
     flexDirection: "row",
+    flexWrap:'wrap',
     justifyContent: "space-between",
     marginBottom: 8,
   },
   label: {
     color: "#555",
-
+     fontSize: 12,
     fontFamily: "Poppins-Medium",
   },
   value: {
     color: "#222",
-    fontSize: 15,
+    fontSize: 13,
     fontFamily: "Poppins-Bold",
   },
   galleryImage: {
@@ -798,8 +805,8 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   reviewSectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 14,
+    fontFamily:"Poppins-Bold",
     marginBottom: 16,
     color: "#000",
   },
@@ -903,7 +910,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     color: "#3d77ff",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "bold",
     textAlign: "center",
   },
@@ -919,7 +926,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     textAlign: "center",
-    fontSize: 14,
+    fontSize: 13,
   },
 });
 

@@ -1,5 +1,5 @@
 import {
-  SafeAreaView,
+
   ScrollView,
   TextInput,
   TouchableOpacity,
@@ -10,6 +10,8 @@ import {
   Linking,
   Pressable,
 } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import * as DocumentPicker from "expo-document-picker";
 import { useState,useEffect } from "react";
 import { auth, db } from "../firebaseConfig";

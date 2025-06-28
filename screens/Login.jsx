@@ -1,11 +1,13 @@
 
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from "react";
-import { Alert, View, Button, SafeAreaView, TextInput, Text, TouchableOpacity, StyleSheet, Pressable } from "react-native";
+import { Alert, View, Button, TextInput, Text, TouchableOpacity, StyleSheet, Pressable } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from "../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { sendPasswordResetEmail } from 'firebase/auth/cordova';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 const Login=({navigation})=>{
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -144,7 +146,7 @@ const Login=({navigation})=>{
             }}
             onPress={handleForgotPassword}
           >
-            <Text style={{ fontSize: 14}}>Forgot Password?</Text>
+            <Text style={{ fontSize: 12}}>Forgot Password?</Text>
           </Pressable>
 
           <TouchableOpacity style={styles.LoginButton} onPress={handleLogin}>
@@ -168,7 +170,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 24,
-    justifyContent: 'center'
+  
   },
   logoContainer: {
     flexDirection: 'row',
@@ -196,9 +198,9 @@ const styles = StyleSheet.create({
     fontFamily:'Poppins-Regular'
   },
   label: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '500',
-    marginVertical:10,
+    marginVertical:8,
     fontFamily:"Poppins-Bold"
   },
   required:{
@@ -207,6 +209,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: '#e6eefa',
     borderRadius: 8,
+    fontSize:12,
     paddingHorizontal: 16,
     paddingVertical: 10,
    
@@ -214,7 +217,7 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop:5,
     color: 'red',
-    fontSize:13
+    fontSize:11
   },
   heading: {
     fontSize: 28,
@@ -233,7 +236,7 @@ const styles = StyleSheet.create({
   },
   LoginButtonText: {
     color: '#fff',
-    fontSize:14,
+    fontSize:13,
     textTransform:'uppercase',
     textAlign: 'center',
      fontFamily:"Poppins-Bold"
@@ -241,7 +244,7 @@ const styles = StyleSheet.create({
   signupText: {
     textAlign: "center",
     color: "#444",
-    fontSize: 14,
+    fontSize: 12,
      fontFamily:"Poppins-Medium"
   }
 });

@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { SafeAreaView, ScrollView,View, Text, StyleSheet, TouchableOpacity, Image, Alert, Pressable } from 'react-native';
+import { ScrollView,View, Text, StyleSheet, TouchableOpacity, Image, Alert, Pressable } from 'react-native';
 import { Ionicons,Octicons,MaterialCommunityIcons,Feather,MaterialIcons} from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { signOut } from 'firebase/auth';
@@ -7,6 +7,7 @@ import { auth, db } from '../firebaseConfig';
 import * as DocumentPicker from 'expo-document-picker'
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import axios from 'axios';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 

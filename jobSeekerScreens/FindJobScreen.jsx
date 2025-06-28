@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { 
-  SafeAreaView,
+
   Text,
   View,
   TextInput,
@@ -18,6 +18,8 @@ import {
 } from 'react-native';
 
 import { ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 const dummyimg = require("../assets/logo.png");
 import JobCard from './JobCard';
 import { collection, getDocs, query, where } from 'firebase/firestore';
@@ -274,7 +276,8 @@ const FindJobScreen = ({ navigation }) => {
       shadowRadius: 2,
       shadowOpacity: 0.2,
       elevation: 3,
-      fontFamily: "Poppins-Regular",
+      
+      fontSize:11
     },
     filterButton: {
       backgroundColor: "#5c88ea",
@@ -286,6 +289,7 @@ const FindJobScreen = ({ navigation }) => {
     filterButtonText: {
       color: "steelblue",
       fontWeight: "bold",
+      fontSize:12,
       fontFamily: "Poppins-Bold",
     },
     companyName: {
@@ -299,7 +303,7 @@ const FindJobScreen = ({ navigation }) => {
       marginTop: 4,
     },
     metaText: {
-      fontSize: 13,
+      fontSize: 11,
       color: "#555",
       marginLeft: 4,
     },
@@ -314,7 +318,7 @@ const FindJobScreen = ({ navigation }) => {
     },
     showfilterText: {
       color: "white",
-      fontSize:15,
+      fontSize:12,
       fontFamily: "Poppins-Bold",
     },
     filtersContainer: {
@@ -422,7 +426,7 @@ const FindJobScreen = ({ navigation }) => {
       backgroundColor: "#e6eefa",
     },
     dropdownItemText: {
-      fontSize: 16,
+      fontSize: 12,
     },
     handle: {
       width: 40,
@@ -433,7 +437,7 @@ const FindJobScreen = ({ navigation }) => {
       marginBottom: 10,
     },
     CompanyTitle: {
-      fontSize: 16,
+      fontSize: 13,
       color: "#333",
       fontFamily: "Poppins-Bold",
     },
@@ -565,8 +569,8 @@ const FindJobScreen = ({ navigation }) => {
                 <View style={{ flexDirection: "row", gap: 15 }}>
                   <View
                     style={{
-                      width: 40,
-                      height: 40,
+                      width: 45,
+                      height: 45,
                       borderWidth: 1,
                       borderColor: "#dedede",
                       justifyContent: "center",
@@ -574,7 +578,7 @@ const FindJobScreen = ({ navigation }) => {
                       borderRadius: 6,
                     }}
                   >
-                  <View style={{width:40,height:40,borderWidth:1,borderColor:'#dedede',justifyContent:'center',alignItems:'center',borderRadius:6,}}>
+                  <View style={{width:45,height:45,borderWidth:1,borderColor:'#dedede',justifyContent:'center',alignItems:'center',borderRadius:6,}}>
                              <Image source={item.profileImg?{uri:item.profileImg}:dummyimg} style={styles.logo} />
                              </View>
                   </View>
@@ -592,7 +596,7 @@ const FindJobScreen = ({ navigation }) => {
                  
                       <Text
                         style={{
-                          fontSize: 12,
+                          fontSize: 10,
                           fontWeight: "500",
                           color: "#777",
                         }}

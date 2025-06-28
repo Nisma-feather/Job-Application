@@ -4,6 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert
 import { auth, db } from '../firebaseConfig';
 import { Ionicons, Entypo, MaterialCommunityIcons, AntDesign, Foundation,FontAwesome} from '@expo/vector-icons';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const JobDetail = ({ route, navigation }) => {
   const uid=auth.currentUser?.uid
@@ -200,7 +201,7 @@ const JobDetail = ({ route, navigation }) => {
   };
   console.log(activeTab)
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* Top Job Card */}
         <View style={styles.jobCard}>
@@ -250,7 +251,7 @@ const JobDetail = ({ route, navigation }) => {
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <Text
                       style={{
-                        fontSize: 15,
+                        fontSize: 12,
                         fontFamily: "Poppins-Medium",
                         color: "#666",
                       }}
@@ -266,7 +267,7 @@ const JobDetail = ({ route, navigation }) => {
                 <Ionicons
                   name={bookmark ? "bookmark" : "bookmark-outline"}
                   color={bookmark ? "blue" : "#555"}
-                  size={24}
+                  size={25}
                 />
               </Pressable>
             </View>
@@ -598,7 +599,7 @@ const JobDetail = ({ route, navigation }) => {
           <Text style={styles.applyText}>Apply This Job</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -622,7 +623,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   role: {
-    fontSize: 18,
+    fontSize: 14,
     fontFamily: "Poppins-Bold",
     color: "#444",
   },
@@ -634,7 +635,7 @@ const styles = StyleSheet.create({
   tags: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap:3,
     marginTop: 8,
   },
   tag: {
@@ -643,7 +644,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 20,
-    fontSize: 12,
+    fontSize: 11,
     marginRight: 8,
     marginTop: 4,
   },
@@ -666,12 +667,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 15,
+    paddingHorizontal:3,
     paddingVertical: 5,
     backgroundColor: "#fff", // Corrected from "fff"
   },
   tabText: {
     color: "#3d77ff",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
     textAlign: "center",
   },
@@ -680,14 +682,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 15,
-
+    paddingVertical: 5,
+    paddingHorizontal:5,
     backgroundColor: "#3d77ff",
   },
   activeTabText: {
     color: "#fff",
     fontWeight: "bold",
     textAlign: "center",
-    fontSize: 14,
+    fontSize: 12,
   },
   content: {
     paddingHorizontal: 16,
@@ -695,12 +698,12 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontFamily: "Poppins-Bold",
-    fontSize: 16,
+    fontSize: 13,
     marginBottom: 6,
   },
   paragraph: {
     color: "#444",
-    marginBottom: 16,
+    marginBottom: 12,
     lineHeight: 22,
   },
   bulletRow: {
@@ -716,7 +719,7 @@ const styles = StyleSheet.create({
   bulletText: {
     flex: 1,
     color: "#333",
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: "Poppins-Regular",
   },
   bottomButton: {

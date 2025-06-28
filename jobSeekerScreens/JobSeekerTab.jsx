@@ -56,12 +56,15 @@ const [unreadCount, setUnreadCount] = useState(0);
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarShowLabel: false,
-          tabBarStyle: {
-            // This styles the entire tab bar container
-            height: 60, // Adjust height as needed
-            paddingBottom: 10, // Add padding at bottom
-            paddingTop: 10, // Add padding at top
-          },
+         
+             tabBarStyle: {
+      position: 'absolute',
+      bottom: 0,
+      backgroundColor: '#fff',
+      borderTopWidth: 1,
+      borderColor: '#ddd',
+    },
+          
           tabBarItemStyle: {
             // This styles individual tab items
             height: 50, // Height of each tab item
@@ -95,6 +98,7 @@ const [unreadCount, setUnreadCount] = useState(0);
           component={JobStack}
           options={{
             tabBarIcon: () => <Ionicons name="search" color="#000" size={28} />,
+            headerShown: false
           }}
         />
         <Tab.Screen name="Profile" component={ProfileStack} options={{
@@ -169,7 +173,7 @@ const ProfileStack = () => {
 };
 const JobStack = () => {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={{  }}>
       <Stack.Screen name="Find Job" component={FindJobScreen} />
       <Stack.Screen name="Company Page" component={CompanyCard} />
       <Stack.Screen name="Job Details" component={JobDetail} />

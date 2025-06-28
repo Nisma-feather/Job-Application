@@ -1,7 +1,8 @@
 import { doc, updateDoc } from "firebase/firestore";
 import React, { useEffect } from "react";
-import { SafeAreaView, Text, StyleSheet, View } from "react-native";
+import {  Text, StyleSheet, View } from "react-native";
 import { auth,db } from "../firebaseConfig"
+import { SafeAreaView } from 'react-native-safe-area-context';
 export const MessageDetail = ({ route }) => {
   const { message } = route.params;
   console.log("message", message);

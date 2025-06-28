@@ -9,6 +9,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 
+
 const dummyimg = require('../assets/logo.png'); // Replace with actual image path
 
 const JobCard = ({ item }) => {
@@ -107,17 +108,17 @@ console.log("logo",logo)
       <View style={{flexDirection:'row',justifyContent:'space-between'}}>
         <View style={{flexDirection:"row",gap:10,}}>
           
-            <View style={{width:40,height:40,borderWidth:1,borderColor:'#dedede',justifyContent:'center',alignItems:'center',borderRadius:6,}}>
+            <View style={{width:45,height:45,borderWidth:1,borderColor:'#dedede',justifyContent:'center',alignItems:'center',borderRadius:6,}}>
           <Image source={logo?{uri:logo}:dummyimg} style={styles.logo} />
           </View>
          
           <View style={{justifyContent:'space-between'}}>
             <Text style={styles.jobTitle}>{item.jobrole}</Text>
-            <View style={{flexDirection:'row',gap:5}}>
+            <View style={{flexDirection:'row',gap:3}}>
             <Text style={styles.companyName}>{item.companyName}</Text>
             
             <FontAwesome style={{marginTop:2}} name="star"  color="#FFD700"  size={14} />
-            <Text style={{fontSize:12,fontWeight:'500',color:"#777"}}>{(reviewAvg && reviewAvg > 0 )? `${reviewAvg}.0 Review` : "No Reviews"}</Text>
+            <Text style={{fontSize:10,fontWeight:'500',color:"#777"}}>{(reviewAvg && reviewAvg > 0 )? `${reviewAvg}.0 Review` : "No Reviews"}</Text>
 
             </View>
             
@@ -127,16 +128,16 @@ console.log("logo",logo)
           </View>
           
           <Pressable style={styles.bookmarkIcon} onPress={() => handletoggleBookmark(item.id)}>
-            <Ionicons name={bookmarkJobs.includes(item.id) ? "bookmark" : "bookmark-outline"} color="#4B9CD3"  size={22} />
+            <Ionicons name={bookmarkJobs.includes(item.id) ? "bookmark" : "bookmark-outline"} color="#4B9CD3"  size={24} />
           </Pressable>
 
         </View>
         <View style={{flexDirection:'row',gap:8}}>
-          <View style={{paddingVertical:5,paddingHorizontal:12,backgroundColor:"#e8f0fb"}}>
-           <Text style={{fontWeight:'bold',fontSize:12,fontFamily:'Poppins-Medium'}}>{item.jobType}</Text>
+          <View style={{paddingVertical:5,paddingHorizontal:12,backgroundColor:"#e8f0fb",borderRadius:5}}>
+           <Text style={{fontWeight:'bold',fontSize:10,fontFamily:'Poppins-Medium',color:"#555",}}>{item.jobType}</Text>
           </View>
-          <View style={{paddingVertical:5,paddingHorizontal:12,backgroundColor:"#e8f0fb"}}>
-            <Text style={{fontWeight:'bold',fontSize:12,fontFamily:'Poppins-Medium'}}>{item.jobMode}</Text>
+          <View style={{paddingVertical:5,paddingHorizontal:12,backgroundColor:"#e8f0fb",borderRadius:5}}>
+            <Text style={{fontWeight:'bold',fontSize:10,fontFamily:'Poppins-Medium',color:"#555"}}>{item.jobMode}</Text>
           </View>
         </View>
         <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:"center",height:35,borderTopColor:'#dedede',borderTopWidth:1}}>
@@ -181,12 +182,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   jobTitle: {
-    fontSize: 16,
+    fontSize: 13,
     color: '#333',
     fontFamily:"Poppins-Bold"
   },
   companyName: {
-    fontSize: 13,
+    fontSize: 12,
  
     color:"#5c88ea",
 
@@ -199,7 +200,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   metaText: {
-    fontSize: 13,
+    fontSize: 11,
     color: '#7a86a1',
     marginLeft: 4,
     
