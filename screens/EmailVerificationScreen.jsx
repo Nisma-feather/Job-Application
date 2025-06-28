@@ -6,6 +6,7 @@ import {
   Pressable,
   Alert,
   ActivityIndicator,
+  SafeAreaView
 } from "react-native";
 import {
   createUserWithEmailAndPassword,

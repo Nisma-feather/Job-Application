@@ -206,12 +206,24 @@ const ApplicationsList = ({ route }) => {
         : `Thank you for your interest in the ${jobData.jobrole} position at ${jobData.companyName}. Unfortunately, you were not shortlisted.`;
 
     try {
+      // 1. Update application status
       const appRef = doc(db, "jobApplications", currentApplication.id);
       await updateDoc(appRef, {
         status,
         statusAt: new Date(),
       });
 
+      // 2. Fetch company profileImg using jobData.companyUID
+      let profileImg = null;
+      if (jobData.companyUID) {
+        const companyRef = doc(db, "companies", jobData.companyUID);
+        const companySnap = await getDoc(companyRef);
+        if (companySnap.exists()) {
+          profileImg = companySnap.data()?.profileImg || null;
+        }
+      }
+
+      // 3. Send message to user
       const msgRef = collection(
         db,
         "users",
@@ -221,12 +233,14 @@ const ApplicationsList = ({ route }) => {
       await addDoc(msgRef, {
         message: message || finalMsg,
         messageAt: new Date(),
-        from: jobData.companyName,
+        from: jobData.companyUID, // UID of the sender
+        profileImg: profileImg, // send profile image
         type: "status_update",
         status,
         read: false,
       });
 
+      // Reset and refresh
       setModalVisible(false);
       setStatus("");
       setMessage("");
@@ -236,7 +250,7 @@ const ApplicationsList = ({ route }) => {
       Alert.alert("Failed to update status");
     }
   };
-
+  
   useEffect(() => {
     fetchApplications();
     fetchJobData();
@@ -246,14 +260,16 @@ const ApplicationsList = ({ route }) => {
     <View style={[styles.card, { marginHorizontal: 20 }]}>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <Text style={styles.name}>{item.name}</Text>
-        <Text>Applied {formatDate(item.submittedAt)}</Text>
+        <Text style={{fontSize:12,color:"#444"}}>Applied {formatDate(item.submittedAt)}</Text>
       </View>
 
       <Text style={styles.label}>Website:</Text>
-      <Text style={styles.website}>{item.website}</Text>
+      <Text style={styles.website}>{item.website && item.website}</Text>
 
       <Text style={styles.label}>Cover Letter:</Text>
-      <Text style={styles.coverLetter}>{item.coverLetter}</Text>
+      <Text style={styles.coverLetter}>
+        {item.coverLetter && item.coverLetter}
+      </Text>
 
       {item.cvUrl && (
         <TouchableOpacity
@@ -262,7 +278,7 @@ const ApplicationsList = ({ route }) => {
             await handleViewStatus(item);
           }}
         >
-          <Text style={{ color: "blue", marginTop: 5 }}>View CV</Text>
+          <Text style={{ color: "blue", marginTop: 5,fontSize:12 }}>View CV</Text>
         </TouchableOpacity>
       )}
 
@@ -396,293 +412,286 @@ const ApplicationsList = ({ route }) => {
 };
 export  {ApplicationsList}
 
-const styles=StyleSheet.create({
-   safeContainer: {
+const styles = StyleSheet.create({
+  safeContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   scrollContainer: {
     padding: 16,
     flexGrow: 1,
   },
   emptyContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 50,
   },
   emptyImage: {
     height: 100,
     width: 200,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   emptyText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#6B7280',
+    color: "#6B7280",
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff'
-},
-button: {
-    backgroundColor: '#2563EB',
+    backgroundColor: "#fff",
+  },
+  button: {
+    backgroundColor: "#2563EB",
     paddingVertical: 14,
     borderRadius: 8,
-    marginVertical: 10
-},
-buttonText: {
-    color: '#fff',
-    fontWeight: '600',
-    textAlign: 'center',
-},
-heading: {
-    fontWeight: 'bold',
+    marginVertical: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  heading: {
+    fontWeight: "bold",
     fontSize: 14,
-},
-shortlistBackground:{
- backgroundColor:"#59CE8F"
-},
-notShortlistBackground:{
-backgroundColor:'#FF6464'
-},
-jobTitle: {
-    fontFamily:'Poppins-Bold',
-    color: "#555"
-},
-jobContainer: {
-    height: 15
-},
-metaRow: {
-    flexDirection: 'row',
-    gap: 3
-},
-metaText: {
-    fontSize: 11,
-    color: '#333',
+  },
+  shortlistBackground: {
+    backgroundColor: "#59CE8F",
+  },
+  notShortlistBackground: {
+    backgroundColor: "#FF6464",
+  },
 
-},
-bottomcard: {
-    borderTopColor: '#2563EB',
+  jobContainer: {
+    height: 15,
+  },
+  metaRow: {
+    flexDirection: "row",
+    gap: 3,
+  },
+  metaText: {
+    fontSize: 11,
+    color: "#333",
+  },
+  bottomcard: {
+    borderTopColor: "#2563EB",
     marginTop: 15,
     paddingTop: 5,
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-},
-buttonContainer:{
-backgroundColor:"#2563EB",
-paddingVertical:12,
-paddingHorizontal:8,
-borderRadius:10
-},
-buttonText:{
-   color:'white',
-   fontWeight:"bold"
-},
-heading: {
-  fontSize: 20,
-  fontFamily: 'Poppins-Bold',     
-  marginVertical: 18,
-  color: '#1F2937',
-  textAlign: 'center',
-},
-list: {
-  paddingBottom: 20,
-},
-card: {
-  backgroundColor: '#ffffff',
-  borderRadius: 16,
-  padding: 20,
-  marginBottom: 16,
-  shadowColor: '#000',
-  shadowOpacity: 0.1,
-  shadowRadius: 10,
-  shadowOffset: { width: 0, height: 4 },
-  elevation: 6,
-},
-name: {
-  fontSize: 22,
-  fontWeight: 'bold',
-  color: '#111827',
-  marginBottom: 12,
-},
-label: {
-  fontSize: 16,
-  fontWeight: '600',
-  marginTop: 10,
-  color: '#374151',
-},
-website: {
-  color: '#3B82F6',
-  fontSize: 16,
-  marginTop: 4,
-  textDecorationLine: 'underline',
-},
-coverLetter: {
-  fontSize: 16,
-  color: '#4B5563',
-  marginTop: 4,
-  lineHeight: 22,
-},
-button: {
-  marginTop: 20,
-  backgroundColor: '#2563EB',
-  paddingVertical: 12,
-  borderRadius: 12,
-  alignItems: 'center',
-},
-buttonText: {
-  color: '#fff',
-  fontWeight: '600',
-  fontSize: 16,
-},
-modalOverlay: {
-  flex: 1,
-  backgroundColor: 'rgba(0,0,0,0.4)',
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-modalContainer: {
-  width: '85%',
-  backgroundColor: '#fff',
-  borderRadius: 12,
-  padding: 20,
-  elevation: 5,
-},
-title: {
-  fontSize: 18,
-  fontWeight: '600',
-  marginBottom: 15,
-  textAlign: 'center',
-},
-buttonGroup: {
-  flexDirection: 'row',
-  justifyContent: 'space-around',
-  marginVertical: 10,
-},
-optionButton: {
-  paddingVertical: 10,
-  paddingHorizontal: 15,
-  backgroundColor: '#f0f0f0',
-  borderRadius: 8,
-},
-selected: {
-  backgroundColor: '#4CAF50',
-},
-modalButtonText: {
-  color: '#000',
-  fontWeight: '500',
-},
-textInput: {
-  borderWidth: 1,
-  borderColor: '#ccc',
-  borderRadius: 8,
-  padding: 10,
-  minHeight: 80,
-  marginVertical: 15,
-  textAlignVertical: 'top',
-},
-footerButtons: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-},
-cancelButton: {
-  backgroundColor: '#ccc',
-  padding: 10,
-  borderRadius: 8,
-  width: '48%',
-  alignItems: 'center',
-},
-sendButton: {
-  backgroundColor: '#2196F3',
-  padding: 10,
-  borderRadius: 8,
-  width: '48%',
-  alignItems: 'center',
-},
-cancelText: {
-  color: '#000',
-  fontWeight: '500',
-},
-sendText: {
-  color: '#fff',
-  fontWeight: '500',
-},
- container: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  buttonContainer: {
+    backgroundColor: "#2563EB",
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+  },
+
+  heading: {
+    fontSize: 15,
+    fontFamily: "Poppins-Bold",
+    marginVertical: 18,
+    color: "#1F2937",
+    textAlign: "center",
+  },
+  list: {
+    paddingBottom: 20,
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+  name: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#111827",
+    marginBottom: 7,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: "600",
+    marginTop: 10,
+    color: "#374151",
+  },
+  website: {
+    color: "#3B82F6",
+    fontSize: 13,
+    marginTop: 4,
+    textDecorationLine: "underline",
+  },
+  coverLetter: {
+    fontSize: 13,
+    color: "#4B5563",
+    marginTop: 4,
+    lineHeight: 22,
+  },
+  button: {
+    marginTop: 20,
+    backgroundColor: "#2563EB",
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 13,
+  },
+  modalOverlay: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "85%",
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    elevation: 5,
+  },
+  title: {
+    fontSize: 15,
+    fontWeight: "600",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  buttonGroup: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginVertical: 10,
+  },
+  optionButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+  },
+  selected: {
+    backgroundColor: "#4CAF50",
+  },
+  modalButtonText: {
+    color: "#000",
+    fontWeight: "500",
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    minHeight: 80,
+    marginVertical: 15,
+    textAlignVertical: "top",
+  },
+  footerButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  cancelButton: {
+    backgroundColor: "#ccc",
+    padding: 10,
+    borderRadius: 8,
+    width: "48%",
+    alignItems: "center",
+  },
+  sendButton: {
+    backgroundColor: "#2196F3",
+    padding: 10,
+    borderRadius: 8,
+    width: "48%",
+    alignItems: "center",
+  },
+  cancelText: {
+    color: "#000",
+    fontWeight: "500",
+  },
+  sendText: {
+    color: "#fff",
+    fontWeight: "500",
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#F9FAFB",
   },
   scrollContainer: {
     padding: 16,
     paddingBottom: 30,
   },
   jobCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    shadowColor: '#000',
+    borderColor: "#E5E7EB",
+    shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
-    marginHorizontal:20
+    marginHorizontal: 20,
   },
   jobHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    fontFamily: 'Poppins-Bold',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    fontFamily: "Poppins-Bold",
     marginBottom: 12,
   },
   jobTitle: {
-    fontSize: 16,
-    fontFamily: 'Poppins-Bold',
-    color: '#1F2937',
+    fontSize: 13,
+    fontFamily: "Poppins-Bold",
+    color: "#1F2937",
     flex: 1,
     marginRight: 10,
   },
   buttonSmall: {
-    backgroundColor: '#2563EB',
+    backgroundColor: "#2563EB",
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 8,
   },
   buttonTextSmall: {
-    color: '#fff',
-    fontFamily:'Poppins-Bold',
-    fontSize: 13,
+    color: "#fff",
+    fontFamily: "Poppins-Bold",
+    fontSize: 12,
   },
   metaInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: "#E5E7EB",
     paddingTop: 8,
   },
   metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   metaText: {
-    fontSize: 13,
-    color: '#6B7280',
+    fontSize: 12,
+    color: "#6B7280",
   },
   separator: {
     height: 12,
   },
   emptyContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 40,
   },
   emptyImage: {
     height: 120,
     width: 220,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   emptyText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#9CA3AF',
+    color: "#9CA3AF",
   },
-})
+});

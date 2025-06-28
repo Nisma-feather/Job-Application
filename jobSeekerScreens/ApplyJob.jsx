@@ -1,5 +1,4 @@
 import {
-
   ScrollView,
   TextInput,
   TouchableOpacity,
@@ -9,8 +8,9 @@ import {
   Alert,
   Linking,
   Pressable,
+  SafeAreaView,
 } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 import * as DocumentPicker from "expo-document-picker";
 import { useState,useEffect } from "react";
@@ -83,6 +83,16 @@ const ApplyJob = ({ navigation, route }) => {
 
   const handleSubmit = async () => {
     console.log("sumbit")
+    if (!jobForm.name?.trim()) {
+      Alert.alert( "Name is required.");
+      return;
+    }
+
+    // ✅ Validate CV (either selected from list or uploaded)
+    if (!resumeSelect && !cvFile) {
+      Alert.alert("Please upload or select a CV.");
+      return;
+    }
     try {
 
   
@@ -161,7 +171,21 @@ const ApplyJob = ({ navigation, route }) => {
       }
     };
     useEffect(() => {
+      const fetchUserName = async () => {
+        try {
+          const docRef = doc(db, "users", uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const name = docSnap.data()?.personalData?.name || "";
+            setJobForm((prev) => ({ ...prev, name }));
+          }
+        } catch (error) {
+          console.log("Error fetching user name:", error);
+        }
+      };
+
       if (uid) {
+        fetchUserName();
         fetchResumeDetails();
       }
     }, [uid]);
@@ -171,17 +195,19 @@ const ApplyJob = ({ navigation, route }) => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Text style={styles.sectionTitle}>Apply Job</Text>
 
-        {/* <View style={styles.section}>
-          <Text style={styles.label}>Full name*</Text>
+        <View style={styles.section}>
+          <Text style={styles.label}>
+            Full name<Text style={styles.required}>*</Text>
+          </Text>
           <TextInput
             style={styles.input}
             value={jobForm.name}
             onChangeText={(val) =>
               setJobForm((prev) => ({ ...prev, name: val }))
             }
-            placeholder="Type your name"
+            editable={false}
           />
-        </View> */}
+        </View>
 
         <View style={styles.section}>
           <Text style={styles.label}>Website, Blog, or Portfolio*</Text>
@@ -196,14 +222,16 @@ const ApplyJob = ({ navigation, route }) => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.label}>Upload CV*</Text>
+          <Text style={styles.label}>
+            Upload CV<Text style={styles.required}>*</Text>
+          </Text>
           <Text style={styles.fileInfo}>Format DOC, PDF, JPG</Text>
           <TouchableOpacity onPress={chooseFile} style={styles.uploadButton}>
             <View style={styles.uploadContainer}>
               <Text style={styles.uploadText}>Browse Files</Text>
             </View>
           </TouchableOpacity>
-          <Text style={styles.fileName}>{resumeSelect ?"":fileName}</Text>
+          <Text style={styles.fileName}>{resumeSelect ? "" : fileName}</Text>
           <View>
             {resumeDetails.length > 0 &&
               resumeDetails.map((item, index) => (
@@ -219,14 +247,20 @@ const ApplyJob = ({ navigation, route }) => {
                     borderRadius: 6,
                   }}
                 >
-                  <Pressable onPress={()=>{
-                    setResumeSelect(true)
-                    setSelectedResumeIndex(index)
-                    setFileName(item.fileName)
-                    setCvURL(item.cvURL);
-                  }}>
+                  <Pressable
+                    onPress={() => {
+                      setResumeSelect(true);
+                      setSelectedResumeIndex(index);
+                      setFileName(item.fileName);
+                      setCvURL(item.cvURL);
+                    }}
+                  >
                     <MaterialCommunityIcons
-                      name={resumeSelect && selectedResumeIndex===index?"checkbox-marked-circle-outline":"checkbox-blank-circle-outline"}
+                      name={
+                        resumeSelect && selectedResumeIndex === index
+                          ? "checkbox-marked-circle-outline"
+                          : "checkbox-blank-circle-outline"
+                      }
                       color="#000"
                       size={24}
                     />
@@ -273,6 +307,7 @@ const ApplyJob = ({ navigation, route }) => {
     </SafeAreaView>
   );
 };
+//
 
 const styles = StyleSheet.create({
   container: {
@@ -280,19 +315,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollContainer: {
-    padding: 20,
+    padding: 15,
+  },
+  required: {
+    color: "#ff2121",
   },
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 16,
+    textAlign: "center",
     fontWeight: "bold",
     marginBottom: 20,
     color: "#333",
   },
   section: {
-    marginBottom: 25,
+    marginBottom: 10,
   },
   label: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: "600",
     marginBottom: 8,
     color: "#333",
@@ -302,15 +341,15 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     borderRadius: 8,
     padding: 12,
-    fontSize: 16,
+    fontSize: 12,
     backgroundColor: "#f9f9f9",
   },
   textArea: {
-    height: 120,
+    height: 90,
     textAlignVertical: "top",
   },
   fileInfo: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#666",
     marginBottom: 8,
   },
@@ -344,7 +383,7 @@ const styles = StyleSheet.create({
   submitText: {
     color: "white",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 13,
   },
 });
 

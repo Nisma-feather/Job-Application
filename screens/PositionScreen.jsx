@@ -49,8 +49,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius:20
     },
     title: {
-      fontSize: 22,
-      fontWeight: 'bold',
+      fontSize: 16,
+      fontFamily:'Poppins-Bold',
       marginBottom: 30,
       textAlign: 'center',
     },
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
       borderColor: '#1967d2',
     },
     optionText: {
-      fontSize: 16,
+      fontSize: 14,
       textAlign: 'center',
       color:'#555',
       fontFamily:"Poppins-Regular"

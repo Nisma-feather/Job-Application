@@ -4,7 +4,7 @@ import { View, TextInput, Button, Text,StatusBar,StyleSheet,SafeAreaView,ScrollV
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth,db} from '../../firebaseConfig';
 import {FontAwesome,Feather} from "@expo/vector-icons"
-import { Picker } from "@react-native-picker/picker";
+
 const PersonalInfoScreen = ({navigation}) => {
     const [formData, setFormData] = useState({
         name: "",
@@ -168,104 +168,108 @@ export default PersonalInfoScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   scroll: {
-    padding: 20,
-    alignItems: 'center'
+    padding: 15,
+    alignItems: "center",
   },
   imageContainer: {
-    alignItems: 'center',
-    marginVertical: 20
+    alignItems: "center",
+    marginVertical: 20,
   },
   image: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#e6e6e6'
+    backgroundColor: "#e6e6e6",
   },
   editBtn: {
     marginTop: 10,
     paddingVertical: 4,
     paddingHorizontal: 10,
-    backgroundColor: '#007BFF',
-    borderRadius: 5
+    backgroundColor: "#007BFF",
+    borderRadius: 5,
   },
   editText: {
-    color: '#fff',
-    fontWeight: 'bold'
+    color: "#fff",
+    fontWeight: "bold",
   },
   header: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: "bold",
     marginVertical: 10,
-    textAlign: 'center'
+    textAlign: "center",
   },
   subtext: {
     fontSize: 13,
-    color: '#777',
+    color: "#777",
     marginBottom: 20,
-    textAlign: 'center'
+    textAlign: "center",
+    fontFamily: "Poppins-Regular",
   },
   label: {
-    alignSelf: 'flex-start',
-    fontWeight: '500',
+    alignSelf: "flex-start",
+    fontFamily: "Poppins-Bold",
     marginBottom: 5,
-    marginTop: 15
+    marginTop: 15,
+    fontSize: 13,
   },
   input: {
-    width: '100%',
-   
+    width: "100%",
+    fontSize: 12,
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 10,
     fontSize: 16,
-    backgroundColor: '#e6eefa'
+    backgroundColor: "#e6eefa",
   },
   genderContainer: {
-    flexDirection: 'row',
-     gap:15,
-    flexWrap:'wrap',
-    width: '100%',
-    
-    marginTop: 5
+    flexDirection: "row",
+    gap: 15,
+    flexWrap: "wrap",
+    width: "100%",
+
+    marginTop: 5,
   },
   genderOption: {
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
-    flexDirection:'row'
-    ,justifyContent:'center',
-    gap:6
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 6,
+    fontFamily: "Poppins-Regular",
+    fontSize: 11,
   },
-  required:{
-    color:"#ff2121"
+  required: {
+    color: "#ff2121",
   },
   genderOptionSelected: {
-    borderColor: '#007BFF',
-    borderWidth:2
+    borderColor: "#007BFF",
+    borderWidth: 2,
   },
   button: {
-    backgroundColor: '#007BFF',
+    backgroundColor: "#007BFF",
     marginTop: 30,
-    width: '100%',
+    width: "100%",
     padding: 15,
-    borderRadius: 8
+    borderRadius: 8,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    textAlign: 'center'
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center",
   },
   errorText: {
-    color: 'red',
-    alignSelf: 'flex-start',
-    marginTop: 4
+    color: "red",
+    alignSelf: "flex-start",
+    marginTop: 4,
   },
   errorBorder: {
-    borderColor: 'red'
-  }
+    borderColor: "red",
+  },
 });
  

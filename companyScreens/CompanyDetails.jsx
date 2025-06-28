@@ -151,12 +151,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     scroll: {
-        padding: 20,
+        padding: 15,
     },
     header: {
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: 'bold',
-        marginVertical: 10,
+        marginVertical: 7,
         textAlign: 'center'
     },
     label: {
@@ -165,7 +165,8 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         marginTop: 10,
         color:"#222",
-        fontFamily:"Poppins-Bold"
+        fontFamily:"Poppins-Bold",
+        fontSize:13
     },
     required: {
         color: '#ff2121'
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingHorizontal: 10,
         paddingVertical: 10,
-        fontSize: 16,
+        fontSize: 12,
         backgroundColor: '#e6eefa',
         marginBottom: 4
     },
@@ -190,12 +191,12 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#fff',
         textAlign:'center',
-        fontSize:15,
+        fontSize:13,
         fontFamily:"Poppins-Bold"
     },
     errorText: {
         color: 'red',
-        fontSize: 12,
+        fontSize: 11,
         marginVertical: 4,
         alignSelf: 'flex-start',
     }

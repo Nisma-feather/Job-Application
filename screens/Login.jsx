@@ -1,12 +1,12 @@
 
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from "react";
-import { Alert, View, Button, TextInput, Text, TouchableOpacity, StyleSheet, Pressable } from "react-native";
+import { Alert, View, Button, TextInput, SafeAreaView, Text, TouchableOpacity, StyleSheet, Pressable } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from "../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { sendPasswordResetEmail } from 'firebase/auth/cordova';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const Login=({navigation})=>{
   const [email, setEmail] = useState("");

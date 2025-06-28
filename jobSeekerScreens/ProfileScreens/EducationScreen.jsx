@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "white" },
   scrollWrapper: { padding: 20, paddingBottom: 40 },
   title: {
-    fontSize: 22,
+    fontSize: 17,
     fontFamily: "Poppins-Bold",
     color: "#333",
     textAlign: "center",
@@ -445,7 +445,13 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 20,
   },
-  label: { alignSelf: "flex-start", fontFamily:"Poppins-Bold", color:"#333", marginVertical: 10, fontSize:15},
+  label: {
+    alignSelf: "flex-start",
+    fontFamily: "Poppins-Bold",
+    color: "#333",
+    marginVertical: 10,
+    fontSize: 13,
+  },
   required: { color: "#ff2121" },
   eduHeader: {
     flexDirection: "row",
@@ -453,7 +459,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  subheading: { fontSize: 17, fontFamily:'Poppins-Bold', color: "#555" },
+  subheading: { fontSize: 15, fontFamily: "Poppins-Bold", color: "#555" },
   pickerWrapper: { overflow: "hidden" },
   picker: {
     height: 50,
@@ -461,6 +467,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e6eefa",
     borderRadius: 10,
     paddingHorizontal: 10,
+    fontSize: 13,
   },
   inputWrapper: {},
   input: {
@@ -468,7 +475,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 15,
+    fontSize: 12,
     color: "#333",
   },
   removeButton: { padding: 4 },
@@ -482,7 +489,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 20,
   },
-  addButtonText: { color: "#1967d2", fontWeight: "600", fontSize: 14 },
+  addButtonText: { color: "#1967d2", fontWeight: "600", fontSize: 13 },
   button: {
     backgroundColor: "#1967d2",
     borderRadius: 24,
@@ -494,7 +501,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  buttonText: { color: "#ffffff", fontWeight: "bold", fontSize: 16 },
+  buttonText: { color: "#ffffff", fontWeight: "bold", fontSize: 14 },
   errorText: { color: "red", marginTop: 4, fontSize: 12 },
 });
 

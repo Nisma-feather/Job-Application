@@ -5,8 +5,9 @@ import {
   StyleSheet,
   View,
   Alert,
+  SafeAreaView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+
 import * as DocumentPicker from "expo-document-picker";
 import { useEffect, useState } from "react";
 import axios from "axios";

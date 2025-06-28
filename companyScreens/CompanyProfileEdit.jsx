@@ -220,11 +220,11 @@ export default function CompanyProfileEdit({navigation}) {
         backgroundColor: '#fff',
     },
     scroll: {
-        padding: 20,
+        padding: 15,
     },
 
   header: {
-      fontSize: 20,
+      fontSize: 15,
       fontFamily:'Poppins-Bold',
       marginVertical: 10,
 
@@ -234,7 +234,7 @@ export default function CompanyProfileEdit({navigation}) {
       alignSelf: 'flex-start',
       fontFamily:"Poppins-Bold",
       color: '#333',
-      fontSize: 16,
+      fontSize: 13,
       marginBottom: 5,
       marginTop: 10
   },
@@ -246,7 +246,7 @@ export default function CompanyProfileEdit({navigation}) {
       borderRadius: 8,
       paddingHorizontal: 10,
       paddingVertical: 10,
-      fontSize: 13,
+      fontSize: 12,
       backgroundColor: '#e6eefa',
       fontFamily:'Poppins-Regular',
       marginBottom: 4
@@ -269,7 +269,7 @@ export default function CompanyProfileEdit({navigation}) {
   },
   errorText: {
       color: 'red',
-      fontSize: 12,
+      fontSize: 11,
       marginVertical: 4,
       alignSelf: 'flex-start',
       marginBottom: 10

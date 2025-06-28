@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Pressable, Alert, ActivityIndicator,FlatList } from 'react-native';
+import { View, SafeAreaView , Text, ScrollView, TextInput, TouchableOpacity, Image, Pressable, Alert, ActivityIndicator,FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { auth, db } from '../firebaseConfig';
 import { getDoc, doc, collection, where, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import JobCard from './JobCard';
 import { useNavigation } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const HomeScreen = ({ navigation }) => {
   const [userData, setUserData] = useState({});

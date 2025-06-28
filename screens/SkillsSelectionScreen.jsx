@@ -77,8 +77,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
   },
   title: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 16,
+   fontFamily:"Poppins-Bold",
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -92,7 +92,8 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     padding: 15,
-    fontSize: 16,
+    fontSize: 12,
+    fontFamily:"Poppins-Regular"
   },
   addButton: {
     backgroundColor: '#1967d2',
@@ -119,6 +120,8 @@ const styles = StyleSheet.create({
   skillText: {
     color: 'white',
     marginRight: 6,
+    fontFamily:"Poppins-Bold",
+    fontSize:13
   },
   removeButton: {
     backgroundColor: '#104a8e',

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import {
   Pressable,
-
+  
   ScrollView,
   Image,
   Text,
   View,
   StyleSheet,
   Alert,
-  FlatList
+  FlatList,
+  SafeAreaView
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { auth, db } from "../firebaseConfig";
@@ -26,7 +27,7 @@ import {
   Ionicons,
   Foundation,
 } from "@expo/vector-icons";
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const Messages = ({ navigation }) => {
   const [messages, setMessages] = useState([]);
@@ -164,7 +165,7 @@ const Messages = ({ navigation }) => {
                 />
               </View>
             )}
-            <Image style={styles.avatar} source={dummyimg} />
+            <Image style={styles.avatar} source={item.profileImg?item.profileImg:dummyimg} />
             <View style={styles.messageContent}>
               <View
                 style={{

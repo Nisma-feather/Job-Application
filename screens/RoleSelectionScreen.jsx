@@ -133,14 +133,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   mainTitle: {
-    fontSize: 20,
+    fontSize: 16,
  
     fontFamily:"Poppins-Bold"
   },
   subtitle: {
     color: "#777",
     marginTop: 6,
-    fontSize: 13,
+    fontSize: 12,
     fontFamily:"Poppins-Medium"
   },
   cardScrollContainer: {

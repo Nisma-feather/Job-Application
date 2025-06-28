@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { 
-
+import {
   Text,
   View,
   TextInput,
@@ -14,11 +13,12 @@ import {
   Animated,
   Easing,
   Dimensions,
-  Keyboard
-} from 'react-native';
+  Keyboard,
+  SafeAreaView,
+} from "react-native";
 
 import { ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const dummyimg = require("../assets/logo.png");
 import JobCard from './JobCard';

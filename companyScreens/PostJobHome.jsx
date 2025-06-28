@@ -190,10 +190,10 @@ const PostJobHome = ({ navigation }) => {
       color: "#ffffff",
       fontWeight: "800",
   
-      fontSize: 16,
+      fontSize: 14,
     },
     heading: {
-      fontSize: 20,
+      fontSize: 16,
       fontWeight: "700",
       marginTop: 16,
       textAlign: "center",
@@ -228,7 +228,7 @@ const PostJobHome = ({ navigation }) => {
       marginBottom: 8,
     },
     jobTitle: {
-      fontSize: 17,
+      fontSize: 13,
       
       fontFamily: "Poppins-Bold",
       color: "#1f2937",
@@ -255,7 +255,7 @@ const PostJobHome = ({ navigation }) => {
     metaText: {
       marginLeft: 4,
       color: "#6b7280",
-      fontSize: 14,
+      fontSize: 12,
     },
   
 });

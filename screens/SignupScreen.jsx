@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput,Pressable,StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, TextInput,Pressable,StyleSheet, SafeAreaView,Image, ScrollView } from 'react-native';
 import { FontAwesome, AntDesign, Entypo,MaterialIcons} from '@expo/vector-icons';
 
 export default function SignupScreen({navigation}) {
@@ -66,88 +66,89 @@ export default function SignupScreen({navigation}) {
 
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        {/* Logo */}
-        <View style={styles.logoContainer}>
-          <View style={styles.logoOuter}>
-            <MaterialIcons name="double-arrow" color="#fff" size={28} />
+    <SafeAreaView>
+      <ScrollView>
+        <View style={styles.container}>
+          {/* Logo */}
+          <View style={styles.logoContainer}>
+            <View style={styles.logoOuter}>
+              <MaterialIcons name="double-arrow" color="#fff" size={28} />
+            </View>
+            <View>
+              <Text style={styles.logoText}>Karier</Text>
+              <Text style={styles.logoSubText}>Job Portal App</Text>
+            </View>
           </View>
-          <View>
-            <Text style={styles.logoText}>Karier</Text>
-            <Text style={styles.logoSubText}>Job Portal App</Text>
-          </View>
-        </View>
 
-        <Text style={styles.title}>Create your account</Text>
-        <Text style={styles.subtitle}>
-          Welcome back! Please enter your details
-        </Text>
-
-        <Text style={styles.label}>
-          Email <Text style={styles.required}>*</Text>
-        </Text>
-        <TextInput
-          style={styles.input}
-          keyboardType="email-address"
-          value={formData.email}
-          onChangeText={(val) => setFormData({ ...formData, email: val })}
-        />
-        {error.emailError ? (
-          <Text style={styles.errorText}>{error.emailError}</Text>
-        ) : null}
-
-        <Text style={styles.label}>
-          Password <Text style={styles.required}>*</Text>
-        </Text>
-        <TextInput
-          style={styles.input}
-          secureTextEntry
-          value={formData.password}
-          onChangeText={(val) => setFormData({ ...formData, password: val })}
-        />
-        {error.passwordError ? (
-          <Text style={styles.errorText}>{error.passwordError}</Text>
-        ) : null}
-        <Text style={styles.label}>
-          Confirm Password <Text style={styles.required}>*</Text>
-        </Text>
-        <TextInput
-          style={styles.input}
-          secureTextEntry
-          value={formData.confirmPassword}
-          onChangeText={(val) =>
-            setFormData({ ...formData, confirmPassword: val })
-          }
-        />
-        {error.confirmPasswordError ? (
-          <Text style={styles.errorText}>{error.confirmPasswordError}</Text>
-        ) : null}
-
-        <View style={styles.checkboxContainer}>
-          <Pressable onPress={toggleCheckbox} style={styles.checkbox}>
-            {agree && <Entypo name="check" size={14} color="blue" />}
-          </Pressable>
-          <Text style={styles.checkboxText}>
-            I agree to all Term, Privacy and Fees
+          <Text style={styles.title}>Create your account</Text>
+          <Text style={styles.subtitle}>
+            Welcome back! Please enter your details
           </Text>
-        </View>
-        {error.termsError ? (
-          <Text style={styles.errorText}>{error.termsError}</Text>
-        ) : null}
 
-        <Pressable
-          style={styles.signUpButton}
-          onPress={() => {
-            if (!validate()) {
-              return;
+          <Text style={styles.label}>
+            Email <Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="email-address"
+            value={formData.email}
+            onChangeText={(val) => setFormData({ ...formData, email: val })}
+          />
+          {error.emailError ? (
+            <Text style={styles.errorText}>{error.emailError}</Text>
+          ) : null}
+
+          <Text style={styles.label}>
+            Password <Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={styles.input}
+            secureTextEntry
+            value={formData.password}
+            onChangeText={(val) => setFormData({ ...formData, password: val })}
+          />
+          {error.passwordError ? (
+            <Text style={styles.errorText}>{error.passwordError}</Text>
+          ) : null}
+          <Text style={styles.label}>
+            Confirm Password <Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={styles.input}
+            secureTextEntry
+            value={formData.confirmPassword}
+            onChangeText={(val) =>
+              setFormData({ ...formData, confirmPassword: val })
             }
-            navigation.navigate("Basic Info", { loginData: formData });
-          }}
-        >
-          <Text style={styles.signUpButtonText}>Sign Up</Text>
-        </Pressable>
-        {/* 
+          />
+          {error.confirmPasswordError ? (
+            <Text style={styles.errorText}>{error.confirmPasswordError}</Text>
+          ) : null}
+
+          <View style={styles.checkboxContainer}>
+            <Pressable onPress={toggleCheckbox} style={styles.checkbox}>
+              {agree && <Entypo name="check" size={14} color="blue" />}
+            </Pressable>
+            <Text style={styles.checkboxText}>
+              I agree to all Term, Privacy and Fees
+            </Text>
+          </View>
+          {error.termsError ? (
+            <Text style={styles.errorText}>{error.termsError}</Text>
+          ) : null}
+
+          <Pressable
+            style={styles.signUpButton}
+            onPress={() => {
+              if (!validate()) {
+                return;
+              }
+              navigation.navigate("Basic Info", { loginData: formData });
+            }}
+          >
+            <Text style={styles.signUpButtonText}>Sign Up</Text>
+          </Pressable>
+          {/* 
       <Text style={styles.orText}>Or Continue With</Text>
 
       <View style={styles.socialButtonsContainer}>
@@ -161,14 +162,15 @@ export default function SignupScreen({navigation}) {
         </Pressable>
       </View> */}
 
-        <Pressable onPress={() => navigation.replace("Login")}>
-          <Text style={styles.footerText}>
-            Already have an account?{" "}
-            <Text style={styles.signInText}>Sign In</Text>
-          </Text>
-        </Pressable>
-      </View>
-    </ScrollView>
+          <Pressable onPress={() => navigation.replace("Login")}>
+            <Text style={styles.footerText}>
+              Already have an account?{" "}
+              <Text style={styles.signInText}>Sign In</Text>
+            </Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

@@ -1,10 +1,9 @@
 import { collection, deleteDoc, doc,addDoc,getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert, FlatList, Pressable, TextInput,Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet,SafeAreaView, ScrollView, Dimensions, Alert, FlatList, Pressable, TextInput,Image } from 'react-native';
 import { auth, db } from '../firebaseConfig';
 import { Ionicons, Entypo, MaterialCommunityIcons, AntDesign, Foundation,FontAwesome} from '@expo/vector-icons';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const JobDetail = ({ route, navigation }) => {
   const uid=auth.currentUser?.uid
@@ -611,7 +610,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scroll: {
-    paddingBottom: 100,
+    paddingBottom: 150,
   },
   jobCard: {
     backgroundColor: "#f0f5fa",
@@ -635,7 +634,7 @@ const styles = StyleSheet.create({
   tags: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap:3,
+    gap: 3,
     marginTop: 8,
   },
   tag: {
@@ -667,7 +666,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 15,
-    paddingHorizontal:3,
+    paddingHorizontal: 3,
     paddingVertical: 5,
     backgroundColor: "#fff", // Corrected from "fff"
   },
@@ -683,7 +682,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 15,
     paddingVertical: 5,
-    paddingHorizontal:5,
+    paddingHorizontal: 5,
     backgroundColor: "#3d77ff",
   },
   activeTabText: {
@@ -724,9 +723,11 @@ const styles = StyleSheet.create({
   },
   bottomButton: {
     position: "absolute",
-    bottom: 20,
+    bottom: 80,
     width: "100%",
     paddingHorizontal: 20,
+    zIndex: 999,
+
   },
   applyBtn: {
     backgroundColor: "#4169e1",

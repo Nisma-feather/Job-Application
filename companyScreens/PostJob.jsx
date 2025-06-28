@@ -241,95 +241,95 @@ export default PostJob
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 15,
   },
   iconContainer: {
     marginBottom: 20,
   },
   successText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
 
     marginBottom: 30,
-    textAlign: 'center',
+    textAlign: "center",
   },
   button: {
-    backgroundColor: 'blue',
+    backgroundColor: "blue",
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 8,
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   formContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   scrollContainer: {
     padding: 20,
   },
   label: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: "600",
     marginBottom: 5,
     marginTop: 15,
-    color: '#333',
+    color: "#333",
   },
   input: {
-    backgroundColor: '#e6eefa',
+    backgroundColor: "#e6eefa",
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    marginBottom: 8,
   
+    fontSize: 12,
   },
   textArea: {
-    backgroundColor: '#e6eefa',
-    borderColor: '#ccc',
+    backgroundColor: "#e6eefa",
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
     minHeight: 100,
     marginBottom: 8,
   },
   picker: {
     height: 50,
     width: "100%",
-    backgroundColor: '#e6eefa',
+    backgroundColor: "#e6eefa",
     borderRadius: 10,
-    border:'none',
+    border: "none",
     borderRadius: 10,
     paddingHorizontal: 10,
   },
   pickerWrapper: {
     marginBottom: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   submitButton: {
     marginTop: 30,
-    backgroundColor: '#007bff',
-    paddingVertical: 14,
+    backgroundColor: "#007bff",
+    paddingVertical: 10,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   submitButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: "white",
+    fontSize: 14,
+    fontWeight: "bold",
   },
 
   // Success screen styles already included
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   iconContainer: {
@@ -337,23 +337,23 @@ const styles = StyleSheet.create({
   },
   successText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 30,
-    textAlign: 'center',
+    textAlign: "center",
   },
   button: {
-    backgroundColor: 'blue',
+    backgroundColor: "blue",
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 8,
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
-  required:{
-    color:"#ff2121"
+  required: {
+    color: "#ff2121",
   },
 });
 

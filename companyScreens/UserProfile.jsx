@@ -39,7 +39,14 @@ const UserProfile = ({ route }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-        <View style={{ position: 'relative',backgroundColor:'blue',width:'100%',height:130 }}>
+        <View
+          style={{
+            position: "relative",
+            backgroundColor: "blue",
+            width: "100%",
+            height: 130,
+          }}
+        >
           {/* <ImageBackground
             source={{
               uri: "https://media.istockphoto.com/id/511061090/photo/business-office-building-in-london-england.jpg?s=612x612&w=0&k=20&c=nYAn4JKoCqO1hMTjZiND1PAIWoABuy1BwH1MhaEoG6w=",
@@ -52,67 +59,80 @@ const UserProfile = ({ route }) => {
           <View style={styles.whiteContainer}>
             {/* <Image source={require("../assets/user.png")} style={styles.logo} /> */}
             <View>
-            <Ionicons name="person"  color="white" size={75} />
+              {profile?.personalData?.profileImg ? (
+                <Image
+                  source={{ uri: profile.personalData?.profileImg }}
+                  style={styles.logo}
+                />
+              ) : (
+                <Ionicons name="person" color="#555" size={75} />
+              )}
             </View>
-           
           </View>
         </View>
 
         <View style={styles.profileContainer}>
-          <Text style={[styles.profileHeading,styles.profileName]}>{profile?.personalData?.name || 'No Name Found'}</Text>
+          <Text style={[styles.profileHeading, styles.profileName]}>
+            {profile?.personalData?.name || null }
+          </Text>
 
           <View style={styles.section}>
             <Text style={styles.profileHeading}>About</Text>
             <Text style={styles.text}>
-              {profile?.description || 'The word Lorem Ipsum is derived from the Latin word which means “pain itself”. It is a kind of a text filler tool that is used by the webmaster on the website.'}
+              {profile?.description ||
+                "The word Lorem Ipsum is derived from the Latin word which means “pain itself”. It is a kind of a text filler tool that is used by the webmaster on the website."}
             </Text>
           </View>
 
           <View style={styles.section}>
             <Text style={styles.profileHeading}>Education</Text>
-            {profile.education && profile.education.map((edu, idx) => (
-              <View key={idx}>
-                <Text style={styles.subheading}>{edu.institute}</Text>
-                <Text style={styles.text}>{edu.name}</Text>
-              </View>
-            ))}
+            {profile.education &&
+              profile.education.map((edu, idx) => (
+                <View key={idx}>
+                  <Text style={styles.subheading}>{edu.institute}</Text>
+                  <Text style={styles.text}>{edu.name}</Text>
+                </View>
+              ))}
           </View>
 
           <View style={styles.section}>
             <Text style={styles.profileHeading}>Experience</Text>
-            {profile.experience && profile.experience.map((exp, idx) => (
-              <View key={idx}>
-                <Text style={styles.subheading}>{exp.company}</Text>
-                <Text style={styles.text}>{exp.role}</Text>
-              </View>
-            ))}
+            {profile.experience &&
+              profile.experience.map((exp, idx) => (
+                <View key={idx}>
+                  <Text style={styles.subheading}>{exp.company}</Text>
+                  <Text style={styles.text}>{exp.role}</Text>
+                </View>
+              ))}
           </View>
 
           <View style={styles.section}>
             <Text style={styles.profileHeading}>Skills</Text>
             <View style={styles.skillContainer}>
-              {profile.skills && profile.skills.map((skill, idx) => (
-                <View key={idx} style={styles.skillBox}>
-                  <Text>{skill}</Text>
-                </View>
-              ))}
+              {profile.skills &&
+                profile.skills.map((skill, idx) => (
+                  <View key={idx} style={styles.skillBox}>
+                    <Text style={{fontSize:13}}>{skill}</Text>
+                  </View>
+                ))}
             </View>
           </View>
 
           <View style={styles.section}>
             <Text style={styles.profileHeading}>Projects</Text>
-            {profile.projects && profile.projects.map((project, idx) => (
-              <View key={idx}>
-                <Text style={styles.subheading}>{project.title}</Text>
-                <Text style={styles.text}>{project.description}</Text>
-                <Text style={styles.text}>{project.technologies}</Text>
-              </View>
-            ))}
+            {profile.projects &&
+              profile.projects.map((project, idx) => (
+                <View key={idx}>
+                  <Text style={styles.subheading}>{project.title}</Text>
+                  <Text style={styles.text}>{project.description}</Text>
+                  <Text style={styles.text}>{project.technologies}</Text>
+                </View>
+              ))}
           </View>
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 export default UserProfile
@@ -120,88 +140,89 @@ export default UserProfile
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white', // light grey background
+    backgroundColor: "#fff",
+  },
+  whiteContainer: {
+    height: 120,
+    width: 120,
+    borderRadius: 60,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    top: 80,
+    alignSelf: "center",
+    borderWidth: 4,
+    borderColor: "#e5e7eb",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 6,
   },
   logo: {
     height: 100,
     width: 100,
-    resizeMode: 'cover',
     borderRadius: 50,
-    borderWidth: 3,
-    borderColor: '#fff',
-    marginBottom: -50,
-  },
-  whiteContainer: {
-    height:110,
-    width:110,
-    position: 'absolute',
-    justifyContent:'center',
-    alignItems:'center',
-    top: 80,
-    left:50,
-    alignSelf: 'center',
-   backgroundColor: '#d5e1f2',
-    borderRadius: 60,
-    padding: 5,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    resizeMode: "cover",
   },
   profileContainer: {
-    marginTop: 50,
-    padding: 20,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    zIndex:-1
+    marginTop: 80,
+    paddingHorizontal: 20,
+    paddingTop: 40,
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
   },
   profileHeading: {
-    fontWeight: 'bolder',
-    fontSize: 18,
-    marginVertical: 15,
+    fontSize: 16,
+    fontWeight: "700",
     color: "#1f2937",
+    marginBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#d1d5db',
-    paddingBottom: 5,
+    borderBottomColor: "#e5e7eb",
+    paddingBottom: 6,
   },
-  subheading: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: '#374151',
-    marginTop: 8,
-  },
-  text: {
-    fontSize: 15,
-    color: '#4b5563',
-    marginBottom: 5,
+  profileName: {
+    fontSize: 22,
+    fontWeight: "800",
+    textAlign: "center",
+    marginBottom: 20,
+    color: "#374151",
   },
   section: {
     marginBottom: 20,
-    backgroundColor: '#f9fafb',
-    borderRadius: 10,
+    backgroundColor: "#f9fafb",
+    borderRadius: 12,
     padding: 15,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: "#e5e7eb",
+  },
+  subheading: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1f2937",
+    marginBottom: 4,
+  },
+  text: {
+    fontSize: 13,
+    color: "#4b5563",
+    lineHeight: 22,
+    marginBottom: 6,
+  },
+  skillContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 10,
   },
   skillBox: {
-    borderWidth: 1,
-    borderColor: '#2563EB',
-    borderRadius: 15,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#e0e7ff',
+    borderRadius: 20,
+    backgroundColor: "#e0e7ff",
+    borderColor: "#3b82f6",
+    borderWidth: 1,
     marginRight: 8,
     marginBottom: 8,
   },
-  profileName:{
-    fontSize:22,
-    color:'#666'
-  },
-  skillContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 10,
-  }
-})
+});

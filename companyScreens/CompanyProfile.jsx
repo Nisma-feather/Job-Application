@@ -12,6 +12,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Linking } from "react-native";
 import * as DocumentPicker from 'expo-document-picker'
 import axios from "axios";
+import { signOut } from "firebase/auth";
+
 
 const CompanyProfile = ({ navigation }) => {
   const CLOUDINARY_UPLOAD_PRESET = "unsigned_preset";
@@ -113,9 +115,38 @@ const CompanyProfile = ({ navigation }) => {
   };
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: profile.companyName,
+      title: profile.companyName || "Profile",
+      headerRight: () => (
+        <Pressable
+          style={{ marginRight: 15 }}
+          onPress={() => {
+            Alert.alert("Logout", "Are you sure you want to logout?", [
+              { text: "Cancel", style: "cancel" },
+              {
+                text: "Logout",
+                style: "destructive",
+                onPress: async () => {
+                  try {
+                    await signOut(auth);
+                    navigation.reset({
+                      index: 0,
+                      routes: [{ name: "Login" }], // Adjust based on your login screen name
+                    });
+                  } catch (error) {
+                    Alert.alert("Error", "Failed to logout.");
+                    console.log("Logout error:", error);
+                  }
+                },
+              },
+            ]);
+          }}
+        >
+          <Ionicons name="log-out-outline" size={22} color="#000" />
+        </Pressable>
+      ),
     });
   }, [navigation, profile]);
+  
   useFocusEffect(
     React.useCallback(() => {
       fetchCompanay();
@@ -268,13 +299,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   name: {
-    fontSize: 22,
+    fontSize: 17,
     fontFamily: "Poppins-Bold",
     textAlign: "center",
     color: "#333",
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     textAlign: "center",
     fontFamily: "Poppins-Regular",
     color: "#666",
@@ -288,14 +319,14 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: "Poppins-Bold",
-    fontSize: 16,
+    fontSize: 14,
     color: "#444",
     marginTop: 10,
   },
   sectionText: {
     color: "#333",
     fontFamily: "Poppins-Regular",
-    fontSize: 14,
+    fontSize: 13,
     marginTop: 2,
   },
   editBtn: {

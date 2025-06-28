@@ -197,13 +197,13 @@ const styles = StyleSheet.create({
   formContainer: {
     flex: 1,
     backgroundColor: '#fff',
-        paddingHorizontal: 24,
+       
   },
   scrollContainer: {
-    padding: 20,
+    padding: 15,
   },
   label: {
-    fontSize: 16,
+    fontSize: 13,
     color: '#333',
     fontFamily: 'Poppins-Bold',
     marginVertical:8
@@ -242,19 +242,19 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     backgroundColor: '#007bff',
-    padding: 16,
+    padding: 10,
     borderRadius: 10,
     marginTop: 30,
     alignItems: 'center',
   },
   submitButtonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: '800',
   },
   input: {
     backgroundColor: '#e6eefa',
-    fontSize: 15,
+    fontSize: 12,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 10,

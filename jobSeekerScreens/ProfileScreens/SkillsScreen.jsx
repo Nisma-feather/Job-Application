@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f4f6f9",
     borderRadius: 8,
     padding: 12,
-    fontSize: 14,
+    fontSize: 12,
   },
   addButton: {
     paddingHorizontal: 5,
@@ -219,7 +219,8 @@ const styles = StyleSheet.create({
   },
   skillText: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: 13,
+    fontWeight:'bold'
   },
   saveButton: {
     backgroundColor: "#1967d2",
@@ -233,7 +234,7 @@ const styles = StyleSheet.create({
   saveText: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 14,
   },
   saveIcon: {
     marginLeft: 5,
