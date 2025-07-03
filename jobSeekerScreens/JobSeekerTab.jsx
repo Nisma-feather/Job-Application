@@ -136,18 +136,17 @@ const HomeStack=()=>{
         name="HomeScreen"
         component={HomeScreen}
         options={({ navigation }) => ({
-       
           headerTitle: () => <Customheader navigation={navigation} />,
           headerStyle: {
-            margin:10,
+            margin: 10,
             backgroundColor: "#fff",
             shadowOpacity: 0,
             elevation: 0,
           },
-          
         })}
       />
       <Stack.Screen name="Find Job" component={FindJobScreen} />
+      <Stack.Screen name="Company Page" component={CompanyCard} />
     </Stack.Navigator>
   );
 }

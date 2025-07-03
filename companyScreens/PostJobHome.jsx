@@ -18,6 +18,7 @@ import {
   Entypo,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import { onSnapshot } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import { CommonActions, useFocusEffect } from "@react-navigation/native";
 import {

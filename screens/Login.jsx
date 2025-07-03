@@ -1,7 +1,7 @@
 
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from "react";
-import { Alert, View, Button, TextInput, SafeAreaView, Text, TouchableOpacity, StyleSheet, Pressable } from "react-native";
+import { Alert, View, Button, TextInput, SafeAreaView, Text, TouchableOpacity, StyleSheet, Pressable, ScrollView } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from "../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
@@ -35,10 +35,6 @@ const Login=({navigation})=>{
       valid = false
       setPasswordError("Password is Required")
     }
-    else if (password.length < 8) {
-      setPasswordError("Password must be at least 8 characters");
-      valid = false;
-    }
     else {
       setPasswordError("")
     }
@@ -46,126 +42,115 @@ const Login=({navigation})=>{
     return valid
   }
   const handleLogin = async () => {
-    if (!validate()) return
+    if (!validate()) return;
     try {
       const userCred = await signInWithEmailAndPassword(auth, email, password);
-      const uid = userCred.user.uid;
+      const user = userCred.user;
 
-      const userSnap = await getDoc(doc(db, 'users', uid));
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        if (data.role === 'jobseeker') {
-          // Alert.alert("Access Denied", "You're not authorized as a job seeker.");
-           console.log("Login successful");
-           Alert.alert("Login successful")
-           navigation.replace("JobSeeker Dashboard", { uid: uid });
-          return;
-        }
-        else if(data.role === 'company'){
-          Alert.alert("Login successful");
-           navigation.replace('CompanyDashboard');
-          
-        } else {
-          Alert.alert('Error', 'Unknown user role');
-        }
-       
+      // Check email verification first
+      if (!user.emailVerified) {
+        navigation.replace("Email Verification", {
+          fromLogin: true,
+          loginData: { email, password },
+        });
+        return;
+      }
+
+      // Check if profile is complete
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists() || !userDoc.data().userInterest) {
+        navigation.replace("User Interest", {
+          fromLogin: true,
+          uid: user.uid,
+        });
+        return;
+      }
+
+      // If both verified and profile complete
+      const data = userDoc.data();
+      if (data.role === "jobseeker") {
+        navigation.replace("JobSeeker Dashboard", { uid: user.uid });
+      } else if (data.role === "company") {
+        navigation.replace("CompanyDashboard");
       } else {
-        Alert.alert("User not found");
+        Alert.alert("Error", "Unknown user role");
       }
     } catch (err) {
-      Alert.alert("Login Failed", err.message, [
-        {
-          text: "Create Account",
-          
-        },
-        {
-          text: "Try Again"
-        }
-      ]);
+      Alert.alert("Login Failed", "Incorrect username or password");
       console.log(err);
     }
   };
-  const handleForgotPassword = () => {
-    if(!email.trim()){
-      Alert.alert("Please enter your email to reset password");
-      return;
-    }
-    sendPasswordResetEmail(auth,email).then(()=>{
-      Alert.alert("Password reset email sent. Please check your inbox.");
-    }).catch((e)=>{
-      console.log(e);
-      Alert.alert("Error sending password reset email");
-    })
-  }
     return (
-      <SafeAreaView style={{ flex: 1 }}>
-        <View style={styles.container}>
-          <View style={styles.logoContainer}>
-            <View style={styles.logoOuter}>
-              <MaterialIcons name="double-arrow" color="#fff" size={28} />
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+        <ScrollView style={{ flexGrow: 1 }}>
+          <View style={styles.container}>
+            <View style={styles.logoContainer}>
+              <View style={styles.logoOuter}>
+                <MaterialIcons name="double-arrow" color="#fff" size={28} />
+              </View>
+              <View>
+                <Text style={styles.logoText}>Feather</Text>
+                <Text style={styles.logoSubText}>Job Portal App</Text>
+              </View>
             </View>
-            <View>
-              <Text style={styles.logoText}>Karier</Text>
-              <Text style={styles.logoSubText}>Job Portal App</Text>
-            </View>
-          </View>
 
-          <Text style={styles.label}>
-            Email<Text style={styles.required}>*</Text>
-          </Text>
-          <TextInput
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            style={styles.input}
-          />
-          {emailError ? (
-            <Text style={styles.errorText}>{emailError}</Text>
-          ) : null}
-
-          <Text style={styles.label}>
-            Password<Text style={styles.required}>*</Text>
-          </Text>
-          <TextInput
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            style={styles.input}
-          />
-          {passwordError ? (
-            <Text style={styles.errorText}>{passwordError}</Text>
-          ) : null}
-          <Pressable
-            style={{
-              marginTop: 7,
-              flexDirection: "row",
-              justifyContent: "flex-end",
-            }}
-            onPress={handleForgotPassword}
-          >
-            <Text style={{ fontSize: 12}}>Forgot Password?</Text>
-          </Pressable>
-
-          <TouchableOpacity style={styles.LoginButton} onPress={handleLogin}>
-            <Text style={styles.LoginButtonText}>Login</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.replace("Role")}>
-            <Text style={styles.signupText}>
-              Don't have an account?{" "}
-              <Text style={{ color: "blue" }}> Creat one </Text>
+            <Text style={styles.label}>
+              Email<Text style={styles.required}>*</Text>
             </Text>
-          </TouchableOpacity>
-        </View>
+            <TextInput
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              style={styles.input}
+            />
+            {emailError ? (
+              <Text style={styles.errorText}>{emailError}</Text>
+            ) : null}
+
+            <Text style={styles.label}>
+              Password<Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              style={styles.input}
+            />
+            {passwordError ? (
+              <Text style={styles.errorText}>{passwordError}</Text>
+            ) : null}
+            <Pressable
+              style={{
+                marginTop: 7,
+                flexDirection: "row",
+                justifyContent: "flex-end",
+              }}
+              onPress={() => navigation.navigate("Forgot Password")}
+            >
+              <Text style={{ fontSize: 12 }}>Forgot Password?</Text>
+            </Pressable>
+
+            <TouchableOpacity style={styles.LoginButton} onPress={handleLogin}>
+              <Text style={styles.LoginButtonText}>Login</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => navigation.replace("Role")}>
+              <Text style={styles.signupText}>
+                Don't have an account?{" "}
+                <Text style={{ color: "blue" }}> Creat one </Text>
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </SafeAreaView>
     );
 }
 export default Login 
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -229,7 +214,7 @@ const styles = StyleSheet.create({
  
   LoginButton: {
     backgroundColor: '#2563EB',
-    paddingVertical: 14,
+    paddingVertical: 10,
     borderRadius: 8,
     marginVertical:10,
     marginTop:25

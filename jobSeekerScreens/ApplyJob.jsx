@@ -132,6 +132,7 @@ const ApplyJob = ({ navigation, route }) => {
         notified: false,
         submittedAt: new Date(),
         status: "applied",
+
       };
 
       await addDoc(collection(db, "jobApplications"), data);

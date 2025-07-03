@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Alert, ScrollView, SafeAreaView, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Alert, ScrollView, SafeAreaView, StyleSheet, TouchableOpacity,Pressable, ActivityIndicator } from 'react-native';
 import { auth, db } from '../../firebaseConfig';
 import { collection,doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import {Octicons} from '@expo/vector-icons';
@@ -7,7 +7,8 @@ const TrackApplications = () => {
   const [applications, setApplications] = useState([]);
   const uid = auth.currentUser?.uid;
   const [loading,setLoading]=useState(false);
-
+  const [selectionMode,setSelectionMode]=useState(false);
+  const [selectedApplications,setSelectedApplications]=useState([])
 
   const fetchUserApplication = async () => {
     if (!uid) return;
@@ -38,8 +39,9 @@ const TrackApplications = () => {
           
           const jobData = jobSnap.data();
           console.log(jobData)
+          
           fetchedApplications.push({
-            id: doc.id,
+            id: Doc.id,
             ...data,
             companyName: jobData.companyName,
             role: jobData.jobrole,
@@ -75,7 +77,26 @@ const TrackApplications = () => {
     if (status === 'shortlisted' || status === 'notShortlisted') return 3;
     return 1;
   };
-console.log(applications)
+  // applications.map((application)=>{
+  //   console.log("application Id", application.id);
+  // })
+  const toggleApplicationSelection=(id)=>{
+    if(selectedApplications.includes(id)){
+      const updated=selectedApplications.filter((prev)=> prev !== id)
+      setSelectedApplications(updated)
+      if(selectedApplications.length===0){
+        setSelectionMode(false)
+      }
+    }
+    else{
+      const updated = [...selectedApplications, id];
+      setSelectedApplications(updated);
+      setSelectionMode(true)
+    }
+      
+
+  }
+console.log("selected Application",selectedApplications)
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={{padding:20}}>
@@ -84,73 +105,83 @@ console.log(applications)
         applications.map((job, idx) => {
           const step = calculateStep(job);
           return (
-            <View key={idx} style={styles.card}>
-              <View style={{ gap:10}}>
-                <View style={{ flexDirection: "row", gap: 3,justifyContent:'space-between' }}>
-                  <Text style={styles.title}>{job.role}</Text>
-                  <Pressable
+            <TouchableOpacity onLongPress={()=>toggleApplicationSelection(job.id)} style={{backgroundColor:`${selectedApplications.includes(job.id)? 'blue':'white'}`}}>
+              <View key={idx} style={styles.card}>
+                <View style={{ gap: 10 }}>
+                  <View
                     style={{
-                      backgroundColor: "blue",
-                      padding: 5,
-                      paddingHorizontal:10,
-                      borderRadius: 5,
-                    }}
-                    onPress={() => {
-                      const updatedApplications = [...applications];
-                      updatedApplications[idx].viewStatus = !job.viewStatus;
-                      setApplications(updatedApplications);
+                      flexDirection: "row",
+                      gap: 3,
+                      justifyContent: "space-between",
                     }}
                   >
-                    <Text style={{ color: "white",fontWeight:'bold' }}>View status</Text>
-                  </Pressable>
+                    <Text style={styles.title}>{job.role}</Text>
+                    <Pressable
+                      style={{
+                        backgroundColor: "blue",
+                        padding: 5,
+                        paddingHorizontal: 10,
+                        borderRadius: 5,
+                      }}
+                      onPress={() => {
+                        const updatedApplications = [...applications];
+                        updatedApplications[idx].viewStatus = !job.viewStatus;
+                        setApplications(updatedApplications);
+                      }}
+                    >
+                      <Text style={{ color: "white", fontWeight: "bold" }}>
+                        View status
+                      </Text>
+                    </Pressable>
+                  </View>
+                  {/* <Octicons name="square-fill" color="blue" size={15} /> */}
+                  <Text style={styles.companyName}>{job.companyName}</Text>
+
+                  {job.viewStatus && (
+                    <>
+                      {/* Step 1 - Applied */}
+                      <View style={styles.stepRow}>
+                        <StepDot active={step >= 1} />
+                        <View>
+                          <Text style={styles.stepLabel}>Applied</Text>
+                          <Text style={styles.dateText}>
+                            {formatDate(job.submittedAt)}
+                          </Text>
+                        </View>
+                      </View>
+
+                      {/* Step 2 - Viewed */}
+                      <View style={styles.stepRow}>
+                        <StepDot active={step >= 2} />
+                        <View>
+                          <Text style={styles.stepLabel}>Viewed</Text>
+                          <Text style={styles.dateText}>
+                            {job.viewedAt ? formatDate(job.viewedAt) : "—"}
+                          </Text>
+                        </View>
+                      </View>
+
+                      {/* Step 3 - Shortlisted / Rejected */}
+                      <View style={styles.stepRow}>
+                        <StepDot active={step >= 3} />
+                        <View>
+                          <Text style={styles.stepLabel}>
+                            {job.status === "shortlisted"
+                              ? "Shortlisted"
+                              : job.status === "notShortlisted"
+                              ? "Rejected"
+                              : "—"}
+                          </Text>
+                          <Text style={styles.dateText}>
+                            {job.statusAt ? formatDate(job.statusAt) : "—"}
+                          </Text>
+                        </View>
+                      </View>
+                    </>
+                  )}
                 </View>
-                {/* <Octicons name="square-fill" color="blue" size={15} /> */}
-                <Text style={styles.companyName}>{job.companyName}</Text>
-
-                {job.viewStatus && (
-                  <>
-                    {/* Step 1 - Applied */}
-                    <View style={styles.stepRow}>
-                      <StepDot active={step >= 1} />
-                      <View>
-                        <Text style={styles.stepLabel}>Applied</Text>
-                        <Text style={styles.dateText}>
-                          {formatDate(job.submittedAt)}
-                        </Text>
-                      </View>
-                    </View>
-
-                    {/* Step 2 - Viewed */}
-                    <View style={styles.stepRow}>
-                      <StepDot active={step >= 2} />
-                      <View>
-                        <Text style={styles.stepLabel}>Viewed</Text>
-                        <Text style={styles.dateText}>
-                          {job.viewedAt ? formatDate(job.viewedAt) : "—"}
-                        </Text>
-                      </View>
-                    </View>
-
-                    {/* Step 3 - Shortlisted / Rejected */}
-                    <View style={styles.stepRow}>
-                      <StepDot active={step >= 3} />
-                      <View>
-                        <Text style={styles.stepLabel}>
-                          {job.status === "shortlisted"
-                            ? "Shortlisted"
-                            : job.status === "notShortlisted"
-                            ? "Rejected"
-                            : "—"}
-                        </Text>
-                        <Text style={styles.dateText}>
-                          {job.statusAt ? formatDate(job.statusAt) : "—"}
-                        </Text>
-                      </View>
-                    </View>
-                  </>
-                )}
               </View>
-            </View>
+            </TouchableOpacity>
           );
         })
       }

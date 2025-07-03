@@ -7,11 +7,12 @@ import {FontAwesome,Feather} from "@expo/vector-icons"
 
 const PersonalInfoScreen = ({navigation}) => {
     const [formData, setFormData] = useState({
-        name: "",
-        phone:"",
-        address: "",
-        gender: "",
-      });
+      name: "",
+      phone: "",
+      address: "",
+      gender: "",
+      imageUrl:"",
+    });
   const [loading, setLoading] = useState(true);
    const [errors, setErrors] = useState({});
   const genderValue = ['Male', 'Female', 'Other'];
@@ -58,7 +59,8 @@ const PersonalInfoScreen = ({navigation}) => {
             name: data.name || "",
             address: data.address || "",
             gender: data.gender || "",
-            phone:data.phone || ""
+            phone: data.phone || "",
+            imageUrl: data.imageUrl || "",
           });
         }
       } catch (error) {

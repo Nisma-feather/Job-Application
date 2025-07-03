@@ -40,42 +40,42 @@ const PositionScreen = ({ selected, onSelect }) => {
 export default PositionScreen
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center',
-      padding: 20,
-      backgroundColor:'white',
-    borderTopRightRadius:20,
-    borderTopLeftRadius:20
-    },
-    title: {
-      fontSize: 16,
-      fontFamily:'Poppins-Bold',
-      marginBottom: 30,
-      textAlign: 'center',
-    },
-    optionsContainer: {
-      marginBottom: 30,
-    },
-    option: {
-      flexDirection:'row',
-      gap:13,
-      padding: 15,
-      borderWidth: 1,
-      borderColor: '#ddd',
-      borderRadius: 8,
-      marginBottom: 10,
-      backgroundColor: '#fff',
-    },
-    selectedOption: {
-      backgroundColor: '#e6f0ff',
-      borderColor: '#1967d2',
-    },
-    optionText: {
-      fontSize: 14,
-      textAlign: 'center',
-      color:'#555',
-      fontFamily:"Poppins-Regular"
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
+    backgroundColor: "white",
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
 
-    },
-  });
+},
+  title: {
+    fontSize: 16,
+    fontFamily: "Poppins-Bold",
+    marginBottom: 30,
+    textAlign: "center",
+  },
+  optionsContainer: {
+    marginBottom: 30,
+  },
+  option: {
+    flexDirection: "row",
+    gap: 13,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    marginBottom: 10,
+    backgroundColor: "#fff",
+  },
+  selectedOption: {
+    backgroundColor: "#e6f0ff",
+    borderColor: "#1967d2",
+  },
+  optionText: {
+    fontSize: 14,
+    textAlign: "center",
+    color: "#555",
+    fontFamily: "Poppins-Regular",
+  },
+});

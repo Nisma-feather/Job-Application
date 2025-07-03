@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,useCallback} from 'react'
 import {
   View,
   Text,
@@ -15,7 +15,8 @@ import {
   ActivityIndicator,
   Linking
 } from "react-native";
-import { useNavigation } from '@react-navigation/native';
+
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons, Feather, Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import { auth, db } from '../firebaseConfig';
 import { addDoc, collection, getDocs, query, updateDoc, where,doc, getDoc } from 'firebase/firestore';
@@ -61,9 +62,11 @@ const ViewJobApplications = ({navigation}) => {
         }
      }
     
-     useEffect(()=>{
-        fetchJobList()
-     },[])
+     useFocusEffect(
+       useCallback(() => {
+         fetchJobList();
+       }, [])
+     );
      console.log("Joblist",joblist)
 
   return (
@@ -81,7 +84,7 @@ const ViewJobApplications = ({navigation}) => {
             ListHeaderComponent={() => (
               <View style={{ marginVertical: 10, marginBottom: 6 }}>
                 <Text style={[styles.heading, { textAlign: "center" }]}>
-                  Posted Jobs
+                  View Applications
                 </Text>
               </View>
             )}
@@ -420,6 +423,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     padding: 16,
     flexGrow: 1,
+    paddingBottom: 20,
   },
   emptyContainer: {
     alignItems: "center",
@@ -449,10 +453,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     textAlign: "center",
-  },
-  heading: {
-    fontWeight: "bold",
-    fontSize: 14,
   },
   shortlistBackground: {
     backgroundColor: "#59CE8F",
@@ -487,9 +487,9 @@ const styles = StyleSheet.create({
   },
 
   heading: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: "Poppins-Bold",
-    marginVertical: 18,
+    marginVertical: 13,
     color: "#1F2937",
     textAlign: "center",
   },

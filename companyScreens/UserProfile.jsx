@@ -86,8 +86,8 @@ const UserProfile = ({ route }) => {
 
           <View style={styles.section}>
             <Text style={styles.profileHeading}>Education</Text>
-            {profile.education &&
-              profile.education.map((edu, idx) => (
+            {profile?.education &&
+              profile?.education.map((edu, idx) => (
                 <View key={idx}>
                   <Text style={styles.subheading}>{edu.institute}</Text>
                   <Text style={styles.text}>{edu.name}</Text>
@@ -97,8 +97,8 @@ const UserProfile = ({ route }) => {
 
           <View style={styles.section}>
             <Text style={styles.profileHeading}>Experience</Text>
-            {profile.experience &&
-              profile.experience.map((exp, idx) => (
+            {profile?.experience &&
+              profile?.experience.map((exp, idx) => (
                 <View key={idx}>
                   <Text style={styles.subheading}>{exp.company}</Text>
                   <Text style={styles.text}>{exp.role}</Text>
@@ -109,8 +109,8 @@ const UserProfile = ({ route }) => {
           <View style={styles.section}>
             <Text style={styles.profileHeading}>Skills</Text>
             <View style={styles.skillContainer}>
-              {profile.skills &&
-                profile.skills.map((skill, idx) => (
+              {profile?.skills &&
+                profile?.skills.map((skill, idx) => (
                   <View key={idx} style={styles.skillBox}>
                     <Text style={{fontSize:13}}>{skill}</Text>
                   </View>
@@ -120,8 +120,8 @@ const UserProfile = ({ route }) => {
 
           <View style={styles.section}>
             <Text style={styles.profileHeading}>Projects</Text>
-            {profile.projects &&
-              profile.projects.map((project, idx) => (
+            {profile?.projects &&
+              profile?.projects.map((project, idx) => (
                 <View key={idx}>
                   <Text style={styles.subheading}>{project.title}</Text>
                   <Text style={styles.text}>{project.description}</Text>

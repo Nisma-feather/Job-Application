@@ -199,7 +199,7 @@ const CompanyCard = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 120 }}>
         {/* Top Banner */}
         {/* <View style={{ position: 'relative' }}>
           <ImageBackground
@@ -240,8 +240,8 @@ const CompanyCard = ({ route, navigation }) => {
           <View style={styles.whiteContainer}>
             {company.profileImg ? (
               <Image
-                source={{uri:company.profileImg}}
-                style={[{resizeMode:'cover'},styles.logo]}
+                source={{ uri: company.profileImg }}
+                style={[{ resizeMode: "cover" }, styles.logo]}
               />
             ) : (
               <View>

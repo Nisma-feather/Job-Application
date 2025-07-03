@@ -148,7 +148,7 @@ const UserInterestForm = ({ navigation, route }) => {
       locations={[0, 0.4, 1]}
       style={styles.container}
     >
-      <ScrollView>
+      <View style={{ flex: 1 }}>
         {loading && (
           <View style={styles.loadingOverlay}>
             <ActivityIndicator size="large" color="#0000ff" />
@@ -156,8 +156,9 @@ const UserInterestForm = ({ navigation, route }) => {
         )}
 
         <ProgressStepper steps={steps} currentStep={currentStep} />
-        <View style={styles.contentContainer}>{renderStep()}</View>
-
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.contentContainer}>{renderStep()}</View>
+        </ScrollView>
         <View style={styles.buttonContainer}>
           {currentStep > 1 && (
             <TouchableOpacity style={styles.prevButton} onPress={prevStep}>
@@ -174,7 +175,7 @@ const UserInterestForm = ({ navigation, route }) => {
             </Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </LinearGradient>
   );
 };
@@ -218,7 +219,7 @@ const ProgressStepper = ({ steps, currentStep }) => {
 // Keep your existing styles here (unchanged for brevity)
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 13 },
-  contentContainer: { flex: 1, justifyContent: "center" },
+  contentContainer: { flex: 1, justifyContent: "center", minHeight: "100%" },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",

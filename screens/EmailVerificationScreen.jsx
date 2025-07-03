@@ -6,84 +6,87 @@ import {
   Pressable,
   Alert,
   ActivityIndicator,
-  SafeAreaView
 } from "react-native";
 import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
   onAuthStateChanged,
+  sendEmailVerification,
+  signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 
 export default function EmailVerification({ navigation, route }) {
-  const { loginData, personalData } = route.params || {};
-  const [user, setUser] = useState(null);
-  const [verificationSent, setVerificationSent] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(false);
+  const { loginData, personalData, fromLogin } = route.params || {};
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
-  // Create user account on mount
+  // Handle both new signups and returning unverified users
   useEffect(() => {
-    const createAccount = async () => {
-      try {
-        setLoading(true);
-        const userCred = await createUserWithEmailAndPassword(
-          auth,
-          loginData.email,
-          loginData.password
-        );
-        setUser(userCred.user);
-        await sendEmailVerification(userCred.user);
-        setVerificationSent(true);
-        Alert.alert("Verification Email Sent", "Please check your inbox.");
-      } catch (err) {
-        console.error("Signup error:", err);
-        Alert.alert("Signup Error", err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setCurrentUser(user);
+        setEmailVerified(user.emailVerified);
 
-    createAccount();
-  }, []);
-
-  // Check email verification status live
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        setEmailVerified(currentUser.emailVerified);
+        if (!fromLogin && !user.emailVerified) {
+          try {
+            setLoading(true);
+            await sendEmailVerification(user);
+            Alert.alert("Verification Sent", "Please check your email");
+          } catch (err) {
+            Alert.alert("Error", "Failed to send verification");
+          } finally {
+            setLoading(false);
+          }
+        }
+      } else if (fromLogin) {
+        try {
+          setLoading(true);
+          const userCred = await signInWithEmailAndPassword(
+            auth,
+            loginData.email,
+            loginData.password
+          );
+          setCurrentUser(userCred.user);
+          setEmailVerified(userCred.user.emailVerified);
+        } catch (err) {
+          Alert.alert("Error", "Failed to sign in");
+          navigation.goBack();
+        } finally {
+          setLoading(false);
+        }
       }
     });
-    return () => unsubscribe();
-  }, []);
+    return unsubscribe;
+  }, [fromLogin, loginData?.email, loginData?.password]);
 
   const checkVerification = async () => {
     try {
-      await user.reload();
-      if (user.emailVerified) {
+      setChecking(true);
+      await currentUser?.reload();
+      const updatedUser = auth.currentUser;
+
+      if (updatedUser?.emailVerified) {
         setEmailVerified(true);
-        Alert.alert("Email Verified", "You can now continue.");
+        if (fromLogin) {
+          navigation.replace("User Interest", {
+            fromLogin: true,
+            uid: updatedUser.uid,
+          });
+        } else {
+          navigation.replace("User Interest", {
+            loginData,
+            personalData,
+            uid: updatedUser.uid,
+          });
+        }
       } else {
-        Alert.alert(
-          "Still Not Verified",
-          "Please click the link in your email."
-        );
+        Alert.alert("Not Verified", "Please verify your email first");
       }
     } catch (err) {
-      console.error("Check verification error:", err);
-      Alert.alert("Error", err.message);
-    }
-  };
-
-  const handleContinue = () => {
-    if (emailVerified) {
-      navigation.replace("User Interest", {
-        loginData: loginData,
-        personalData: personalData,
-      });
-    } else {
-      Alert.alert("Please verify your email before continuing.");
+      Alert.alert("Error", "Failed to check verification");
+    } finally {
+      setChecking(false);
     }
   };
 
@@ -91,22 +94,37 @@ export default function EmailVerification({ navigation, route }) {
     <View style={styles.container}>
       <Text style={styles.title}>Verify Your Email</Text>
       <Text style={styles.text}>A verification email has been sent to:</Text>
-      <Text style={styles.email}>{loginData.email}</Text>
+      <Text style={styles.email}>{loginData?.email}</Text>
 
       {loading ? (
         <ActivityIndicator size="large" color="#007bff" />
       ) : (
         <>
-          <Pressable style={styles.button} onPress={checkVerification}>
-            <Text style={styles.buttonText}>Check Verification</Text>
+          <Pressable
+            style={styles.button}
+            onPress={checkVerification}
+            disabled={checking}
+          >
+            {checking ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>
+                {emailVerified ? "Continue" : "Check Verification"}
+              </Text>
+            )}
           </Pressable>
 
-          {emailVerified && (
+          {!emailVerified && (
             <Pressable
-              style={[styles.button, { backgroundColor: "#28a745" }]}
-              onPress={handleContinue}
+              style={[styles.button, styles.resendButton]}
+              onPress={() => {
+                if (currentUser) {
+                  sendEmailVerification(currentUser);
+                  Alert.alert("Email Resent", "Please check your inbox");
+                }
+              }}
             >
-              <Text style={styles.buttonText}>Complete Profile</Text>
+              <Text style={styles.buttonText}>Resend Email</Text>
             </Pressable>
           )}
         </>
@@ -147,10 +165,14 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 8,
+    minWidth: 200,
+    alignItems: "center",
+  },
+  resendButton: {
+    backgroundColor: "#6c757d",
   },
   buttonText: {
     color: "#fff",
     fontFamily: "Poppins-Bold",
   },
 });
-  

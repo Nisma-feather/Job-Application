@@ -114,10 +114,7 @@ const ProfileScreen = () => {
       setImageUrl(resUrl);
 
       await updateDoc(doc(db, "users", uid), {
-        personalData: {
-          ...personalData,
-          imageUrl: resUrl,
-        },
+       "personalData.imageUrl": resUrl
       });
     } catch (e) {
       console.error(e);

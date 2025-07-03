@@ -46,6 +46,7 @@ const PostJob = ({ navigation }) => {
   };
 
   const handlePostJob = async () => {
+    console.log('trying to post')
    
     if (!companyUID) {
       console.error("Company UID is required");
@@ -97,7 +98,6 @@ const PostJob = ({ navigation }) => {
       await addDoc(collection(db, 'jobs'), jobData);
       Alert.alert("Job Posted Successfully");
       console.log("job posted")
-      navigation.navigate("Job Post Success")
     }
     catch (err) {
       Alert.alert('Error', err.message)
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 10,
-  
+
     fontSize: 12,
   },
   textArea: {
@@ -354,6 +354,11 @@ const styles = StyleSheet.create({
   },
   required: {
     color: "#ff2121",
+  },
+  errorText: {
+    
+    color: "red",
+    fontSize: 11,
   },
 });
 

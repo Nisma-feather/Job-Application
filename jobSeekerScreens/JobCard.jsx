@@ -98,7 +98,8 @@ console.log(reviewAvg)
 useFocusEffect(
   useCallback(() => {
     fetchBookMarks();
-    fetchCompany(); // re-fetch to reflect latest bookmarks
+    fetchCompany(); 
+    fetchReviews(); // re-fetch to reflect latest bookmarks
   }, [])
 );
 console.log("logo",logo)
@@ -172,8 +173,8 @@ const styles = StyleSheet.create({
     marginHorizontal:10,
     gap:14,
     marginBottom:15,
-    minWidth:280
-
+    minWidth:280,
+    maxWidth:500
   },
   logo: {
     flexDirection:'row',

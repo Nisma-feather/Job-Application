@@ -66,8 +66,8 @@ export default function SignupScreen({navigation}) {
 
 
   return (
-    <SafeAreaView>
-      <ScrollView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+      <ScrollView style={{ flexGrow: 1 }}>
         <View style={styles.container}>
           {/* Logo */}
           <View style={styles.logoContainer}>
@@ -75,7 +75,7 @@ export default function SignupScreen({navigation}) {
               <MaterialIcons name="double-arrow" color="#fff" size={28} />
             </View>
             <View>
-              <Text style={styles.logoText}>Karier</Text>
+              <Text style={styles.logoText}>Feather</Text>
               <Text style={styles.logoSubText}>Job Portal App</Text>
             </View>
           </View>
@@ -125,14 +125,14 @@ export default function SignupScreen({navigation}) {
             <Text style={styles.errorText}>{error.confirmPasswordError}</Text>
           ) : null}
 
-          <View style={styles.checkboxContainer}>
-            <Pressable onPress={toggleCheckbox} style={styles.checkbox}>
+          <Pressable style={styles.checkboxContainer} onPress={toggleCheckbox}>
+            <View style={styles.checkbox}>
               {agree && <Entypo name="check" size={14} color="blue" />}
-            </Pressable>
+            </View>
             <Text style={styles.checkboxText}>
               I agree to all Term, Privacy and Fees
             </Text>
-          </View>
+          </Pressable>
           {error.termsError ? (
             <Text style={styles.errorText}>{error.termsError}</Text>
           ) : null}
@@ -177,7 +177,7 @@ export default function SignupScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    
     paddingHorizontal: 24,
     
   },

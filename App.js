@@ -22,6 +22,7 @@ import CompanyDashboard from './companyScreens/CompanyDashboard';
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import ProfileScreen from "./jobSeekerScreens/ProfileScreen";
 import EmailVerificationScreen from "./screens/EmailVerificationScreen";
+import ForgotPassword from "./screens/ForgotPassword";
 
 const Stack = createNativeStackNavigator();
 const Drawer=createDrawerNavigator();
@@ -49,17 +50,48 @@ export default function App() {
         <Stack.Screen
           name="JobSeekerStack"
           component={JobSeekerStack}
-          options={{headerShown:false}}
+          options={{ headerShown: false }}
         />
-        <Stack.Screen name="CompanyStack" component={CompanyStack} options={{headerShown:false}}/>
-        <Stack.Screen name='Company Details' component={CompanyDetails}/>
-         
-         <Stack.Screen name="JobSeeker Dashboard" component={JobSeekerDrawer} options={{
-        headerShown:false
-      }}/>
-      <Stack.Screen name='Job Details' component={JobDetail}/>
-      <Stack.Screen name="Apply Job" component={ApplyJob}/>
-      <Stack.Screen name="CompanyDashboard" component={CompanyDashboard} options={{headerShown:false}}/>
+        <Stack.Screen name="Forgot Password" component={ForgotPassword} />
+        <Stack.Screen
+          name="CompanyStack"
+          component={CompanyStack}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen name="Company Details" component={CompanyDetails} />
+
+        <Stack.Screen
+          name="JobSeeker Dashboard"
+          component={JobSeekerDrawer}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen name="Job Details" component={JobDetail} />
+        <Stack.Screen name="Apply Job" component={ApplyJob} />
+        <Stack.Screen
+          name="CompanyDashboard"
+          component={CompanyDashboard}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Email Verification"
+          component={EmailVerificationScreen}
+        />
+        <Stack.Screen
+          name="User Interest"
+          component={UserInterestForm}
+          options={{
+            headerTitle: () => null, // Best option for completely removing title
+            headerStyle: {
+              backgroundColor: "#2563EB",
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+            },
+            headerTintColor: "#fff",
+          }}
+        />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
@@ -119,13 +151,10 @@ const JobSeekerStack = () => {
         },
       })}
     >
-      <Stack.Screen
-        name="EmailVerification"
-        component={EmailVerificationScreen}
-      />
+    
       <Stack.Screen name="SignUp" component={SignupScreen} />
       <Stack.Screen name="Basic Info" component={BasicDetailsScreen} />
-      <Stack.Screen name="User Interest" component={UserInterestForm} />
+     
     </Stack.Navigator>
   );
 };

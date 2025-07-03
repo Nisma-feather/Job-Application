@@ -243,7 +243,7 @@ const ExperienceScreen = ({ navigation }) => {
                     />
                   </Pressable>
 
-                  <Text>Currently studying here</Text>
+                  <Text>Currently working here</Text>
                 </View>
               )}
             </View>
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "600",
     textAlign: "center",
-    marginVertical: 20,
+   
   },
   eduHeader: {
     flexDirection: "row",
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 14,
   },
-  subheading: { fontSize: 17, fontFamily: "Poppins-Bold", color: "#555" },
+  subheading: { fontSize: 17, fontFamily: "Poppins-Bold", color: "#555",marginTop:30},
   input: {
     width: "100%",
     borderRadius: 8,
