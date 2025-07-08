@@ -177,10 +177,11 @@ const styles = StyleSheet.create({
     maxWidth:500
   },
   logo: {
-    flexDirection:'row',
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+
+    width: '100%',
+    height:'100%',
+    resizeMode:'cover',
+    borderRadius: 6,
   },
   jobTitle: {
     fontSize: 13,

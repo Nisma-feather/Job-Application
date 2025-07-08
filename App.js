@@ -23,6 +23,7 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import ProfileScreen from "./jobSeekerScreens/ProfileScreen";
 import EmailVerificationScreen from "./screens/EmailVerificationScreen";
 import ForgotPassword from "./screens/ForgotPassword";
+import CompanyEmailVerification from "./companyScreens/CompanyVerification";
 
 const Stack = createNativeStackNavigator();
 const Drawer=createDrawerNavigator();
@@ -92,6 +93,7 @@ export default function App() {
             headerTintColor: "#fff",
           }}
         />
+        <Stack.Screen name="Company Verification" component={CompanyEmailVerification}/>
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

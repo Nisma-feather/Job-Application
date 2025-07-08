@@ -16,6 +16,7 @@ import { auth, db } from "../firebaseConfig";
 import {
   collection,
   deleteDoc,
+  onSnapshot,
   getDocs,
   orderBy,
   query,
@@ -36,20 +37,19 @@ const Messages = ({ navigation }) => {
   const uid = auth?.currentUser?.uid;
 
   const fetchUserMessages = async () => {
-    if (!uid) return;
+    const ref = collection(db, "users", uid, "messages");
+    const q = query(ref, orderBy("messageAt", "desc"));
 
-    try {
-      const ref = collection(db, "users", uid, "messages");
-      const q = query(ref, orderBy("messageAt", "desc"));
-      const snapData = await getDocs(q);
-      const messageFetched = snapData.docs.map((doc) => ({
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const messageFetched = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       setMessages(messageFetched);
-    } catch (e) {
-      console.log(e);
-    }
+    });
+
+    // Cleanup listener when component unmounts or uid changes
+    return () => unsubscribe();
   };
 
   const handleToggleSelection = (messageId) => {

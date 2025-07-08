@@ -58,8 +58,8 @@ const [unreadCount, setUnreadCount] = useState(0);
           tabBarShowLabel: false,
          
              tabBarStyle: {
-      position: 'absolute',
-      bottom: 0,
+    //  position: 'absolute',
+    //   bottom: 0, 
       backgroundColor: '#fff',
       borderTopWidth: 1,
       borderColor: '#ddd',

@@ -1,79 +1,67 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet,Pressable, Alert, SafeAreaView, ScrollView } from 'react-native';
-import { FontAwesome, AntDesign, Entypo,MaterialIcons } from '@expo/vector-icons';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { setDoc, doc, getFirestore } from 'firebase/firestore';
-import { auth } from '../firebaseConfig';
-import { Platform } from 'react-native';
-const db = getFirestore();
+import { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Pressable,
+  Alert,
+  ScrollView,
+  ActivityIndicator,
+  Image
+} from "react-native";
+import { MaterialIcons, Entypo } from "@expo/vector-icons";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig";
+import { SafeAreaView } from "react-native-safe-area-context";
+import logo from "../assets/newIcon.png"
 
 const CompanySignUp = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [cpassword, setCPassword]= useState('');
-  // const [companyName, setCompanyName] = useState('');
-  // const [startYear, setStartYear] = useState('');
-  // const [employeeCount, setEmployeeCount] = useState('');
-  // const [locations, setLocations] = useState('');
-  // const [basicInfo, setBasicInfo] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [cpassword, setCPassword] = useState("");
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState({});
-
-  const toggleCheckbox = () => setAgree(!agree);
+  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     let valid = true;
     const errors = {};
 
     if (!email.trim()) {
-      errors.emailError = 'Email is required';
+      errors.emailError = "Email is required";
       valid = false;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errors.emailError = 'Invalid email format';
+      errors.emailError = "Invalid email format";
       valid = false;
     }
 
     if (!password.trim()) {
-      errors.passwordError = 'Password is required';
+      errors.passwordError = "Password is required";
       valid = false;
-    } else if (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}$/.test(password)) {
-      errors.passwordError = 'Password must be 8+ characters with special character & number';
+    } else if (
+      !/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}$/.test(password)
+    ) {
+      errors.passwordError =
+        "Password must be 8+ chars with special character & number";
       valid = false;
-    } 
-
-    if(!cpassword.trim()){
-      valid=false
-      errors.cpasswordError='Enter Confirm Password'
-    }
-    else if(password !== cpassword){
-      valid=false
-      errors.cpasswordError="password and confirm password not matching"
     }
 
-    // if (!companyName.trim()) {
-    //   errors.companyNameError = 'Company name is required';
-    //   valid = false;
-    // }
-
-    // if (!startYear.trim()) {
-    //   errors.startYearError = 'Start year is required';
-    //   valid = false;
-    // }
-
-    // if (!employeeCount.trim()) {
-    //   errors.employeeCountError = 'Employee count is required';
-    //   valid = false;
-    // }
-
-    // if (!locations.trim()) {
-    //   errors.locationsError = 'Locations are required';
-    //   valid = false;
-    // }
-
-  
+    if (!cpassword.trim()) {
+      errors.cpasswordError = "Enter Confirm Password";
+      valid = false;
+    } else if (password !== cpassword) {
+      errors.cpasswordError = "Passwords don't match";
+      valid = false;
+    }
 
     if (!agree) {
-      errors.termsError = 'Please agree to the terms';
+      errors.termsError = "Please agree to the terms";
       valid = false;
     }
 
@@ -81,109 +69,130 @@ const CompanySignUp = ({ navigation }) => {
     return valid;
   };
 
-  // const handleSignup = async () => {
-  //   if (!validate()) return;
+  const handleSignup = async () => {
+    if (!validate()) return;
+    setLoading(true);
 
-  //   try {
-  //     const userCred = await createUserWithEmailAndPassword(auth, email, password);
-  //     const uid = userCred.user.uid;
+    try {
+      const userCred = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCred.user;
 
-  //     await setDoc(doc(db, 'users', uid), {
-  //       email,
-  //       role: 'company',
-  //     });
+      await setDoc(doc(db, "users", user.uid), {
+        email,
+        role: "company",
+        isVerified: false,
+        createdAt: new Date(),
+        profileComplete: false, // Will be true after details are added
+      });
 
-  //     await setDoc(doc(db, 'companies', uid), {
-  //       uid,
-  //       email,
-  //       companyName,
-  //       startYear,
-  //       employeeCount,
-  //       locations,
-  //       basicInfo,
-  //     });
-
-  //     Alert.alert('Account Created Successfully');
-  //     navigation.replace('CompanyLogin');
-  //   } catch (err) {
-  //     Alert.alert('Error', err.message);
-  //   }
-  // };
+      await sendEmailVerification(user);
+      navigation.replace("Company Verification", { uid: user.uid });
+    } catch (err) {
+      let errorMsg = "Signup failed";
+      if (err.code === "auth/email-already-in-use") {
+        errorMsg = "Email already in use";
+      }
+      Alert.alert("Error", errorMsg);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <SafeAreaView style={{flex:1}}>
-      <ScrollView style={{ backgroundColor: '#fff' }}
-  contentContainerStyle={{ flexGrow: 1 }}
-  showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={{ flex: 1,padding:10,backgroundColor: "#fff"}}>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.container}>
-        <View style={styles.logoContainer}>
-          <View style={styles.logoOuter}>
-            <MaterialIcons name="double-arrow" color="#fff" size={28} />
+          <View style={styles.logoContainer}>
+               <Image source={logo} style={styles.logoOuter}/>
+           
+            <View>
+              <Text style={styles.logoText}>Feather</Text>
+              <Text style={styles.logoSubText}>Job Portal App</Text>
+            </View>
           </View>
-          <View>
-            <Text style={styles.logoText}>Karier</Text>
-            <Text style={styles.logoSubText}>Job Portal App</Text>
-          </View>
-        </View>
 
-        <Text style={styles.title}>Create Company Account</Text>
-        <Text style={styles.subtitle}>Enter your company details</Text>
+          <Text style={styles.title}>Create Company Account</Text>
+          <Text style={styles.subtitle}>Enter your company details</Text>
 
-        <Text style={styles.label}>Email <Text style={styles.required}>*</Text></Text>
-        <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" />
-        {error.emailError && <Text style={styles.errorText}>{error.emailError}</Text>}
+          <Text style={styles.label}>
+            Email <Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+          />
+          {error.emailError && (
+            <Text style={styles.errorText}>{error.emailError}</Text>
+          )}
 
-        <Text style={styles.label}>Password <Text style={styles.required}>*</Text></Text>
-        <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
-        {error.passwordError && <Text style={styles.errorText}>{error.passwordError}</Text>}
+          <Text style={styles.label}>
+            Password <Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          {error.passwordError && (
+            <Text style={styles.errorText}>{error.passwordError}</Text>
+          )}
 
-        <Text style={styles.label}>Confirm Password <Text style={styles.required}>*</Text></Text>
-        <TextInput style={styles.input} value={cpassword} onChangeText={setCPassword} secureTextEntry />
-        {error.cpasswordError && <Text style={styles.errorText}>{error.cpasswordError}</Text>}
+          <Text style={styles.label}>
+            Confirm Password <Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={styles.input}
+            value={cpassword}
+            onChangeText={setCPassword}
+            secureTextEntry
+          />
+          {error.cpasswordError && (
+            <Text style={styles.errorText}>{error.cpasswordError}</Text>
+          )}
 
-        {/* <Text style={styles.label}>Company Name <Text style={styles.required}>*</Text></Text>
-        <TextInput style={styles.input} value={companyName} onChangeText={setCompanyName} />
-        {error.companyNameError && <Text style={styles.errorText}>{error.companyNameError}</Text>}
+          <Pressable style={styles.checkboxContainer} onPress={()=>setAgree(!agree)}>
+            <View style={styles.checkbox}>
+              {agree && <Entypo name="check" size={14} color="blue" />}
+            </View>
+            <Text style={styles.checkboxText}>
+              I agree to all Term, Privacy and Fees
+            </Text>
+          </Pressable>
+          {error.termsError && (
+            <Text style={styles.errorText}>{error.termsError}</Text>
+          )}
 
-        <Text style={styles.label}>Start Year <Text style={styles.required}>*</Text></Text>
-        <TextInput style={styles.input} value={startYear} onChangeText={setStartYear} keyboardType="numeric" />
-        {error.startYearError && <Text style={styles.errorText}>{error.startYearError}</Text>}
-
-        <Text style={styles.label}>Employee Count<Text style={styles.required}>*</Text></Text>
-        <TextInput style={styles.input} value={employeeCount} onChangeText={setEmployeeCount} keyboardType="numeric" />
-        {error.employeeCountError && <Text style={styles.errorText}>{error.employeeCountError}</Text>}
-
-        <Text style={styles.label}>Locations<Text style={styles.required}>*</Text></Text>
-        <TextInput style={styles.input} value={locations} onChangeText={setLocations} />
-        {error.locationsError && <Text style={styles.errorText}>{error.locationsError}</Text>}
-
-        <Text style={styles.label}>Basic Info </Text>
-        <TextInput style={styles.input} value={basicInfo} onChangeText={setBasicInfo} multiline /> */}
-       
-
-        <View style={styles.checkboxContainer}>
-          <TouchableOpacity onPress={toggleCheckbox} style={styles.checkbox}>
-            {agree && <Entypo name="check" size={14} color="blue" />}
+          <TouchableOpacity
+            style={styles.signUpButton}
+            onPress={handleSignup}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.signUpButtonText}>Sign Up</Text>
+            )}
           </TouchableOpacity>
-          <Text style={styles.checkboxText}>I agree to all Term, Privacy and Fees</Text>
-        </View>
-        {error.termsError && <Text style={styles.errorText}>{error.termsError}</Text>}
-
-        <TouchableOpacity style={styles.signUpButton} onPress={()=>{
-          if(!validate()){
-            return
-          }
-          navigation.navigate('Company Details', {email:email,password:password})
-        }}>
-          <Text style={styles.signUpButtonText}>Sign Up</Text>
-        </TouchableOpacity>
-        <Pressable onPress={()=>navigation.replace("Login")}>
+          <Pressable onPress={() => navigation.replace("Login")}>
             <Text style={styles.footerText}>
-                Already have an account? <Text style={styles.signInText}>Sign In</Text>
-              </Text>
-           </Pressable>
-      </View>
+              Already have an account?{" "}
+              <Text style={styles.signInText}>Sign In</Text>
+            </Text>
+          </Pressable>
+        </View>
 
+      
       </ScrollView>
     </SafeAreaView>
   );
@@ -195,9 +204,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingHorizontal: 24,
+    paddingHorizontal:10,
     height: "100%",
-    paddingTop: Platform.OS === "android" ? 50 : 0,
+
   },
   logoContainer: {
     flexDirection: "row",

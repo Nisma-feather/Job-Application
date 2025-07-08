@@ -1,11 +1,12 @@
 
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from "react";
-import { Alert, View, Button, TextInput, SafeAreaView, Text, TouchableOpacity, StyleSheet, Pressable, ScrollView } from "react-native";
+import { Alert, View, Button,Image, TextInput, SafeAreaView, Text, TouchableOpacity, StyleSheet, Pressable, ScrollView } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from "../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { sendPasswordResetEmail } from 'firebase/auth/cordova';
+import logo from "../assets/newIcon.png"
 
 
 const Login=({navigation})=>{
@@ -28,7 +29,6 @@ const Login=({navigation})=>{
       else {
         setEmailError("")
       }
-
     }
 
     if (!password.trim()) {
@@ -43,11 +43,52 @@ const Login=({navigation})=>{
   }
   const handleLogin = async () => {
     if (!validate()) return;
+
     try {
       const userCred = await signInWithEmailAndPassword(auth, email, password);
       const user = userCred.user;
 
-      // Check email verification first
+      // Try to get user doc from "users" collection
+      const userDocSnap = await getDoc(doc(db, "users", user.uid));
+
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+
+        // ✅ If it's a company
+        if (userData.role === "company") {
+          if(!user.emailVerified){
+
+            navigation.replace("Company Verification", { uid: user.uid });
+            return;
+
+
+          }
+          const companySnap=await getDoc(doc(db,'companies',user.uid));
+           if(companySnap.exists()){
+            navigation.replace("CompanyDashboard",{uid:user.uid})
+
+          }
+          else{
+            navigation.navigate("Company Details", {
+              uid: user.uid,
+              email: user.email,
+            });
+
+          }
+        
+          return;
+        }
+        if(userData.role==="jobseeker"){
+          navigation.replace("JobSeeker Dashboard", { uid: user.uid });
+          return
+        }
+
+        // 🚨 Optional: Handle unknown roles in users collection
+        Alert.alert("Error", "Unknown company role");
+        return;
+      }
+
+      // ✅ If no doc found → it's a jobseeker
       if (!user.emailVerified) {
         navigation.replace("Email Verification", {
           fromLogin: true,
@@ -56,9 +97,9 @@ const Login=({navigation})=>{
         return;
       }
 
-      // Check if profile is complete
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (!userDoc.exists() || !userDoc.data().userInterest) {
+      // 🔁 Continue Jobseeker Flow
+      const jobSeekerDoc = await getDoc(doc(db, "jobseekers", user.uid));
+      if (!jobSeekerDoc.exists() || !jobSeekerDoc.data().userInterest) {
         navigation.replace("User Interest", {
           fromLogin: true,
           uid: user.uid,
@@ -66,28 +107,22 @@ const Login=({navigation})=>{
         return;
       }
 
-      // If both verified and profile complete
-      const data = userDoc.data();
-      if (data.role === "jobseeker") {
-        navigation.replace("JobSeeker Dashboard", { uid: user.uid });
-      } else if (data.role === "company") {
-        navigation.replace("CompanyDashboard");
-      } else {
-        Alert.alert("Error", "Unknown user role");
-      }
+   
     } catch (err) {
       Alert.alert("Login Failed", "Incorrect username or password");
       console.log(err);
     }
   };
+  
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
         <ScrollView style={{ flexGrow: 1 }}>
           <View style={styles.container}>
             <View style={styles.logoContainer}>
-              <View style={styles.logoOuter}>
+              <Image source={logo} style={styles.logoOuter}/>
+              {/* <View style={styles.logoOuter}>
                 <MaterialIcons name="double-arrow" color="#fff" size={28} />
-              </View>
+              </View> */}
               <View>
                 <Text style={styles.logoText}>Feather</Text>
                 <Text style={styles.logoSubText}>Job Portal App</Text>

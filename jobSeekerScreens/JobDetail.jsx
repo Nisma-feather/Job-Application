@@ -1,10 +1,10 @@
 import { collection, deleteDoc, doc,addDoc,getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet,SafeAreaView, ScrollView, Dimensions, Alert, FlatList, Pressable, TextInput,Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert, FlatList, Pressable, TextInput,Image } from 'react-native';
 import { auth, db } from '../firebaseConfig';
 import { Ionicons, Entypo, MaterialCommunityIcons, AntDesign, Foundation,FontAwesome} from '@expo/vector-icons';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 const JobDetail = ({ route, navigation }) => {
   const uid=auth.currentUser?.uid
   const dummyimg = require('../assets/logo.png'); 
@@ -723,7 +723,7 @@ const styles = StyleSheet.create({
   },
   bottomButton: {
     position: "absolute",
-    bottom: 80,
+    bottom: 30,
     width: "100%",
     paddingHorizontal: 20,
     zIndex: 999,

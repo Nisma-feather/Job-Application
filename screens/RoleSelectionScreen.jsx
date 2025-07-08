@@ -6,8 +6,10 @@ import {
   SafeAreaView,
   StyleSheet,
   ScrollView,
+  Image
 } from "react-native";
 import {MaterialIcons,FontAwesome} from '@expo/vector-icons';
+import logo from "../assets/newIcon.png"
 
 
 const RoleSelectionScreen = ({ navigation }) => {
@@ -27,11 +29,10 @@ const RoleSelectionScreen = ({ navigation }) => {
       <ScrollView contentContainerStyle={styles.innerWrapper}>
         {/* Logo */}
         <View style={styles.logoContainer}>
-          <View style={styles.logoOuter}>
-            <MaterialIcons name="double-arrow" color="#fff" size={28} />
-          </View>
+          <Image source={logo} style={styles.logoOuter} />
+
           <View>
-            <Text style={styles.logoText}>Karier</Text>
+            <Text style={styles.logoText}>Feather</Text>
             <Text style={styles.logoSubText}>Job Portal App</Text>
           </View>
         </View>
@@ -40,7 +41,7 @@ const RoleSelectionScreen = ({ navigation }) => {
         <View style={styles.titleContainer}>
           <Text style={styles.mainTitle}>Who are you?</Text>
           <Text style={styles.subtitle}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+            Select your role to get started with your personalized experience.
           </Text>
         </View>
 

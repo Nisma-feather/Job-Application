@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, SafeAreaView , Text, ScrollView, TextInput, TouchableOpacity, Image, Pressable, Alert, ActivityIndicator,FlatList } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Pressable, Alert, ActivityIndicator,FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { auth, db } from '../firebaseConfig';
 import { getDoc, doc, collection, where, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import JobCard from './JobCard';
 import { useNavigation } from '@react-navigation/native';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HomeScreen = ({ navigation }) => {
   const [userData, setUserData] = useState({});
@@ -79,6 +79,7 @@ const HomeScreen = ({ navigation }) => {
   };
   
   const fetchSkillBasedJobs = async (skills) => {
+    
     try {
       if (!skills || skills.length === 0) return [];
 
@@ -122,8 +123,10 @@ const HomeScreen = ({ navigation }) => {
         // ✅ 1. Recommended Section
         let recommended = await fetchRecommendJobs(recommendData);
         if (recommended.length === 0) {
+          console.log("no recommend found fetch SkillBasedJobs");
           recommended = await fetchSkillBasedJobs(skills);
           if (recommended.length === 0) {
+            console.log("no skill based job  found fetching latest jobs")
             recommended = await fetchLatestJobs();
           }
         }
@@ -171,9 +174,9 @@ const HomeScreen = ({ navigation }) => {
 
 
   return (
-    <SafeAreaView style={{flex:1}}>
+    <SafeAreaView edges={['left', 'right']} style={{flex:1}}>
        <ScrollView 
-  contentContainerStyle={{ paddingBottom: 100, backgroundColor: '#fff', flexGrow: 1,}}
+  contentContainerStyle={{ paddingBottom: 10, backgroundColor: '#fff', flexGrow: 1,}}
   showsVerticalScrollIndicator={false}
 >
      

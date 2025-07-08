@@ -13,6 +13,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
 const CompanyDetails = ({ route, navigation }) => {
+    const { uid } = route.params; 
     const { email, password } = route.params;
     const [company, setCompany] = useState({
         companyName: '',
@@ -64,13 +65,7 @@ const CompanyDetails = ({ route, navigation }) => {
         }
 
         try {
-            const userCred = await createUserWithEmailAndPassword(auth, email, password);
-            const uid = userCred.user.uid;
-
-            await setDoc(doc(db, 'users', uid), {
-                email: email,  // Fixed from loginData.email to email
-                role: 'company'
-            });
+          
 
             await setDoc(doc(db, 'companies', uid), {
                 uid,

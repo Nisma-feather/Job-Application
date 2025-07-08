@@ -1,15 +1,14 @@
 {
   "expo": {
-    "name": "Job-Portal-App",
+    "name": "Feather-Job-App",
     "slug": "Job-Portal-App",
     "version": "1.0.0",
-    
-    "icon": "./assets/icon.png",
+    "icon": "./assets/newIcon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
+      "image": "./assets/new.png",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "ios": {
@@ -17,11 +16,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/new.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.nismafeather.JobPortalApp"
+      "package": "com.nismafeather.FeatherJobApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,6 +32,7 @@
       "eas": {
         "projectId": "86926236-99bd-481d-bb30-dd2d22b6dd56"
       }
-    }
+    },
+    "owner": "nisma-feather"
   }
 }

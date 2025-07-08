@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Alert, ScrollView, SafeAreaView, StyleSheet, TouchableOpacity,Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Alert, FlatList, SafeAreaView, StyleSheet, TouchableOpacity,Pressable, ActivityIndicator } from 'react-native';
 import { auth, db } from '../../firebaseConfig';
 import { collection,doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import {Octicons} from '@expo/vector-icons';
+
+
 const TrackApplications = () => {
   const [applications, setApplications] = useState([]);
   const uid = auth.currentUser?.uid;
@@ -99,93 +101,108 @@ const TrackApplications = () => {
 console.log("selected Application",selectedApplications)
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={{padding:20}}>
-        {
-          loading ? <ActivityIndicator/> :
-        applications.map((job, idx) => {
-          const step = calculateStep(job);
-          return (
-            <TouchableOpacity onLongPress={()=>toggleApplicationSelection(job.id)} style={{backgroundColor:`${selectedApplications.includes(job.id)? 'blue':'white'}`}}>
-              <View key={idx} style={styles.card}>
-                <View style={{ gap: 10 }}>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      gap: 3,
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Text style={styles.title}>{job.role}</Text>
-                    <Pressable
+      {loading ? (
+        <ActivityIndicator />
+      ) : (
+        <FlatList
+          data={applications}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={{ padding: 20 }}
+          renderItem={({ item, index }) => {
+            const step = calculateStep(item);
+            const isSelected = selectedApplications.includes(item.id);
+
+            return (
+              <TouchableOpacity
+                onLongPress={() => toggleApplicationSelection(item.id)}
+                style={{ backgroundColor: isSelected ? "blue" : "white" }}
+              >
+                <View style={styles.card}>
+                  <View style={{ gap: 10 }}>
+                    <View
                       style={{
-                        backgroundColor: "blue",
-                        padding: 5,
-                        paddingHorizontal: 10,
-                        borderRadius: 5,
-                      }}
-                      onPress={() => {
-                        const updatedApplications = [...applications];
-                        updatedApplications[idx].viewStatus = !job.viewStatus;
-                        setApplications(updatedApplications);
+                        flexDirection: "row",
+                        gap: 3,
+                        justifyContent: "space-between",
                       }}
                     >
-                      <Text style={{ color: "white", fontWeight: "bold" }}>
-                        View status
-                      </Text>
-                    </Pressable>
+                      <Text style={styles.title}>{item.role}</Text>
+                      <Pressable
+                        style={{
+                          backgroundColor: "blue",
+                          padding: 5,
+                          paddingHorizontal: 10,
+                          borderRadius: 5,
+                        }}
+                        onPress={() => {
+                          const updatedApplications = [...applications];
+                          updatedApplications[index].viewStatus =
+                            !item.viewStatus;
+                          setApplications(updatedApplications);
+                        }}
+                      >
+                        <Text style={{ color: "white", fontWeight: "bold" }}>
+                          View status
+                        </Text>
+                      </Pressable>
+                    </View>
+
+                    <Text style={styles.companyName}>{item.companyName}</Text>
+
+                    {item.viewStatus && (
+                      <>
+                        {/* Step 1 - Applied */}
+                        <View style={styles.stepRow}>
+                          <StepDot active={step >= 1} />
+                          <View>
+                            <Text style={styles.stepLabel}>Applied</Text>
+                            <Text style={styles.dateText}>
+                              {formatDate(item.submittedAt)}
+                            </Text>
+                          </View>
+                        </View>
+
+                        {/* Step 2 - Viewed */}
+                        <View style={styles.stepRow}>
+                          <StepDot active={step >= 2} />
+                          <View>
+                            <Text style={styles.stepLabel}>Viewed</Text>
+                            <Text style={styles.dateText}>
+                              {item.viewedAt ? formatDate(item.viewedAt) : "—"}
+                            </Text>
+                          </View>
+                        </View>
+
+                        {/* Step 3 - Shortlisted / Rejected */}
+                        <View style={styles.stepRow}>
+                          <StepDot active={step >= 3} />
+                          <View>
+                            <Text style={styles.stepLabel}>
+                              {item.status === "shortlisted"
+                                ? "Shortlisted"
+                                : item.status === "notShortlisted"
+                                ? "Rejected"
+                                : "—"}
+                            </Text>
+                            <Text style={styles.dateText}>
+                              {item.statusAt ? formatDate(item.statusAt) : "—"}
+                            </Text>
+                          </View>
+                        </View>
+                      </>
+                    )}
                   </View>
-                  {/* <Octicons name="square-fill" color="blue" size={15} /> */}
-                  <Text style={styles.companyName}>{job.companyName}</Text>
-
-                  {job.viewStatus && (
-                    <>
-                      {/* Step 1 - Applied */}
-                      <View style={styles.stepRow}>
-                        <StepDot active={step >= 1} />
-                        <View>
-                          <Text style={styles.stepLabel}>Applied</Text>
-                          <Text style={styles.dateText}>
-                            {formatDate(job.submittedAt)}
-                          </Text>
-                        </View>
-                      </View>
-
-                      {/* Step 2 - Viewed */}
-                      <View style={styles.stepRow}>
-                        <StepDot active={step >= 2} />
-                        <View>
-                          <Text style={styles.stepLabel}>Viewed</Text>
-                          <Text style={styles.dateText}>
-                            {job.viewedAt ? formatDate(job.viewedAt) : "—"}
-                          </Text>
-                        </View>
-                      </View>
-
-                      {/* Step 3 - Shortlisted / Rejected */}
-                      <View style={styles.stepRow}>
-                        <StepDot active={step >= 3} />
-                        <View>
-                          <Text style={styles.stepLabel}>
-                            {job.status === "shortlisted"
-                              ? "Shortlisted"
-                              : job.status === "notShortlisted"
-                              ? "Rejected"
-                              : "—"}
-                          </Text>
-                          <Text style={styles.dateText}>
-                            {job.statusAt ? formatDate(job.statusAt) : "—"}
-                          </Text>
-                        </View>
-                      </View>
-                    </>
-                  )}
                 </View>
-              </View>
-            </TouchableOpacity>
-          );
-        })
-      }
-      </ScrollView>
+              </TouchableOpacity>
+            );
+          }}
+          ListEmptyComponent={
+            <Text style={{ textAlign: "center", marginTop: 20 }}>
+              No applications found
+            </Text>
+          }
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -262,7 +279,7 @@ const styles = StyleSheet.create({
     fontFamily:"Poppins-Regular",
     fontSize:15,
     color:"#555"
-  }
+  },
 
 });
 

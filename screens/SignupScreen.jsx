@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput,Pressable,StyleSheet, SafeAreaView,Image, ScrollView } from 'react-native';
 import { FontAwesome, AntDesign, Entypo,MaterialIcons} from '@expo/vector-icons';
+import logo from '../assets/newIcon.png'
 
 export default function SignupScreen({navigation}) {
   const [agree, setAgree] = useState(false);
@@ -71,9 +72,8 @@ export default function SignupScreen({navigation}) {
         <View style={styles.container}>
           {/* Logo */}
           <View style={styles.logoContainer}>
-            <View style={styles.logoOuter}>
-              <MaterialIcons name="double-arrow" color="#fff" size={28} />
-            </View>
+            <Image source={logo} style={styles.logoOuter}/>
+           
             <View>
               <Text style={styles.logoText}>Feather</Text>
               <Text style={styles.logoSubText}>Job Portal App</Text>
@@ -177,7 +177,6 @@ export default function SignupScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    
     paddingHorizontal: 24,
     
   },

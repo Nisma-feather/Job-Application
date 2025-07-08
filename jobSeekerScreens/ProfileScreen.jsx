@@ -275,11 +275,14 @@ const ProfileScreen = () => {
 export default ProfileScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: "#fff"},
   profileSection: {
     flexDirection: "row",
     alignItems: "center",
     marginLeft: 10,
+    height:150
+
+    
   },
   imageContainer: {
     width: 110,

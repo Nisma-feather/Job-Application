@@ -12,9 +12,10 @@ import { styles } from "./Login";
 import {
   sendPasswordResetEmail,
   fetchSignInMethodsForEmail,
+  createUserWithEmailAndPassword,
+  deleteUser,
 } from "firebase/auth";
 import { auth } from "../firebaseConfig";
-
 
 const ForgotPassword = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -25,50 +26,47 @@ const ForgotPassword = ({ navigation }) => {
   const handleForgotPassword = async () => {
     setError("");
     setSuccessMsg("");
-
     if (!email.trim()) {
-      setError("Email is required");
       return;
     }
+    const normalizedEmail = email.trim().toLowerCase();
+    const password = "dummyPassword123";
 
+    setDisabled(true);
     try {
-      setDisabled(true); // Disable button while processing
-      const normalizedEmail = email.trim().toLowerCase();
-
-      // Check if email is registered
-      // const methods = await fetchSignInMethodsForEmail(auth, normalizedEmail);
-      // console.log("methods",methods)
-      // if (methods.length === 0) {
-      //   setError("This email is not registered.");
-      //   setDisabled(false);
-      //   return;
-      // }
-
-      // // Check if the user signed up with email/password
-      // if (!methods.includes("password")) {
-      //   setError("This account does not use email/password login.");
-      //   setDisabled(false);
-      //   return;
-      // }
-   
-      // If checks pass, send reset email
-      await sendPasswordResetEmail(auth, normalizedEmail);
-      setSuccessMsg("Password reset link sent! Check your email.");
-    } catch (err) {
-      console.error("Error:", err);
+      const temp = await createUserWithEmailAndPassword(
+        auth,
+        normalizedEmail,
+        password
+      );
+      await deleteUser(temp.user);
+      setError("Not Registered Email");
       setDisabled(false);
-
-      // Handle Firebase errors
-      switch (err.code) {
-        case "auth/invalid-email":
-          setError("Invalid email format.");
-          break;
-        case "auth/too-many-requests":
-          setError("Too many attempts. Try again later.");
-          break;
-        default:
-          setError("Failed to send reset link. Please try again.");
+    } catch (err) {
+      if (err.code === "auth/email-already-in-use") {
+        try {
+          await sendPasswordResetEmail(auth, normalizedEmail);
+          setSuccessMsg(
+            "Reset email send to your email, please click the link to reset the password"
+          );
+        } catch (resetErr) {
+          switch (resetErr.code) {
+            case "auth/invalid-email":
+              setError("Invalid email format.");
+              break;
+            case "auth/too-many-requests":
+              setError("Too many attempts. Try again later.");
+              break;
+            default:
+              setError("Failed to send reset link. Please try again.");
+          }
+        }
+      } else if (err.code === "auth/invalid-email") {
+        setError("Invalid Email format");
+      } else {
+        setError("Something went wrong ! , Please try again later");
       }
+      setDisabled(false);
     }
   };
 

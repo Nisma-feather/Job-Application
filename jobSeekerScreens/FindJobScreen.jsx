@@ -25,7 +25,7 @@ import JobCard from './JobCard';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
 import {Entypo,Ionicons,Feather, FontAwesome,MaterialCommunityIcons} from '@expo/vector-icons'
-
+import { useFocusEffect } from '@react-navigation/native';
 
  
 
@@ -128,16 +128,16 @@ const FindJobScreen = ({ navigation }) => {
       setLoadingCompanies(false);
     }
   };
-
-  useEffect(() => {
-    if (options === 'jobs') {
+  useFocusEffect(useCallback(() => {
+    if (options === "jobs") {
       fetchJobs();
-    } else if (options === 'companies') {
+    } else if (options === "companies") {
       fetchCompanies();
     }
     fetchBookMarks();
-  }, [uid, options]);
+  }, [uid, options]));
 
+  
   const handlesearch = (value) => {
     setSearchQuery(value);
     if (searchTimeout) clearTimeout(searchTimeout);
@@ -155,6 +155,7 @@ const FindJobScreen = ({ navigation }) => {
       }, 300)
     );
   };
+
 
   const handleLocationSearch = (value) => {
     setLocationQuery(value);
@@ -277,7 +278,7 @@ const FindJobScreen = ({ navigation }) => {
       shadowOpacity: 0.2,
       elevation: 3,
       
-      fontSize:11
+      fontSize:12
     },
     filterButton: {
       backgroundColor: "#5c88ea",
@@ -462,6 +463,7 @@ const FindJobScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
+        showsVerticalScrollIndicator={false}
         data={options === "jobs" ? filteredJobs : companyList}
         ListHeaderComponent={
           <View style={{ width: "100%" }}>
@@ -482,7 +484,6 @@ const FindJobScreen = ({ navigation }) => {
                     style={[styles.inputField]}
                     value={searchQuery}
                     onChangeText={handlesearch}
-                    
                   />
                   <TouchableOpacity
                     style={{ right: 15, top: 10, position: "absolute" }}
@@ -578,22 +579,36 @@ const FindJobScreen = ({ navigation }) => {
                       borderRadius: 6,
                     }}
                   >
-                  <View style={{width:45,height:45,borderWidth:1,borderColor:'#dedede',justifyContent:'center',alignItems:'center',borderRadius:6,}}>
-                             <Image source={item.profileImg?{uri:item.profileImg}:dummyimg} style={styles.logo} />
-                             </View>
+                    <View
+                      style={{
+                        width: 45,
+                        height: 45,
+                        borderWidth: 1,
+                        borderColor: "#dedede",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        borderRadius: 6,
+                      }}
+                    >
+                      <Image
+                        source={
+                          item.profileImg ? { uri: item.profileImg } : dummyimg
+                        }
+                        style={styles.logo}
+                      />
+                    </View>
                   </View>
 
                   <View style={{ justifyContent: "space-between" }}>
                     <Text style={styles.CompanyTitle}>{item.companyName}</Text>
                     <View style={{ flexDirection: "row", gap: 5 }}>
-                   
-                        <FontAwesome
-                          style={{ marginTop: 2 }}
-                          name="star"
-                          color="#FFD700"
-                          size={14}
-                        />
-                 
+                      <FontAwesome
+                        style={{ marginTop: 2 }}
+                        name="star"
+                        color="#FFD700"
+                        size={14}
+                      />
+
                       <Text
                         style={{
                           fontSize: 10,
@@ -601,7 +616,9 @@ const FindJobScreen = ({ navigation }) => {
                           color: "#777",
                         }}
                       >
-                        {item.reviewAvg ? `${item.reviewAvg}.0 reviews` : "No Review"}
+                        {item.reviewAvg
+                          ? `${item.reviewAvg}.0 reviews`
+                          : "No Review"}
                       </Text>
                     </View>
                   </View>
@@ -627,22 +644,47 @@ const FindJobScreen = ({ navigation }) => {
         }
         keyExtractor={(item) => item.id.toString()}
         ListEmptyComponent={
-          <Text style={{ textAlign: "center", marginTop: 20,fontFamily:"Poppins-Medium" }}>
+          <Text
+            style={{
+              textAlign: "center",
+              marginTop: 20,
+              fontFamily: "Poppins-Medium",
+            }}
+          >
             {options === "jobs" ? "No Jobs Found" : "No Companies Found"}
           </Text>
         }
         contentContainerStyle={{ flexGrow: 1 }}
       />
-
+      {showFilter && (
+        <Pressable
+          onPress={() => setShowFilters(false)} // Close when touched
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.4)", // Dim effect
+            zIndex: 10,
+          }}
+        />
+      )}
       {/* Filter Panel */}
       <Modal visible={showFilter} animationType="slide" transparent={true}>
-        <View style={{height:400,position:'absolute',bottom:30,marginHorizontal:20,width:"90%"}}>
+        <View
+          style={{
+            height: 400,
+            position: "absolute",
+            bottom: 50,
+            width: "100%",
+            backgroundColor: "white",
+          }}
+        >
           <ScrollView
             contentContainerStyle={{
-              paddingBottom: 100,
               flexGrow: 1,
-              backgroundColor: "white",
-           
+              padding: 20,
             }}
             showsVerticalScrollIndicator={false}
           >
