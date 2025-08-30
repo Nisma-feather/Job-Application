@@ -32,7 +32,8 @@ const JobDetail = ({ route, navigation }) => {
   };
 
   const { currentJob } = route.params;
-  console.log("current Job",currentJob.id)
+  console.log("current Job",currentJob.id);
+  console.log("currentJob",currentJob)
   console.log(currentJob.companyUID)
   const [company, setCompany] = useState({});
   const [star, setStar] = useState(0);
@@ -55,6 +56,7 @@ const JobDetail = ({ route, navigation }) => {
     if (companySnap.exists()) {
       const companyData = companySnap.data();
       setCompany(companyData);
+    
       // Calculate rating stats
       const stats = calculateRatingStats(companyData?.reviews);
       setRatingStats(stats);
@@ -62,6 +64,7 @@ const JobDetail = ({ route, navigation }) => {
     }
 
   }
+  console.log("company",company)
   const formatReviewTime = (date) => {
     if (!date) return '';
 
@@ -386,7 +389,7 @@ const JobDetail = ({ route, navigation }) => {
                   <View style={styles.bulletRow}>
                     <Text style={styles.bullet}>•</Text>
                     <Text style={styles.bulletText}>
-                      {currentJob.salaryPacks}
+                      {currentJob.salaryPack}
                     </Text>
                   </View>
                 </View>
@@ -398,18 +401,21 @@ const JobDetail = ({ route, navigation }) => {
             <>
               <Text style={styles.heading}>About Company</Text>
               <Text>{company.basicInfo}</Text>
-              <View style={styles.companyIconlist}>
-                <View style={styles.companyIconpart}>
-                  <MaterialCommunityIcons
-                    name="web"
-                    color="#2969ff"
-                    size={24}
-                  />
-                  <Text style={styles.iconText}>Website</Text>
-                </View>
-
-                <Text>Website </Text>
+          {  
+            company.website && 
+            <View style={styles.companyIconlist}>
+              <View style={styles.companyIconpart}>
+                <MaterialCommunityIcons
+                  name="web"
+                  color="#2969ff"
+                  size={24}
+                />
+                <Text style={styles.iconText}>Website</Text>
               </View>
+
+              <Text>{company.website}</Text>
+            </View>
+            }
               <View style={styles.companyIconlist}>
                 <View style={styles.companyIconpart}>
                   <Ionicons name="location-outline" color="#ffd175" size={24} />
@@ -704,10 +710,12 @@ const styles = StyleSheet.create({
     color: "#444",
     marginBottom: 12,
     lineHeight: 22,
+    
   },
   bulletRow: {
     flexDirection: "row",
     alignItems: "flex-start",
+ 
     marginBottom: 8,
   },
   bullet: {
@@ -717,6 +725,7 @@ const styles = StyleSheet.create({
   },
   bulletText: {
     flex: 1,
+    marginTop:3,
     color: "#333",
     fontSize: 12,
     fontFamily: "Poppins-Regular",

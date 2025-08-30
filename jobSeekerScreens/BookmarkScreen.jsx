@@ -89,13 +89,18 @@ const BookMarkScreen = ({ navigation }) => {
   };
   const formatDate = (timeStamp) => {
     if (!timeStamp) return "";
-    if (!timeStamp) return "";
 
     const postedDate = timeStamp.toDate();
     const now = new Date();
     const differenceDate = Math.floor(
       (now - postedDate) / (1000 * 60 * 60 * 24)
     );
+
+    if (differenceDate > 30) {
+      // Format as "21 Jun"
+      const options = { day: "numeric", month: "short" };
+      return postedDate.toLocaleDateString("en-US", options);
+    }
 
     if (differenceDate === 0) {
       const diffHours = Math.floor((now - postedDate) / (1000 * 60 * 60));

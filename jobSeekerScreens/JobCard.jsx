@@ -69,27 +69,33 @@ const JobCard = ({ item }) => {
     }
   };
   const formatDate = (timeStamp) => {
-    if (!timeStamp) return '';
-    if (!timeStamp) return '';
+    if (!timeStamp) return "";
 
-  const postedDate = timeStamp.toDate();
-  const now = new Date();
-  const differenceDate = Math.floor((now - postedDate) / (1000 * 60 * 60 * 24));
+    const postedDate = timeStamp.toDate();
+    const now = new Date();
+    const differenceDate = Math.floor(
+      (now - postedDate) / (1000 * 60 * 60 * 24)
+    );
 
-  if (differenceDate === 0) {
-    const diffHours = Math.floor((now - postedDate) / (1000 * 60 * 60));
-    
-    if (diffHours === 0) {
-      const diffMinutes = Math.floor((now - postedDate) / (1000 * 60));
-      return diffMinutes <= 1 ? '1 minute ago' : `${diffMinutes} minutes ago`;
+    if (differenceDate > 30) {
+      // Format as "21 Jun"
+      const options = { day: "numeric", month: "short" };
+      return postedDate.toLocaleDateString("en-US", options);
     }
 
-    return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
-  }
+    if (differenceDate === 0) {
+      const diffHours = Math.floor((now - postedDate) / (1000 * 60 * 60));
 
-  return differenceDate === 1 ? '1 day ago' : `${differenceDate} days ago`;
+      if (diffHours === 0) {
+        const diffMinutes = Math.floor((now - postedDate) / (1000 * 60));
+        return diffMinutes <= 1 ? "1 minute ago" : `${diffMinutes} minutes ago`;
+      }
 
-  }
+      return diffHours === 1 ? "1 hour ago" : `${diffHours} hours ago`;
+    }
+
+    return differenceDate === 1 ? "1 day ago" : `${differenceDate} days ago`;
+  };
   useEffect(() => {
     fetchBookMarks();
     fetchReviews();

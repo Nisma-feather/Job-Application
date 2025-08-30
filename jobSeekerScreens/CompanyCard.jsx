@@ -241,7 +241,8 @@ const CompanyCard = ({ route, navigation }) => {
             {company.profileImg ? (
               <Image
                 source={{ uri: company.profileImg }}
-                style={[{ resizeMode: "cover" }, styles.logo]}
+                style={[styles.logo]}
+                resizeMode="cover"
               />
             ) : (
               <View>

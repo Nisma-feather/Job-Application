@@ -58,7 +58,7 @@ const Login=({navigation})=>{
         if (userData.role === "company") {
           if(!user.emailVerified){
 
-            navigation.replace("Company Verification", { uid: user.uid });
+            navigation.navigate("Company Verification", { uid: user.uid });
             return;
 
 
@@ -90,7 +90,7 @@ const Login=({navigation})=>{
 
       // ✅ If no doc found → it's a jobseeker
       if (!user.emailVerified) {
-        navigation.replace("Email Verification", {
+        navigation.navigate("Email Verification", {
           fromLogin: true,
           loginData: { email, password },
         });
