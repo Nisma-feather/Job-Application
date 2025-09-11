@@ -25,10 +25,14 @@ import EmailVerificationScreen from "./screens/EmailVerificationScreen";
 import ForgotPassword from "./screens/ForgotPassword";
 import CompanyEmailVerification from "./companyScreens/CompanyVerification";
 
+
 const Stack = createNativeStackNavigator();
 const Drawer=createDrawerNavigator();
 
+
 export default function App() {
+  
+
   const [fontsLoaded] = useFonts({
     'Poppins-Regular': require('./assets/fonts/Poppins-Regular.ttf'),
     'Poppins-Bold': require('./assets/fonts/Poppins-Bold.ttf'),
@@ -38,7 +42,7 @@ export default function App() {
   if (!fontsLoaded) {
     return (
       <View style={styles.container}>
-        <Text>Loading Fonts...</Text>
+        <Text>Loading ...</Text>
       </View>
     );
   }
@@ -46,6 +50,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Role" component={RoleSelectionScreen} />
         <Stack.Screen

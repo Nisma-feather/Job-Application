@@ -188,9 +188,9 @@ export default ProjectsScreen;
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
   scrollWrapper: { padding: 20 },
-  title: { fontSize: 20, fontWeight: "600", textAlign: "center", marginVertical: 20 },
+  title: { fontSize: 18,textAlign: "center", marginVertical: 20, fontFamily:"Poppins-Bold" },
   inputWrapper: { },
-  input: { flex: 1, paddingVertical: 12, fontSize: 14 },
+  input: { flex: 1, paddingVertical: 12,fontSize: 11,fontFamily:'Poppins-Medium' },
   button: { backgroundColor: "#1967d2", borderRadius: 20, paddingVertical: 14, alignItems: "center", elevation: 5 },
   buttonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
   addContainer: {
@@ -212,7 +212,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  subheading: { fontWeight: "bold", marginVertical: 10, fontSize: 15, marginLeft: 12 },
+  subheading: {marginVertical: 10,
+     fontSize: 14,
+      marginLeft: 12,
+      fontFamily:"Poppins-Bold"
+    },
+
   input: {
     width: '100%',
     borderRadius: 8,
@@ -224,7 +229,9 @@ const styles = StyleSheet.create({
   label: {
     alignSelf: 'flex-start',
     fontWeight: '500',
-    marginVertical:10
+    marginVertical:10,
+    fontSize:13,
+    fontFamily:"Poppins-Regular"
   },
   required:{
     color:"#ff2121"

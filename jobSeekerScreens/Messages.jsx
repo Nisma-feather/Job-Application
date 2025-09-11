@@ -19,6 +19,7 @@ import {
   onSnapshot,
   getDocs,
   orderBy,
+  getDoc,
   query,
   doc,
 } from "firebase/firestore";
@@ -35,22 +36,44 @@ const Messages = ({ navigation }) => {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState([]);
   const uid = auth?.currentUser?.uid;
+  const office=require("../assets/office.png")
 
-  const fetchUserMessages = async () => {
-    const ref = collection(db, "users", uid, "messages");
-    const q = query(ref, orderBy("messageAt", "desc"));
+ const fetchUserMessages = async () => {
+   const ref = collection(db, "users", uid, "messages");
+   const q = query(ref, orderBy("messageAt", "desc"));
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const messageFetched = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setMessages(messageFetched);
-    });
+   const unsubscribe = onSnapshot(q, async (snapshot) => {
+     const messageFetched = await Promise.all(
+       snapshot.docs.map(async (docSnap) => {
+         const data = docSnap.data();
+         let companyName = data.from;
 
-    // Cleanup listener when component unmounts or uid changes
-    return () => unsubscribe();
-  };
+         // Fetch company details using the UID in "from"
+         try {
+           const companyRef = doc(db, "companies", data.from);
+           const companySnap = await getDoc(companyRef);
+           if (companySnap.exists()) {
+             const companyData = companySnap.data();
+             companyName = companyData.companyName || companyName; // fallback to uid if no name
+            console.log(companyName)
+            }
+         } catch (e) {
+           console.log("Error fetching company:", e);
+         }
+
+         return {
+           id: docSnap.id,
+           ...data,
+           from: companyName, // replace uid with company name
+         };
+       })
+     );
+
+     setMessages(messageFetched);
+   });
+
+   return () => unsubscribe();
+ };
 
   const handleToggleSelection = (messageId) => {
     setSelectionMode(true);
@@ -165,7 +188,7 @@ const Messages = ({ navigation }) => {
                 />
               </View>
             )}
-            <Image style={styles.avatar} source={item.profileImg?item.profileImg:dummyimg} />
+            <Image style={styles.avatar} source={item.profileImg?item.profileImg:office} />
             <View style={styles.messageContent}>
               <View
                 style={{

@@ -5,9 +5,11 @@ import { auth, db } from '../firebaseConfig';
 import { Ionicons, Entypo, MaterialCommunityIcons, AntDesign, Foundation,FontAwesome} from '@expo/vector-icons';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+
 const JobDetail = ({ route, navigation }) => {
   const uid=auth.currentUser?.uid
-  const dummyimg = require('../assets/logo.png'); 
+  const office = require('../assets/office.png'); 
   const [bookmark,setBookMark]=useState();
   const calculateRatingStats = (reviews = []) => {
     if (!reviews || reviews.length === 0) return {
@@ -214,6 +216,7 @@ const JobDetail = ({ route, navigation }) => {
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "center",
+    
               }}
             >
               {/* Left Section: Logo + Job Details */}
@@ -242,12 +245,11 @@ const JobDetail = ({ route, navigation }) => {
                     source={
                       company.profileImg
                         ? { uri: company.profileImg }
-                        : dummyimg
+                        : office
                     }
                     style={styles.logo}
                   />
                 </View>
-
                 <View style={{ marginLeft: 10 }}>
                   <Text style={styles.role}>{currentJob.jobrole}</Text>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -746,8 +748,8 @@ const styles = StyleSheet.create({
   },
   applyText: {
     color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
+    fontFamily:"Poppins-Bold",
+    fontSize: 14,
   },
   companyIconlist: {
     flexDirection: "row",

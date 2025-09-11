@@ -137,7 +137,8 @@ const ApplyJob = ({ navigation, route }) => {
 
       await addDoc(collection(db, "jobApplications"), data);
 
-      Alert.alert("Success", "Applied successfully.");
+     
+      navigation.navigate("Job Successful")
       console.log("Applied Successfully");
     } catch (e) {
       console.log("Error submitting job application:", e);
@@ -326,14 +327,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
     marginBottom: 20,
+    fontFamily:"Poppins-Medium",
     color: "#333",
+
   },
   section: {
     marginBottom: 10,
   },
   label: {
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily:"Poppins-Medium",
     marginBottom: 8,
     color: "#333",
   },
@@ -377,13 +380,13 @@ const styles = StyleSheet.create({
   submitButton: {
     backgroundColor: "#007AFF",
     borderRadius: 8,
-    padding: 16,
+    padding:10,
     alignItems: "center",
     marginTop: 20,
   },
   submitText: {
     color: "white",
-    fontWeight: "bold",
+    fontFamily:"Poppins-Bold",
     fontSize: 13,
   },
 });

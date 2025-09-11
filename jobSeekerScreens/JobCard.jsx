@@ -11,6 +11,9 @@ import { useNavigation } from '@react-navigation/native';
 
 
 const dummyimg = require('../assets/logo.png'); // Replace with actual image path
+const office=require("../assets/office.png");
+
+
 
 const JobCard = ({ item }) => {
   console.log(item)
@@ -116,7 +119,7 @@ console.log("logo",logo)
         <View style={{flexDirection:"row",gap:10,}}>
           
             <View style={{width:45,height:45,borderWidth:1,borderColor:'#dedede',justifyContent:'center',alignItems:'center',borderRadius:6,}}>
-          <Image source={logo?{uri:logo}:dummyimg} style={styles.logo} />
+          <Image source={logo?{uri:logo}:office} style={styles.logo} />
           </View>
          
           <View style={{justifyContent:'space-between'}}>

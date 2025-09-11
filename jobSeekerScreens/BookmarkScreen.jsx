@@ -36,7 +36,7 @@ import JobCard from "./JobCard";
 const BookMarkScreen = ({ navigation }) => {
   // const navigation=useNavigation();
   const [loading, setLoading] = useState(false);
-  const dummyimg = require("../assets/logo.png"); 
+  const office = require("../assets/office.png"); 
   const uid = auth.currentUser?.uid;
   console.log(uid);
   const [bookmarks, setBookmarks] = useState([]);
@@ -202,7 +202,7 @@ const BookMarkScreen = ({ navigation }) => {
                                 source={
                                   item.companyLogo
                                     ? { uri: item.companyLogo }
-                                    : dummyimg
+                                    : office
                                 }
                                 style={styles.logo}
                               />

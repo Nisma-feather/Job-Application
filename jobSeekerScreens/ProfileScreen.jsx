@@ -144,30 +144,43 @@ const ProfileScreen = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => (
-        <View style={styles.profileSection}>
-          <View style={styles.imageContainer}>
-            {personalData.imageUrl ? (
-              <Image
-                source={{ uri: personalData.imageUrl }}
-                style={styles.profileImage}
-              />
-            ) : (
-              <View style={[styles.profileImage, styles.placeholder]}>
-                <Ionicons name="person" color="white" size={50} />
-              </View>
-            )}
-            <Pressable style={styles.editIcon} onPress={chooseFile}>
-              <MaterialIcons name="edit" color="#333" size={22} />
-            </Pressable>
+      headerTitle: () =>
+        loading ? (
+          <View>
+            <Text>Loading...</Text>
           </View>
-          <View style={{ marginLeft: 20, justifyContent: "center" }}>
-            <Text style={styles.nameText}>{personalData?.name || "User"}</Text>
-            <Text style={styles.designationText}>Web Designer</Text>
+        ) : (
+          <View style={styles.profileSection}>
+            <View style={styles.imageContainer}>
+              {personalData?.imageUrl ? (
+                <Image
+                  source={{ uri: personalData.imageUrl }}
+                  style={styles.profileImage}
+                />
+              ) : (
+                <View style={[styles.profileImage, styles.placeholder]}>
+                  <Ionicons name="person" color="white" size={50} />
+                </View>
+              )}
+              <Pressable style={styles.editIcon} onPress={chooseFile}>
+                <MaterialIcons name="edit" color="#333" size={22} />
+              </Pressable>
+            </View>
+
+            <View style={{ marginLeft: 20, justifyContent: "center" }}>
+              <Text style={styles.nameText}>
+                {personalData?.name || ""}
+              </Text>
+              {personalData?.designation && (
+                <Text style={styles.designationText}>
+                  {personalData.designation}
+                </Text>
+              )}
+            </View>
           </View>
-        </View>
-      ),
+        ),
     });
+
   }, [navigation, personalData.imageUrl]);
 
   return (
@@ -350,9 +363,10 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   sectionText: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#3b4b5e",
     fontWeight: "600",
+    fontFamily:"Poppins-Medium"
   },
   loadingOverlay: {
     position: "absolute",

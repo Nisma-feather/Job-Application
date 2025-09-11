@@ -124,7 +124,7 @@ const ExperienceScreen = ({ navigation }) => {
         <Text style={styles.title}>Experience Details</Text>
 
         {loading ? (
-          <Text style={{ textAlign: "center", marginTop: 50 }}>Loading...</Text>
+          <Text style={{ textAlign: "center"}}>Loading...</Text>
         ) : (
           experienceDetails.map((exp, index) => (
             <View key={index}>
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
   scrollWrapper: { padding: 20 },
   title: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "600",
     textAlign: "center",
    
@@ -310,11 +310,11 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Bold",
     color: "#333",
     marginVertical: 10,
-    fontSize: 15,
+    fontSize: 13,
   },
   removeButton: { padding: 4 },
   inputWrapper: {},
-  input: { flex: 1, paddingVertical: 12, fontSize: 14 },
+  input: { flex: 1, paddingVertical: 12, fontSize: 13,fontFamily:"Poppins-Regular" },
   button: {
     backgroundColor: "#1967d2",
     borderRadius: 20,

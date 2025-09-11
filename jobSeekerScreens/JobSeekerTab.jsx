@@ -22,6 +22,7 @@ import { auth, db } from "../firebaseConfig";
 import { collection, doc, getDocs, query, where,onSnapshot} from "firebase/firestore";
 import { useLayoutEffect, useState,useEffect } from "react";
 import Resume from "./ProfileScreens/Resume";
+import JobAppliedSuccessfull from "./JobAppliedSuccessful";
 
 
 
@@ -34,7 +35,7 @@ const Drawer=createDrawerNavigator()
 const JobSeekerTab=()=>{
   
 const [unreadCount, setUnreadCount] = useState(0);
-
+const office=require("../assets/office.png")
   
 
           useEffect(() => {
@@ -79,25 +80,30 @@ const [unreadCount, setUnreadCount] = useState(0);
               IconName = focused
                 ? "chatbox-ellipses"
                 : "chatbox-ellipses-outline";
-            } else if (route.name === "BookMark") {
+            }
+            
+             else if (route.name === "BookMark") {
               IconName = focused ? "bookmarks" : "bookmarks-outline";
             } else if(route.name === "Message"){
               IconName = focused
                 ? "chatbox-ellipses"
                 : "chatbox-ellipses-outline";
             }
+            else if(route.name==="Find Jobs"){
+                IconName = focused ? "search" : "search-outline";
+            }
             return <Ionicons name={IconName} color={color} size={28} />;
           },
           tabBarActiveTintColor: "#0a66c2",
           tabBarInactiveTintColor: "#666",
         })}
-      >
+      > 
         <Tab.Screen name="Home" component={HomeStack} options={{headerShown:false}}/>
         <Tab.Screen
           name="Find Jobs"
           component={JobStack}
           options={{
-            tabBarIcon: () => <Ionicons name="search" color="#000" size={28} />,
+           
             headerShown: false
           }}
         />
@@ -177,6 +183,7 @@ const JobStack = () => {
       <Stack.Screen name="Company Page" component={CompanyCard} />
       <Stack.Screen name="Job Details" component={JobDetail} />
       <Stack.Screen name="Apply Job" component={ApplyJob} />
+      <Stack.Screen name="Job Successful" component={JobAppliedSuccessfull} options={{headerShown:false}}/>
     </Stack.Navigator>
   );
 };
@@ -201,10 +208,10 @@ const MessagesStack=()=>{
       <Stack.Screen name="MessageDetail" component={MessageDetail} options={({route})=>({
       headerTitle:()=>(
         <View style={{flexDirection:'row',alignItems:'center',paddingVertical:'10px'}}>
-          <View style={{height:50,width:50,borderRadius:'5px',borderWidth:1,borderColor:'#666'}}>
+          <View style={{height:50,width:50,borderRadius:'5px'}}>
             <Image style={{width:'100%',height:'100%'}} source={route.params.message?.logo 
     ? {uri: route.params.message.logo} 
-    : require("../assets/logo.png")}/>
+    : require("../assets/office.png")}/>
           </View>
           <Text style={{marginLeft:10,fontWeight:'bold'}}>{route.params.message.from}</Text>
         </View>
