@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "Feather-Job-App",
+    "name": "Feather Job App",
     "slug": "Job-Portal-App",
     "version": "1.0.0",
     "icon": "./assets/newIcon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/new.png",
+      "image": "./assets/newIcon.png",
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
@@ -16,7 +16,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/new.png",
+        "foregroundImage": "./assets/adaptiveNew.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,

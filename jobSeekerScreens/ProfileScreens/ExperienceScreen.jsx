@@ -61,7 +61,7 @@ const ExperienceScreen = ({ navigation }) => {
     if (!validate()) {
       return;
     }
-    const uid = auth.currentUser?.uid || "fA9DeooDHHOpjgsLXiGi2VFeE4y2";
+    const uid = auth.currentUser?.uid ;
     console.log(experienceDetails);
     try {
       const userRef = doc(db, "users", uid);

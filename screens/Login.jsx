@@ -175,7 +175,7 @@ const Login=({navigation})=>{
             <TouchableOpacity onPress={() => navigation.replace("Role")}>
               <Text style={styles.signupText}>
                 Don't have an account?{" "}
-                <Text style={{ color: "blue" }}> Creat one </Text>
+                <Text style={{ color: "blue" }}> Create one </Text>
               </Text>
             </TouchableOpacity>
           </View>

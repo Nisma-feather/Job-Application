@@ -162,7 +162,7 @@ const ProfileStack = () => {
       <Stack.Screen
         name="ProfileHome"
         component={ProfileScreen}
-        options={{headerShown:true}}
+        options={{ headerShown: true }}
       />
       <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
       <Stack.Screen name="Education" component={EducationScreen} />
@@ -170,9 +170,7 @@ const ProfileStack = () => {
       <Stack.Screen name="Skills" component={SkillsUpdateScreen} />
       <Stack.Screen name="Projects" component={ProjectsScreen} />
       <Stack.Screen name="Track Application" component={TrackApplications} />
-      <Stack.Screen name="Resume" component={Resume}/>
-    
-    
+      <Stack.Screen name="Resume" component={Resume} />
     </Stack.Navigator>
   );
 };

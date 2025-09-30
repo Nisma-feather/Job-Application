@@ -12,7 +12,7 @@ import * as DocumentPicker from "expo-document-picker";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { auth, db } from "../../firebaseConfig";
-import { arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
+import { arrayRemove, arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import {AntDesign,} from '@expo/vector-icons';
@@ -107,7 +107,23 @@ const Resume = () => {
       console.log("Unable to submit the CV", e);
     }
   };
+ 
+  const handleDelete=async(resume)=>{
+    try{
+      console.log("Resume deletion started")
+     const useRef = doc(db,'users',uid);
 
+    await updateDoc(useRef,{
+      resumeDetails:arrayRemove(resume)
+    })
+    Alert.alert("Deleted","resume deleted successfully");
+    fetchResumeDetails();
+    }
+    catch(e){
+      console.log(e);
+      console.log("Resume deleted successfully")
+    }
+  }
   const handleDownload = async (url, fileName) => {
     try {
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
@@ -173,11 +189,15 @@ const Resume = () => {
                     borderRadius: 6,
                   }}
                 >
-                  <AntDesign name="pdffile1" color="#000" size={24} style={{marginRight:10}}/>
+                  <AntDesign
+                    name="pdffile1"
+                    color="#000"
+                    size={24}
+                    style={{ marginRight: 10 }}
+                  />
                   <Text style={{ flex: 1 }}>{item.fileName}</Text>
                   <TouchableOpacity
                     style={{
-
                       padding: 8,
                       borderRadius: 5,
                     }}
@@ -185,7 +205,9 @@ const Resume = () => {
                   >
                     <AntDesign name="download" color="#000" size={24} />
                   </TouchableOpacity>
-                  <AntDesign name="delete" color="#000" size={24} />
+                  <TouchableOpacity onPress={()=>handleDelete(item)}>
+                    <AntDesign name="delete" color="#000" size={24} />
+                  </TouchableOpacity>
                 </View>
               ))
             ) : (

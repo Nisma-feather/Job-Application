@@ -5,7 +5,7 @@ import { auth, db } from '../../firebaseConfig';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 
-const ProjectsScreen = () => {
+const ProjectsScreen = ({navigation}) => {
   const [projects,setProjects]=useState([{
     title:"",
     description:"",
@@ -14,6 +14,7 @@ const ProjectsScreen = () => {
   }])
   const [errors,setErrors]=useState([]);
   const [loading,setLoading]=useState(false);
+  const [updating,setUpdating] = useState(false)
   const fetchProjects=async()=>{
     setLoading(true);
     const uid=auth.currentUser?.uid || "fA9DeooDHHOpjgsLXiGi2VFeE4y2";
@@ -30,6 +31,7 @@ const ProjectsScreen = () => {
         setProjects(projects);
         setLoading(false);
       }
+
     }
     catch(err){
       Alert.alert("error",err.message)
@@ -108,11 +110,17 @@ const handlesubmit=async()=>{
     Alert.alert("No Projects found");
   }
   try{
+   setUpdating(true)
    await updateDoc(doc(db,'users',uid),{projects:projects});
-   console.log("updated successfully");
+   Alert.alert("Project Added Successfully")
+     navigation.replace("ProfileHome");
+  
   }
   catch(err){
     Alert.alert("error",err.message)
+  }
+  finally{
+    setUpdating(false)
   }
 }
   return (
@@ -168,8 +176,8 @@ const handlesubmit=async()=>{
                             <Text style={styles.addButtonText}>Add Projects</Text>
                           </Pressable>
              </View>
-                  <TouchableOpacity style={styles.button} onPress={handlesubmit}>
-                          <Text style={styles.buttonText}>Update</Text>
+                  <TouchableOpacity style={styles.button} onPress={handlesubmit} disabled={updating}>
+                          <Text style={styles.buttonText}>{updating? "Updating...":"Update"}</Text>
                   </TouchableOpacity>
      
      
