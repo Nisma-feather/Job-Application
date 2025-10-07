@@ -9,7 +9,9 @@ import {
   Alert,
   ScrollView,
   ActivityIndicator,
-  Image
+  Image,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { MaterialIcons, Entypo } from "@expo/vector-icons";
 import {
@@ -19,7 +21,7 @@ import {
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import { SafeAreaView } from "react-native-safe-area-context";
-import logo from "../assets/newIcon.png"
+import logo from "../assets/newIcon.png";
 
 const CompanySignUp = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -86,7 +88,7 @@ const CompanySignUp = ({ navigation }) => {
         role: "company",
         isVerified: false,
         createdAt: new Date(),
-        profileComplete: false, // Will be true after details are added
+        profileComplete: false,
       });
 
       await sendEmailVerification(user);
@@ -104,96 +106,110 @@ const CompanySignUp = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1,padding:10,backgroundColor: "#fff"}}>
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
-        <View style={styles.container}>
-          <View style={styles.logoContainer}>
-               <Image source={logo} style={styles.logoOuter}/>
-           
-            <View>
-              <Text style={styles.logoText}>Feather</Text>
-              <Text style={styles.logoSubText}>Job Portal App</Text>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, padding: 10 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.container}>
+            <View style={styles.logoContainer}>
+              <Image source={logo} style={styles.logoOuter} />
+              <View>
+                <Text style={styles.logoText}>Feather</Text>
+                <Text style={styles.logoSubText}>Job Portal App</Text>
+              </View>
             </View>
-          </View>
 
-          <Text style={styles.title}>Create Company Account</Text>
-          <Text style={styles.subtitle}>Enter your company details</Text>
+            <Text style={styles.title}>Create Company Account</Text>
+            <Text style={styles.subtitle}>Enter your company details</Text>
 
-          <Text style={styles.label}>
-            Email <Text style={styles.required}>*</Text>
-          </Text>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-          />
-          {error.emailError && (
-            <Text style={styles.errorText}>{error.emailError}</Text>
-          )}
-
-          <Text style={styles.label}>
-            Password <Text style={styles.required}>*</Text>
-          </Text>
-          <TextInput
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-          {error.passwordError && (
-            <Text style={styles.errorText}>{error.passwordError}</Text>
-          )}
-
-          <Text style={styles.label}>
-            Confirm Password <Text style={styles.required}>*</Text>
-          </Text>
-          <TextInput
-            style={styles.input}
-            value={cpassword}
-            onChangeText={setCPassword}
-            secureTextEntry
-          />
-          {error.cpasswordError && (
-            <Text style={styles.errorText}>{error.cpasswordError}</Text>
-          )}
-
-          <Pressable style={styles.checkboxContainer} onPress={()=>setAgree(!agree)}>
-            <View style={styles.checkbox}>
-              {agree && <Entypo name="check" size={14} color="blue" />}
-            </View>
-            <Text style={styles.checkboxText}>
-              I agree to all Term, Privacy and Fees
+            {/* Email */}
+            <Text style={styles.label}>
+              Email <Text style={styles.required}>*</Text>
             </Text>
-          </Pressable>
-          {error.termsError && (
-            <Text style={styles.errorText}>{error.termsError}</Text>
-          )}
-
-          <TouchableOpacity
-            style={styles.signUpButton}
-            onPress={handleSignup}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.signUpButtonText}>Sign Up</Text>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+            />
+            {error.emailError && (
+              <Text style={styles.errorText}>{error.emailError}</Text>
             )}
-          </TouchableOpacity>
-          <Pressable onPress={() => navigation.replace("Login")}>
-            <Text style={styles.footerText}>
-              Already have an account?{" "}
-              <Text style={styles.signInText}>Sign In</Text>
-            </Text>
-          </Pressable>
-        </View>
 
-      
-      </ScrollView>
+            {/* Password */}
+            <Text style={styles.label}>
+              Password <Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+            {error.passwordError && (
+              <Text style={styles.errorText}>{error.passwordError}</Text>
+            )}
+
+            {/* Confirm Password */}
+            <Text style={styles.label}>
+              Confirm Password <Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              style={styles.input}
+              value={cpassword}
+              onChangeText={setCPassword}
+              secureTextEntry
+            />
+            {error.cpasswordError && (
+              <Text style={styles.errorText}>{error.cpasswordError}</Text>
+            )}
+
+            {/* Terms Checkbox */}
+            <Pressable
+              style={styles.checkboxContainer}
+              onPress={() => setAgree(!agree)}
+            >
+              <View style={styles.checkbox}>
+                {agree && <Entypo name="check" size={14} color="blue" />}
+              </View>
+              <Text style={styles.checkboxText}>
+                I agree to all Term, Privacy and Fees
+              </Text>
+            </Pressable>
+            {error.termsError && (
+              <Text style={styles.errorText}>{error.termsError}</Text>
+            )}
+
+            {/* Sign Up Button */}
+            <TouchableOpacity
+              style={styles.signUpButton}
+              onPress={handleSignup}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.signUpButtonText}>Sign Up</Text>
+              )}
+            </TouchableOpacity>
+
+            {/* Footer */}
+            <Pressable onPress={() => navigation.replace("Login")}>
+              <Text style={styles.footerText}>
+                Already have an account?{" "}
+                <Text style={styles.signInText}>Sign In</Text>
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -204,9 +220,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingHorizontal:10,
-    height: "100%",
-
   },
   logoContainer: {
     flexDirection: "row",
@@ -239,20 +252,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     textAlign: "center",
-    fontFamily: "Poppins-Bold",
   },
   subtitle: {
     fontSize: 13,
     color: "#6B7280",
     textAlign: "center",
-    fontFamily: "Poppins-Regular",
     marginBottom: 10,
   },
   label: {
     fontSize: 13,
     fontWeight: "500",
     marginBottom: 4,
-    fontFamily: "Poppins-Bold",
     marginTop: 15,
   },
   input: {
@@ -280,7 +290,6 @@ const styles = StyleSheet.create({
   checkboxText: {
     marginLeft: 8,
     fontSize: 14,
-    fontFamily: "Poppis-Medium",
     color: "#4B5563",
   },
   signUpButton: {
@@ -292,7 +301,6 @@ const styles = StyleSheet.create({
   signUpButtonText: {
     color: "#fff",
     fontWeight: "600",
-    fontFamily: "Poppins-Bold",
     textAlign: "center",
   },
   errorText: {
@@ -303,7 +311,6 @@ const styles = StyleSheet.create({
   footerText: {
     textAlign: "center",
     fontSize: 13,
-    fontFamily: "Poppins-Regular",
   },
   signInText: {
     color: "#2563EB",

@@ -1,6 +1,6 @@
 import { collection, deleteDoc, doc,addDoc,getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert, FlatList, Pressable, TextInput,Image } from 'react-native';
+import { View, Linking, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert, FlatList, Pressable, TextInput,Image } from 'react-native';
 import { auth, db } from '../firebaseConfig';
 import { Ionicons, Entypo, MaterialCommunityIcons, AntDesign, Foundation,FontAwesome} from '@expo/vector-icons';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
@@ -216,7 +216,6 @@ const JobDetail = ({ route, navigation }) => {
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "center",
-    
               }}
             >
               {/* Left Section: Logo + Job Details */}
@@ -243,9 +242,7 @@ const JobDetail = ({ route, navigation }) => {
                 >
                   <Image
                     source={
-                      company.profileImg
-                        ? { uri: company.profileImg }
-                        : office
+                      company.profileImg ? { uri: company.profileImg } : office
                     }
                     style={styles.logo}
                   />
@@ -403,21 +400,22 @@ const JobDetail = ({ route, navigation }) => {
             <>
               <Text style={styles.heading}>About Company</Text>
               <Text>{company.basicInfo}</Text>
-          {  
-            company.website && 
-            <View style={styles.companyIconlist}>
-              <View style={styles.companyIconpart}>
-                <MaterialCommunityIcons
-                  name="web"
-                  color="#2969ff"
-                  size={24}
-                />
-                <Text style={styles.iconText}>Website</Text>
-              </View>
+              {company.website && (
+                <View style={styles.companyIconlist}>
+                  <View style={styles.companyIconpart}>
+                    <MaterialCommunityIcons
+                      name="web"
+                      color="#2969ff"
+                      size={24}
+                    />
+                    <Text style={styles.iconText}>Website</Text>
+                  </View>
 
-              <Text>{company.website}</Text>
-            </View>
-            }
+                  <TouchableOpacity onPress={()=> Linking.openURL(`${company.website}`)}>
+                    <Text>{company.website}</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
               <View style={styles.companyIconlist}>
                 <View style={styles.companyIconpart}>
                   <Ionicons name="location-outline" color="#ffd175" size={24} />

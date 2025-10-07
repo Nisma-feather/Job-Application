@@ -22,15 +22,7 @@ import { ActivityIndicator } from 'react-native';
 
 const dummyimg = require("../assets/logo.png");
 import JobCard from './JobCard';
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  orderBy,
-  startAt,
-  endAt,
-} from "firebase/firestore";
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
 import {Entypo,Ionicons,Feather, FontAwesome,MaterialCommunityIcons} from '@expo/vector-icons'
 import { useFocusEffect } from '@react-navigation/native';
@@ -178,66 +170,44 @@ const FindJobScreen = ({ navigation }) => {
     }
   };
 
-  const applyFilters = async () => {
-    try {
-      setLoading(true);
-
-      const jobsRef = collection(db, "jobs");
-      let q = jobsRef;
-
-      // 1️⃣ Search by job role (partial text match)
+  const applyFilters = useCallback(() => {
+    if (options === 'jobs') {
+      let updatedJobs = [...originalJobs];
       if (searchQuery) {
-        q = query(
-          q,
-          orderBy("jobrole"),
-          startAt(searchQuery),
-          endAt(searchQuery + "\uf8ff")
+        updatedJobs = updatedJobs.filter((job) =>
+          job.jobrole?.toLowerCase().includes(searchQuery.toLowerCase())
         );
       }
-
-      // 2️⃣ Location filter
       if (locationQuery) {
-        q = query(q, where("locations", "==", locationQuery));
+        updatedJobs = updatedJobs.filter((job) =>
+          job.locations?.toLowerCase().includes(locationQuery.toLowerCase())
+        );
       }
-
-      // 3️⃣ Experience filter (array of experience years)
       if (expFilter.length > 0) {
-        if (expFilter.length <= 10) {
-          q = query(q, where("expYear", "in", expFilter));
-        } else {
-          console.warn(
-            "Firestore 'in' operator supports max 10 values. Reduce expFilter length."
-          );
-        }
+        updatedJobs = updatedJobs.filter((job) => expFilter.includes(job.expYear));
       }
-
-      // 4️⃣ Job Type filter (Full Time, Part Time, etc.)
       if (jobTypeFilter.length > 0) {
-        if (jobTypeFilter.length <= 10) {
-          q = query(q, where("jobType", "in", jobTypeFilter));
-        }
+        updatedJobs = updatedJobs.filter((job) => jobTypeFilter.includes(job.jobType));
       }
-
-      // 5️⃣ Job Mode filter (Work from Home, Hybrid, Onsite)
       if (jobModeFilter.length > 0) {
-        if (jobModeFilter.length <= 10) {
-          q = query(q, where("jobMode", "in", jobModeFilter));
-        }
+        updatedJobs = updatedJobs.filter((job) => jobModeFilter.includes(job.jobMode));
       }
-
-      // Fetch filtered jobs
-      const querySnapshot = await getDocs(q);
-      const jobsData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setFilteredJobs(jobsData);
-    } catch (error) {
-      console.error("Error fetching filtered jobs:", error);
-    } finally {
-      setLoading(false);
+      setFilteredJobs(updatedJobs);
+    } else if (options === 'companies') {
+      let updatedCompanies = [...originalCompanies];
+      if (searchQuery) {
+        updatedCompanies = updatedCompanies.filter((company) =>
+          company.companyName?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
+      if (locationQuery) {
+        updatedCompanies = updatedCompanies.filter((company) =>
+          company.locations?.toLowerCase().includes(locationQuery.toLowerCase())
+        );
+      }
+      setCompanyList(updatedCompanies);
     }
-  };
+  }, [options, originalJobs, originalCompanies, searchQuery, locationQuery, expFilter, jobTypeFilter, jobModeFilter]);
 
   const handleApplyFilters = () => {
     applyFilters();

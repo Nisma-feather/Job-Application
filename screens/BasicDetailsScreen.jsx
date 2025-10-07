@@ -52,36 +52,54 @@ const BasicDetailsScreen = ({ navigation, route }) => {
     return valid;
   };
 
-  const handleSignup = async () => {
-    if (!handleValidation()) return;
+const handleSignup = async () => {
+  if (!handleValidation()) return;
 
-    try {
-      setLoading(true);
+  let userCred = null; // to track created user
 
-      // 1. Create the authentication account
-      const userCred = await createUserWithEmailAndPassword(
-        auth,
-        loginData.email,
-        loginData.password
-      );
+  try {
+    setLoading(true);
 
-      // 2. Navigate to verification screen with all collected data
-      navigation.navigate("Email Verification", {
-        loginData: loginData,
-        personalData: formData,
-      });
-    } catch (error) {
-      let errorMessage = "Signup failed. Please try again.";
-      if (error.code === "auth/email-already-in-use") {
-        errorMessage = "This email is already registered.";
-      } else if (error.code === "auth/weak-password") {
-        errorMessage = "Password should be at least 6 characters.";
-      }
-      Alert.alert("Signup Error", errorMessage);
-    } finally {
-      setLoading(false);
+    // 1️⃣ Create the authentication account
+    userCred = await createUserWithEmailAndPassword(
+      auth,
+      loginData.email,
+      loginData.password
+    );
+
+    // 2️⃣ Navigate to verification screen
+    navigation.navigate("Email Verification", {
+      loginData: loginData,
+      personalData: formData,
+    });
+  } catch (error) {
+    console.error("Signup error:", error);
+
+    let errorMessage = "Signup failed. Please try again after some time.";
+
+    // Firebase-specific error messages
+    if (error.code === "auth/email-already-in-use") {
+      errorMessage = "This email is already registered.";
+    } else if (error.code === "auth/weak-password") {
+      errorMessage = "Password should be at least 6 characters.";
     }
-  };
+
+    Alert.alert("Signup Error", errorMessage);
+
+    // 3️⃣ Cleanup: if a user got created but something failed later, delete them
+    try {
+      const currentUser = auth.currentUser;
+      if (currentUser && currentUser.email === loginData.email) {
+        await currentUser.delete();
+        console.log("⚠️ Partial account deleted after signup failure.");
+      }
+    } catch (cleanupError) {
+      console.log("Error deleting partial user:", cleanupError);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>

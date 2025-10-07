@@ -8,6 +8,8 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { setDoc, doc } from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
@@ -77,8 +79,8 @@ const UserInterestForm = ({ navigation, route }) => {
         uid: user.uid,
         email: user.email,
         role: "jobseeker",
-        loginData: loginData,
-        personalData: personalData,
+        loginData,
+        personalData,
         userInterest: formData,
         skills: formData.skills,
         createdAt: new Date(),
@@ -148,34 +150,43 @@ const UserInterestForm = ({ navigation, route }) => {
       locations={[0, 0.4, 1]}
       style={styles.container}
     >
-      <View style={{ flex: 1 }}>
-        {loading && (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color="#0000ff" />
-          </View>
-        )}
-
-        <ProgressStepper steps={steps} currentStep={currentStep} />
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.contentContainer}>{renderStep()}</View>
-        </ScrollView>
-        <View style={styles.buttonContainer}>
-          {currentStep > 1 && (
-            <TouchableOpacity style={styles.prevButton} onPress={prevStep}>
-              <Text style={styles.prevButtonText}>Back</Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            style={styles.nextButton}
-            onPress={nextStep}
-            disabled={loading}
-          >
-            <Text style={styles.buttonText}>
-              {currentStep === steps.length ? "Complete" : "Next"}
-            </Text>
-          </TouchableOpacity>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#0000ff" />
         </View>
-      </View>
+      )}
+
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <ProgressStepper steps={steps} currentStep={currentStep} />
+
+          <View style={styles.contentContainer}>{renderStep()}</View>
+
+          {/* Buttons inside scroll but visible */}
+          <View style={styles.buttonContainer}>
+            {currentStep > 1 && (
+              <TouchableOpacity style={styles.prevButton} onPress={prevStep}>
+                <Text style={styles.prevButtonText}>Back</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              style={styles.nextButton}
+              onPress={nextStep}
+              disabled={loading}
+            >
+              <Text style={styles.buttonText}>
+                {currentStep === steps.length ? "Complete" : "Next"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
 };
@@ -216,31 +227,39 @@ const ProgressStepper = ({ steps, currentStep }) => {
   );
 };
 
-// Keep your existing styles here (unchanged for brevity)
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 13 },
-  contentContainer: { flex: 1, justifyContent: "center", minHeight: "100%" },
+  container: { flex: 1 },
+  scrollContent: {
+    flexGrow: 1,
+    padding: 20,
+    paddingBottom: 100,
+  },
+  contentContainer: {
+    flex: 1,
+    minHeight: 400, // ensures consistent section height
+    justifyContent: "flex-start",
+  },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 20,
+    marginTop: 10,
   },
   prevButton: {
     backgroundColor: "#f0f0f0",
-    padding: 15,
+    padding: 10,
     borderRadius: 8,
     width: "48%",
     alignItems: "center",
   },
-  prevButtonText: { color: "#333", fontWeight: "bold" },
+  prevButtonText: { color: "#333", fontFamily: "Poppins-Bold", fontSize: 15 },
   nextButton: {
     backgroundColor: "#1967d2",
-    padding: 15,
+    padding: 10,
     borderRadius: 8,
     width: "48%",
     alignItems: "center",
   },
-  buttonText: { color: "#fff", fontWeight: "bold" },
+  buttonText: { color: "#fff", fontFamily: "Poppins-Bold", fontSize: 15 },
   loadingOverlay: {
     position: "absolute",
     top: 0,

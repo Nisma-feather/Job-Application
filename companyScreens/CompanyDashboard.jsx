@@ -6,7 +6,7 @@ import {Ionicons} from '@expo/vector-icons';
 import CompanyProfile from "./CompanyProfile";
 import CompanyProfileEdit from "./CompanyProfileEdit";
 import PostJobHome from "./PostJobHome";
-import PostJob from "./PostJob";
+import PostJob, { JobPostSuccessScreen } from "./PostJob";
 import PostJobEdit from "./PostJobEdit";
 import ViewJobApplications, { ApplicationsList } from "./ViewJobApplications";
 import UserProfile from "./UserProfile";
@@ -19,39 +19,45 @@ const Stack=createNativeStackNavigator();
 const CompanyDashboard = () => {
   
   return (
-    <Tab.Navigator screenOptions={({route})=>({
-     
-     
-      tabBarIcon:({focused,color,size})=>{
-        let Iconname;
-        if(route.name==='company Profile'){
-          Iconname=focused?'person':'person-outline'
-        }
-        else if(route.name==='Posted Jobs'){
-          Iconname=focused?'browsers':"browsers-outline"
-        }
-        else if(route.name==='View Applications'){
-           Iconname=focused?'home':'home-outline'
-        }
-        return  <Ionicons name={Iconname} color={color} size={24} />
-      },
-      tabBarActiveTintColor:'#0a66c2',
-      tabBarInactiveTintColor:"#666",
-      tabBarShowLabel:false,
-      tabBarItemStyle:{
-        height:50
-      }
-
-  })} >
-      
-      <Tab.Screen name="company Profile" component={CompanyProfileStack} options={{headerShown:false}}/>
-      <Tab.Screen name="View Applications" component={JobApplicationStack} options={{headerShown:false}}/>
-      <Tab.Screen name="Posted Jobs" component={CompanyPostJobStack} options={{headerShown:false}}/>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let Iconname;
+          if (route.name === "company Profile") {
+            Iconname = focused ? "person" : "person-outline";
+          } else if (route.name === "Posted Jobs") {
+            Iconname = focused ? "browsers" : "browsers-outline";
+          } else if (route.name === "View Applications") {
+            Iconname = focused ? "home" : "home-outline";
+          }
+          return <Ionicons name={Iconname} color={color} size={24} />;
+        },
+        tabBarActiveTintColor: "#0a66c2",
+        tabBarInactiveTintColor: "#666",
+        tabBarShowLabel: false,
+        tabBarItemStyle: {
+          height: 50,
+        },
+      })}
+    >
+      <Tab.Screen
+        name="company Profile"
+        component={CompanyProfileStack}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="View Applications"
+        component={JobApplicationStack}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="Posted Jobs"
+        component={CompanyPostJobStack}
+        options={{ headerShown: false }}
+      />
       {/* <Tab.Screen name="notfication" component={Notifications}/> */}
-      
-      
-  </Tab.Navigator>
-  )
+    </Tab.Navigator>
+  );
 }
 
 const JobApplicationStack=()=>{

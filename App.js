@@ -49,8 +49,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-
+      <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Role" component={RoleSelectionScreen} />
         <Stack.Screen
@@ -98,7 +97,10 @@ export default function App() {
             headerTintColor: "#fff",
           }}
         />
-        <Stack.Screen name="Company Verification" component={CompanyEmailVerification}/>
+        <Stack.Screen
+          name="Company Verification"
+          component={CompanyEmailVerification}
+        />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

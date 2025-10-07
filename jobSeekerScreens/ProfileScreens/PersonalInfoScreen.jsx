@@ -147,7 +147,6 @@ const PersonalInfoScreen = ({navigation}) => {
                 <Text style={styles.label}>Address</Text>
                 <TextInput
                   multiline
-                  keyboardType="phone-pad"
                   style={[styles.input, errors.phone && styles.errorBorder]}
                   onChangeText={(val) => setFormData({ ...formData, address: val })}
                   value={formData.address}

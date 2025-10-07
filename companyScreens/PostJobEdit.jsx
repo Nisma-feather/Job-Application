@@ -1,14 +1,15 @@
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import {
-  ScrollView, StyleSheet, TextInput, Text, TouchableOpacity, SafeAreaView, View
+  ScrollView, StyleSheet, TextInput, Text, TouchableOpacity, SafeAreaView, View, KeyboardAvoidingView, Platform
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { db } from '../firebaseConfig';
 
-const PostJobEdit = ({ route }) => {
+const PostJobEdit = ({ route,navigation }) => {
   const { JobId } = route.params;
   const [job, setJob] = useState({});
+  const [updating,setUpdating] = useState(false)
   const [skillsRequired, setSkillsRequired] = useState('');
   const [errors, setErrors] = useState({});
   const [requirements,setRequiremnts]=useState("");
@@ -61,6 +62,7 @@ console.log(job)
   
 
     try {
+      setUpdating(true)
       const ref = doc(db, 'jobs', JobId);
       await updateDoc(ref, {
         ...job,
@@ -72,121 +74,183 @@ console.log(job)
           .filter(skill => skill),
       });
       setErrors({});
-      fetchJobDetails();
+      Alert.alert("Job Post Updated Successfully")
+      navigation.navigate("Post Job HomeScreen");
+
     } catch (e) {
       console.log("Can't update job", e);
+    }
+    finally{
+      setUpdating(false)
     }
   };
   console.log("Job Mode Value:", job.jobMode);
   return (
     <SafeAreaView style={styles.formContainer}>
-      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        <Text style={styles.label}>Job Role <Text style={styles.required}>*</Text></Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Type Job Role"
-          value={job.jobrole || ''}
-          onChangeText={(val) => setJob({ ...job, jobrole: val })}
-        />
-        {errors.jobrole && <Text style={styles.errorText}>{errors.jobrole}</Text>}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={styles.label}>
+            Job Role <Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Type Job Role"
+            value={job.jobrole || ""}
+            onChangeText={(val) => setJob({ ...job, jobrole: val })}
+          />
+          {errors.jobrole && (
+            <Text style={styles.errorText}>{errors.jobrole}</Text>
+          )}
 
-        <Text style={styles.label}>No of Vacancies</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Type vacancies"
-          value={job.vacancies || ''}
-          onChangeText={(val) => setJob({ ...job, vacancies: val })}
-          keyboardType="numeric"
-        />
+          <Text style={styles.label}>No of Vacancies</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Type vacancies"
+            value={job.vacancies || ""}
+            onChangeText={(val) => setJob({ ...job, vacancies: val })}
+            keyboardType="numeric"
+          />
 
-        <Text style={styles.label}>Location <Text style={styles.required}>*</Text></Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Type Location"
-          value={job.locations || ''}
-          onChangeText={(val) => setJob({ ...job, locations: val })}
-        />
-        {errors.locations && <Text style={styles.errorText}>{errors.locations}</Text>}
+          <Text style={styles.label}>
+            Location <Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Type Location"
+            value={job.locations || ""}
+            onChangeText={(val) => setJob({ ...job, locations: val })}
+          />
+          {errors.locations && (
+            <Text style={styles.errorText}>{errors.locations}</Text>
+          )}
 
-        <Text style={styles.label}>Requirements</Text>
-        <TextInput
-          style={styles.textArea}
-          placeholder="Enter requirements"
-          value={job.requirements || ''}
-          onChangeText={(val) => setJob({ ...job, requirements: val })}
-          multiline
-          numberOfLines={4}
-        />
-        <Text style={styles.label}>Skills Required <Text style={styles.required}>*</Text></Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g., React, JavaScript"
-          value={skillsRequired}
-          onChangeText={(val) => setSkillsRequired(val)}
-        />
-        {errors.skillsRequired && <Text style={styles.errorText}>{errors.skillsRequired}</Text>}
+          <Text style={styles.label}>Requirements</Text>
+          <TextInput
+            style={styles.textArea}
+            placeholder="Enter requirements"
+            value={job.requirements || ""}
+            onChangeText={(val) => setJob({ ...job, requirements: val })}
+            multiline
+            numberOfLines={4}
+          />
+          <Text style={styles.label}>
+            Skills Required <Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g., React, JavaScript"
+            value={skillsRequired}
+            onChangeText={(val) => setSkillsRequired(val)}
+          />
+          {errors.skillsRequired && (
+            <Text style={styles.errorText}>{errors.skillsRequired}</Text>
+          )}
 
-        <Text style={styles.label}>Roles & Responsibilities</Text>
-        <TextInput
-          style={styles.textArea}
-          placeholder="Enter responsibilities"
-          value={job.responsibilities|| ''}
-          onChangeText={(val) => setJob({ ...job, responsibilities: val })}
-          multiline
-          numberOfLines={4}
-        />
+          <Text style={styles.label}>Roles & Responsibilities</Text>
+          <TextInput
+            style={styles.textArea}
+            placeholder="Enter responsibilities"
+            value={job.responsibilities || ""}
+            onChangeText={(val) => setJob({ ...job, responsibilities: val })}
+            multiline
+            numberOfLines={4}
+          />
 
-        <Text style={styles.label}>Experience Level <Text style={styles.required}>*</Text></Text>
-        <View style={styles.pickerWrapper}>
-          <Picker style={styles.picker}
-            selectedValue={job.expYear || ''}
-            onValueChange={(val) => setJob({ ...job, expYear: val })}
+          <Text style={styles.label}>
+            Experience Level <Text style={styles.required}>*</Text>
+          </Text>
+          <View style={styles.pickerWrapper}>
+            <Picker
+              style={styles.picker}
+              selectedValue={job.expYear || ""}
+              onValueChange={(val) => setJob({ ...job, expYear: val })}
+            >
+              {expYeardata.map((exp, idx) => (
+                <Picker.Item
+                  key={idx}
+                  label={exp || "Select Experience"}
+                  value={exp}
+                />
+              ))}
+            </Picker>
+          </View>
+          {errors.expYear && (
+            <Text style={styles.errorText}>{errors.expYear}</Text>
+          )}
+
+          <Text style={styles.label}>
+            Job Type <Text style={styles.required}>*</Text>
+          </Text>
+          <View style={styles.pickerWrapper}>
+            <Picker
+              style={styles.picker}
+              selectedValue={job.jobType || ""}
+              onValueChange={(val) => setJob({ ...job, jobType: val })}
+            >
+              {JobTypedata.map((type, idx) => (
+                <Picker.Item
+                  key={idx}
+                  label={type || "Select Job Type"}
+                  value={type}
+                />
+              ))}
+            </Picker>
+          </View>
+          {errors.jobType && (
+            <Text style={styles.errorText}>{errors.jobType}</Text>
+          )}
+
+          <Text style={styles.label}>
+            Job Mode <Text style={styles.required}>*</Text>
+          </Text>
+          <View>
+            <Picker
+              style={styles.picker}
+              selectedValue={job.jobMode || ""}
+              onValueChange={(val) => setJob({ ...job, jobMode: val })}
+            >
+              {JobModedata.map((mode, idx) => (
+                <Picker.Item
+                  key={idx}
+                  label={mode || "Select Job Mode"}
+                  value={mode}
+                />
+              ))}
+            </Picker>
+          </View>
+          {errors.jobMode && (
+            <Text style={styles.errorText}>{errors.jobMode}</Text>
+          )}
+
+          <Text style={styles.label}>Salary Package</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Type package"
+            value={job.salaryPack || ""}
+            onChangeText={(val) => setJob({ ...job, salaryPack: val })}
+          />
+
+          <TouchableOpacity
+            style={[
+              styles.submitButton,
+              { opacity: updating ? 0.6 : 1 }, // visually indicate disabled state
+            ]}
+            disabled={updating}
+            onPress={handleJobUpdate}
           >
-            {expYeardata.map((exp, idx) => (
-              <Picker.Item key={idx} label={exp || 'Select Experience'} value={exp} />
-            ))}
-          </Picker>
-        </View>
-        {errors.expYear && <Text style={styles.errorText}>{errors.expYear}</Text>}
-
-        <Text style={styles.label}>Job Type <Text style={styles.required}>*</Text></Text>
-        <View style={styles.pickerWrapper}>
-          <Picker style={styles.picker}
-            selectedValue={job.jobType || ''}
-            onValueChange={(val) => setJob({ ...job, jobType: val })}
-          >
-            {JobTypedata.map((type, idx) => (
-              <Picker.Item key={idx} label={type || 'Select Job Type'} value={type} />
-            ))}
-          </Picker>
-        </View>
-        {errors.jobType && <Text style={styles.errorText}>{errors.jobType}</Text>}
-
-        <Text style={styles.label}>Job Mode <Text style={styles.required}>*</Text></Text>
-        <View >
-          <Picker style={styles.picker}
-            selectedValue={job.jobMode || ''}
-            onValueChange={(val) => setJob({ ...job, jobMode: val })}
-          >
-            {JobModedata.map((mode, idx) => (
-              <Picker.Item key={idx} label={mode || 'Select Job Mode'} value={mode} />
-            ))}
-          </Picker>
-        </View>
-        {errors.jobMode && <Text style={styles.errorText}>{errors.jobMode}</Text>}
-
-        <Text style={styles.label}>Salary Package</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Type package"
-          value={job.salaryPack || ''}
-          onChangeText={(val) => setJob({ ...job, salaryPack: val })}
-        />
-
-        <TouchableOpacity style={styles.submitButton} onPress={handleJobUpdate}>
-          <Text style={styles.submitButtonText}>Update Job</Text>
-        </TouchableOpacity>
-      </ScrollView>
+            <Text style={styles.submitButtonText}>
+              {updating ? "Updating..." : "Update Job"}
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

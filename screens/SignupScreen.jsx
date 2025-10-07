@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput,Pressable,StyleSheet, SafeAreaView,Image, ScrollView } from 'react-native';
+import { View, Text, TextInput,Pressable,StyleSheet, SafeAreaView,Image, ScrollView, TouchableOpacity } from 'react-native';
 import { FontAwesome, AntDesign, Entypo,MaterialIcons} from '@expo/vector-icons';
 import logo from '../assets/newIcon.png'
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function SignupScreen({navigation}) {
   const [agree, setAgree] = useState(false);
@@ -11,6 +12,9 @@ export default function SignupScreen({navigation}) {
     confirmPassword: ""
     
   });
+  const [showPassword,setShowPassword] = useState(false);
+  const [showCPassword,setShowCPassword] = useState(false);
+
   const [error,setError]=useState({})
 
   const toggleCheckbox = () => {
@@ -72,8 +76,8 @@ export default function SignupScreen({navigation}) {
         <View style={styles.container}>
           {/* Logo */}
           <View style={styles.logoContainer}>
-            <Image source={logo} style={styles.logoOuter}/>
-           
+            <Image source={logo} style={styles.logoOuter} />
+
             <View>
               <Text style={styles.logoText}>Feather</Text>
               <Text style={styles.logoSubText}>Job Portal App</Text>
@@ -101,26 +105,52 @@ export default function SignupScreen({navigation}) {
           <Text style={styles.label}>
             Password <Text style={styles.required}>*</Text>
           </Text>
-          <TextInput
-            style={styles.input}
-            secureTextEntry
-            value={formData.password}
-            onChangeText={(val) => setFormData({ ...formData, password: val })}
-          />
+          <View style={{ position: "relative" }}>
+            <TextInput
+              style={styles.input}
+              secureTextEntry={!showPassword}
+              value={formData.password}
+              onChangeText={(val) =>
+                setFormData({ ...formData, password: val })
+              }
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={{ position: "absolute", right: 15, top: 10 }}
+            >
+              <MaterialCommunityIcons
+                name={showPassword ? "eye-outline" : "eye-off-outline"}
+                color="#000"
+                size={20}
+              />
+            </TouchableOpacity>
+          </View>
           {error.passwordError ? (
             <Text style={styles.errorText}>{error.passwordError}</Text>
           ) : null}
           <Text style={styles.label}>
             Confirm Password <Text style={styles.required}>*</Text>
           </Text>
-          <TextInput
-            style={styles.input}
-            secureTextEntry
-            value={formData.confirmPassword}
-            onChangeText={(val) =>
-              setFormData({ ...formData, confirmPassword: val })
-            }
-          />
+          <View style={{ position: "relative" }}>
+            <TextInput
+              style={[styles.input]}
+              secureTextEntry={!showCPassword}
+              value={formData.confirmPassword}
+              onChangeText={(val) =>
+                setFormData({ ...formData, confirmPassword: val })
+              }
+            />
+            <TouchableOpacity
+              onPress={() => setShowCPassword(!showCPassword)}
+              style={{ position: "absolute", right: 15, top: 10 }}
+            >
+              <MaterialCommunityIcons
+                name={showCPassword ? "eye-outline" : "eye-off-outline"}
+                color="#000"
+                size={21}
+              />
+            </TouchableOpacity>
+          </View>
           {error.confirmPasswordError ? (
             <Text style={styles.errorText}>{error.confirmPasswordError}</Text>
           ) : null}
@@ -247,8 +277,8 @@ const styles = StyleSheet.create({
     marginTop:15
   },
   checkbox: {
-    height: 20,
-    width: 20,
+    height: 23,
+    width: 23,
     borderWidth: 2,
     borderColor: '#6d7b9c',
     borderRadius: 4,
@@ -264,14 +294,14 @@ const styles = StyleSheet.create({
   },
   signUpButton: {
     backgroundColor: '#2563EB',
-    paddingVertical: 14,
+    paddingVertical: 10,
     borderRadius: 8,
     marginTop:16,
     marginBottom: 16,
   },
   signUpButtonText: {
     color: '#fff',
-    fontSize:15,
+    fontSize:14,
     fontFamily:'Poppins-Bold',
     textAlign: 'center',
   },

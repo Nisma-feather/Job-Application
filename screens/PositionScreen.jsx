@@ -47,10 +47,9 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderTopRightRadius: 20,
     borderTopLeftRadius: 20,
-
-},
+  },
   title: {
-    fontSize: 16,
+    fontSize: 20,
     fontFamily: "Poppins-Bold",
     marginBottom: 30,
     textAlign: "center",
@@ -73,9 +72,8 @@ const styles = StyleSheet.create({
     borderColor: "#1967d2",
   },
   optionText: {
-    fontSize: 14,
+    fontSize: 16,
     textAlign: "center",
-    color: "#555",
     fontFamily: "Poppins-Regular",
   },
-});
+});  

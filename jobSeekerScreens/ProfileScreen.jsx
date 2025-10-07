@@ -169,7 +169,7 @@ const ProfileScreen = () => {
 
             <View style={{ marginLeft: 20, justifyContent: "center" }}>
               <Text style={styles.nameText}>
-                {"Guest User" || ""}
+                {personalData.name || ""}
               </Text>
               {personalData?.designation && (
                 <Text style={styles.designationText}>

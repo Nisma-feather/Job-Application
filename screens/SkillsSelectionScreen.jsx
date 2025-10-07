@@ -77,9 +77,9 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
   },
   title: {
-    fontSize: 16,
+    fontSize: 20,
     fontFamily: "Poppins-Bold",
-    marginBottom: 20,
+  
     textAlign: "center",
   },
   inputContainer: {
@@ -91,8 +91,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
-    padding: 15,
-    fontSize: 12,
+    padding: 10,
+    fontSize: 13,
     fontFamily: "Poppins-Regular",
   },
   addButton: {
@@ -116,15 +116,15 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    marginRight: 8, // Fallback spacing if "gap" not supported
-    marginBottom: 8, // Fallback spacing if "gap" not supported
+    marginRight: 8,
+    marginBottom: 8,
     alignItems: "center",
   },
   skillText: {
     color: "white",
     marginRight: 6,
     fontFamily: "Poppins-Bold",
-    fontSize: 13,
+    fontSize: 14,
   },
   removeButton: {
     backgroundColor: "#104a8e",
