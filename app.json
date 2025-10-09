@@ -2,7 +2,7 @@
   "expo": {
     "name": "Feather Job App",
     "slug": "Job-Portal-App",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "icon": "./assets/newIcon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -15,7 +15,7 @@
       "supportsTablet": true
     },
     "android": {
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptiveNew.png",
         "backgroundColor": "#ffffff"
