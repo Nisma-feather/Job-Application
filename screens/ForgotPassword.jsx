@@ -5,9 +5,11 @@ import {
   View,
   Text,
   TextInput,
+  Image,
   TouchableOpacity,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import logo from '../assets/logoImage.png'
 import { styles } from "./Login";
 import {
   sendPasswordResetEmail,
@@ -76,9 +78,10 @@ const ForgotPassword = ({ navigation }) => {
         <View style={styles.container}>
           {/* Logo */}
           <View style={styles.logoContainer}>
-            <View style={styles.logoOuter}>
+            {/* <View style={styles.logoOuter}>
               <MaterialIcons name="double-arrow" color="#fff" size={28} />
-            </View>
+            </View> */}
+            <Image source={logo} style={styles.logoOuter} />
             <View>
               <Text style={styles.logoText}>Feather</Text>
               <Text style={styles.logoSubText}>Job Portal App</Text>

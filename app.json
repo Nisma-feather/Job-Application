@@ -2,7 +2,7 @@
   "expo": {
     "name": "Feather Job App",
     "slug": "Job-Portal-App",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "icon": "./assets/newIcon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,

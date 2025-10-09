@@ -16,7 +16,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from "../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import logo from "../assets/newIcon.png";
+import logo from "../assets/logoImage.png";
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -119,11 +119,15 @@ const Login = ({ navigation }) => {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <ScrollView style={{ flexGrow: 1 }}>
         <View style={styles.container}>
-          <View style={styles.logoContainer}>
-            <Image source={logo} style={styles.logoOuter} />
-            <View>
-              <Text style={styles.logoText}>Feather</Text>
-              <Text style={styles.logoSubText}>Job Portal App</Text>
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <View style={styles.logoContainer}>
+              <Image source={logo} style={styles.logoOuter} />
+              <View style={{ alignItems: "center", marginTop: 10 }}>
+                <Text style={styles.logoText}>Feather</Text>
+                <Text style={styles.logoSubText}>Job Portal App</Text>
+              </View>
             </View>
           </View>
 
@@ -184,8 +188,14 @@ const Login = ({ navigation }) => {
           </Pressable>
 
           {/* Login Button */}
-          <TouchableOpacity style={styles.LoginButton} onPress={handleLogin} disabled={loading}>
-            <Text style={styles.LoginButtonText}>{loading?" Loading...":"Login"}</Text>
+          <TouchableOpacity
+            style={styles.LoginButton}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            <Text style={styles.LoginButtonText}>
+              {loading ? " Loading..." : "Login"}
+            </Text>
           </TouchableOpacity>
 
           {/* Sign Up */}
@@ -223,6 +233,8 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
+
+
   },
   logoText: {
     color: "#1967d2",
@@ -263,7 +275,7 @@ export const styles = StyleSheet.create({
   LoginButtonText: {
     color: "#fff",
     fontSize: 14,
-    fontFamily:"Poppins-Bold",
+    fontFamily: "Poppins-Bold",
     textTransform: "uppercase",
     textAlign: "center",
   },

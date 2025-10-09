@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput,Pressable,StyleSheet, SafeAreaView,Image, ScrollView, TouchableOpacity } from 'react-native';
 import { FontAwesome, AntDesign, Entypo,MaterialIcons} from '@expo/vector-icons';
-import logo from '../assets/newIcon.png'
+import logo from '../assets/logoImage.png'
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function SignupScreen({navigation}) {
   const [agree, setAgree] = useState(false);
   const [formData, setFormData] = useState({
-    name:"",
+    name: "",
     email: "",
-    confirmPassword: ""
-    
+    password: "",
+ 
   });
+
+  const [confirmPassword,setConfirmPassword] = useState("");
   const [showPassword,setShowPassword] = useState(false);
   const [showCPassword,setShowCPassword] = useState(false);
 
@@ -26,7 +28,7 @@ export default function SignupScreen({navigation}) {
       emailError: "",
       passwordError: "",
       termsError: "",
-      confirmPassword: "",
+      confirmPasswordError: "",
     };
 
     // Email validation
@@ -53,16 +55,16 @@ export default function SignupScreen({navigation}) {
     }
 
     // Confirm Password
-    if (!formData?.confirmPassword.trim()) {
+    if (!confirmPassword.trim()) {
       errors.confirmPasswordError = "Confirm password is required";
       valid = false;
-    } else if (formData.confirmPassword !== formData.password) {
+    } else if (confirmPassword !== formData.password) {
       errors.confirmPasswordError = "Passwords do not match";
       valid = false;
     }
     if (!agree && formData.email.trim() && formData.password.trim()) {
       valid = false;
-      errors.termsError = "Agree to the Tems & Conditions";
+      errors.termsError = "Agree to the Terms & Conditions";
     }
 
     setError(errors);
@@ -75,12 +77,14 @@ export default function SignupScreen({navigation}) {
       <ScrollView style={{ flexGrow: 1 }}>
         <View style={styles.container}>
           {/* Logo */}
-          <View style={styles.logoContainer}>
-            <Image source={logo} style={styles.logoOuter} />
+          <View style={{display:"flex", width:"100%", justifyContent:"center"}}>
+            <View style={styles.logoContainer}>
+              <Image source={logo} style={styles.logoOuter} />
 
-            <View>
-              <Text style={styles.logoText}>Feather</Text>
-              <Text style={styles.logoSubText}>Job Portal App</Text>
+              <View>
+                <Text style={styles.logoText}>Feather</Text>
+                <Text style={styles.logoSubText}>Job Portal App</Text>
+              </View>
             </View>
           </View>
 
@@ -135,9 +139,9 @@ export default function SignupScreen({navigation}) {
             <TextInput
               style={[styles.input]}
               secureTextEntry={!showCPassword}
-              value={formData.confirmPassword}
+              value={confirmPassword}
               onChangeText={(val) =>
-                setFormData({ ...formData, confirmPassword: val })
+                 setConfirmPassword(val)
               }
             />
             <TouchableOpacity

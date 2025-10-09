@@ -9,7 +9,7 @@ import {
   Image
 } from "react-native";
 import {MaterialIcons,FontAwesome} from '@expo/vector-icons';
-import logo from "../assets/newIcon.png"
+import logo from "../assets/logoImage.png"
 
 
 const RoleSelectionScreen = ({ navigation }) => {

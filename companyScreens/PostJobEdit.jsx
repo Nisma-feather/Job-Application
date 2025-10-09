@@ -1,50 +1,61 @@
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import {
-  ScrollView, StyleSheet, TextInput, Text, TouchableOpacity, SafeAreaView, View, KeyboardAvoidingView, Platform
+  ScrollView, StyleSheet, TextInput, Text, TouchableOpacity, SafeAreaView,
+  View, KeyboardAvoidingView, Platform, Alert
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { db } from '../firebaseConfig';
 
-const PostJobEdit = ({ route,navigation }) => {
+const PostJobEdit = ({ route, navigation }) => {
   const { JobId } = route.params;
   const [job, setJob] = useState({});
-  const [updating,setUpdating] = useState(false)
+  const [updating, setUpdating] = useState(false);
   const [skillsRequired, setSkillsRequired] = useState('');
   const [errors, setErrors] = useState({});
-  const [requirements,setRequiremnts]=useState("");
-  const [responsibilities,setResponsibilities]=useState("")
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const expYeardata = ['', 'Fresher', "0 - 1 Year", "2-5 Years", "More than 5 Years", "More than 10 Years"];
   const JobTypedata = ['', 'Full Time', 'Part Time', 'Contract', 'Freelance', 'Internship'];
   const JobModedata = ['', 'Hybrid', "Remote", "OnSite"];
+  const JobStatus = ['Open', 'Closed', 'Expired'];
 
   const fetchJobDetails = async () => {
     if (!JobId) return;
     try {
       const ref = doc(db, 'jobs', JobId);
-      const Snapdata = await getDoc(ref);
-      const data = Snapdata.data();
-      
+      const snap = await getDoc(ref);
+      const data = snap.data();
+
       if (data) {
-        setJob({ ...data });
-        setSkillsRequired((data.skillsRequired || []).join(', '));
-        const requirements=(data.requirements || []).join('.');
-        const responsibilities=(data.responsibilities || []).join('.');
+        const expiryDate = data.expiryDate ? new Date(data.expiryDate.toDate ? data.expiryDate.toDate() : data.expiryDate) : null;
+        const isExpired = expiryDate && expiryDate < new Date();
+
         setJob({
-    ...data,
-    requirements,
-    responsibilities,
-  });
+          ...data,
+          requirements: (data.requirements || []).join('. '),
+          responsibilities: (data.responsibilities || []).join('. '),
+          expiryDate,
+          status: isExpired ? 'Expired' : data.status || 'Open',
+        });
+        setSkillsRequired((data.skillsRequired || []).join(', '));
       }
     } catch (e) {
       console.log("Can't fetch job details", e);
     }
   };
-console.log(job)
+
   useEffect(() => {
     fetchJobDetails();
   }, []);
+
+  const handleDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setJob({ ...job, expiryDate: selectedDate });
+    }
+  };
 
   const validateFields = () => {
     const newErrors = {};
@@ -54,37 +65,46 @@ console.log(job)
     if (!job.jobType?.trim()) newErrors.jobType = 'Job type is required';
     if (!job.jobMode?.trim()) newErrors.jobMode = 'Job mode is required';
     if (!job.expYear?.trim()) newErrors.expYear = 'Experience level is required';
+    if (job.status !== 'Expired' && !job.expiryDate) newErrors.expiryDate = 'Set a Job Expiry date';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleJobUpdate = async () => {
-  
+    if (!validateFields()) return;
 
     try {
-      setUpdating(true)
+      setUpdating(true);
       const ref = doc(db, 'jobs', JobId);
+
+      let updatedStatus = job.status;
+      if (job.expiryDate && new Date(job.expiryDate) < new Date()) {
+        updatedStatus = 'Expired';
+      }
+
       await updateDoc(ref, {
         ...job,
-        requirements:job.requirements.split(". "),
-        responsibilities:job.responsibilities.split("."),
-        skillsRequired:skillsRequired
+        status: updatedStatus,
+        expiryDate: job.expiryDate ? job.expiryDate : null,
+        requirements: job.requirements.split('. '),
+        responsibilities: job.responsibilities.split('.'),
+        skillsRequired: skillsRequired
           .split(',')
           .map(skill => skill.trim())
           .filter(skill => skill),
       });
-      setErrors({});
-      Alert.alert("Job Post Updated Successfully")
-      navigation.navigate("Post Job HomeScreen");
 
+      Alert.alert("✅ Job Updated Successfully");
+      navigation.navigate("Post Job HomeScreen");
     } catch (e) {
       console.log("Can't update job", e);
-    }
-    finally{
-      setUpdating(false)
+    } finally {
+      setUpdating(false);
     }
   };
-  console.log("Job Mode Value:", job.jobMode);
+
+  const isDatePickerDisabled = job.status === 'Expired';
+
   return (
     <SafeAreaView style={styles.formContainer}>
       <KeyboardAvoidingView
@@ -96,6 +116,7 @@ console.log(job)
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
+          {/* --- Existing fields remain same --- */}
           <Text style={styles.label}>
             Job Role <Text style={styles.required}>*</Text>
           </Text>
@@ -237,11 +258,52 @@ console.log(job)
             onChangeText={(val) => setJob({ ...job, salaryPack: val })}
           />
 
+          {/* Expiry Date Picker */}
+          <Text style={styles.label}>
+            Job Expiry Date <Text style={styles.required}>*</Text>
+          </Text>
           <TouchableOpacity
-            style={[
-              styles.submitButton,
-              { opacity: updating ? 0.6 : 1 }, // visually indicate disabled state
-            ]}
+            style={[styles.input, { justifyContent: "center" }]}
+            disabled={isDatePickerDisabled}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text>
+              {job.expiryDate
+                ? new Date(job.expiryDate).toDateString()
+                : "Select Expiry Date"}
+            </Text>
+          </TouchableOpacity>
+          {errors.expiryDate && (
+            <Text style={styles.errorText}>{errors.expiryDate}</Text>
+          )}
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={job.expiryDate || new Date()}
+              mode="date"
+              minimumDate={new Date()}
+              display="default"
+              onChange={handleDateChange}
+            />
+          )}
+
+          {/* Job Status Picker */}
+          <Text style={styles.label}>Job Status</Text>
+          <View style={styles.pickerWrapper}>
+            <Picker
+              selectedValue={job.status || "Open"}
+              onValueChange={(val) => setJob({ ...job, status: val })}
+              style={styles.picker}
+            >
+              {JobStatus.map((st, i) => (
+                <Picker.Item key={i} label={st} value={st} />
+              ))}
+            </Picker>
+          </View>
+
+          {/* Submit */}
+          <TouchableOpacity
+            style={[styles.submitButton, { opacity: updating ? 0.6 : 1 }]}
             disabled={updating}
             onPress={handleJobUpdate}
           >
@@ -254,6 +316,7 @@ console.log(job)
     </SafeAreaView>
   );
 };
+
 
 export default PostJobEdit;
 

@@ -13,7 +13,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { MaterialIcons, Entypo } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
@@ -21,7 +21,7 @@ import {
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import { SafeAreaView } from "react-native-safe-area-context";
-import logo from "../assets/newIcon.png";
+import logo from "../assets/logoImage.png";
 
 const CompanySignUp = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -108,16 +108,17 @@ const CompanySignUp = ({ navigation }) => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1, padding: 10 }}
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
         >
           <View style={styles.container}>
+            {/* Logo */}
             <View style={styles.logoContainer}>
               <Image source={logo} style={styles.logoOuter} />
               <View>
@@ -138,6 +139,7 @@ const CompanySignUp = ({ navigation }) => {
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
+              autoCapitalize="none"
             />
             {error.emailError && (
               <Text style={styles.errorText}>{error.emailError}</Text>
@@ -171,7 +173,7 @@ const CompanySignUp = ({ navigation }) => {
               <Text style={styles.errorText}>{error.cpasswordError}</Text>
             )}
 
-            {/* Terms Checkbox */}
+            {/* Terms */}
             <Pressable
               style={styles.checkboxContainer}
               onPress={() => setAgree(!agree)}
@@ -187,7 +189,7 @@ const CompanySignUp = ({ navigation }) => {
               <Text style={styles.errorText}>{error.termsError}</Text>
             )}
 
-            {/* Sign Up Button */}
+            {/* Button */}
             <TouchableOpacity
               style={styles.signUpButton}
               onPress={handleSignup}
@@ -217,8 +219,12 @@ const CompanySignUp = ({ navigation }) => {
 export default CompanySignUp;
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingBottom: 30,
+  },
   container: {
-    flex: 1,
     backgroundColor: "#fff",
   },
   logoContainer: {
@@ -226,18 +232,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    marginBottom: 10,
-  },
-  required: {
-    color: "#ff2121",
+    marginTop: 25,
+    marginBottom: 15,
   },
   logoOuter: {
     backgroundColor: "#1967d2",
     width: 50,
     height: 50,
     borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
   },
   logoText: {
     color: "#1967d2",
@@ -249,7 +251,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   title: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: "600",
     textAlign: "center",
   },
@@ -259,6 +261,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 10,
   },
+  required: { color: "#ff2121" },
   label: {
     fontSize: 13,
     fontWeight: "500",
@@ -270,7 +273,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    fontSize: 12,
+    fontSize: 13,
   },
   checkboxContainer: {
     marginTop: 15,
@@ -285,7 +288,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "white",
   },
   checkboxText: {
     marginLeft: 8,
@@ -294,14 +296,16 @@ const styles = StyleSheet.create({
   },
   signUpButton: {
     backgroundColor: "#2563EB",
-    paddingVertical: 14,
+    paddingVertical: 13,
     borderRadius: 8,
-    marginVertical: 23,
+    marginTop: 25,
+    marginBottom: 10,
   },
   signUpButtonText: {
     color: "#fff",
     fontWeight: "600",
     textAlign: "center",
+    fontSize: 15,
   },
   errorText: {
     color: "red",
