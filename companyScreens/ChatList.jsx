@@ -17,6 +17,7 @@ import {
   collectionGroup,
   where,
   getDocs,
+  query,
   getDoc,
   doc,
   orderBy,
@@ -27,59 +28,62 @@ const CompanyMessages = ({ navigation }) => {
   const companyUID = auth.currentUser?.uid;
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectionMode, setSelectionMode] = useState(false);
-  const [selectedMessages, setSelectedMessages] = useState([]);
+ 
+const fetchUserChats = async (companyUID) => {
+  if (!companyUID) return;
 
-  const fetchUserChats = async (companyUID) => {
-    if (!companyUID) return;
-    try {
-      setLoading(true);
-      const q = collectionGroup(db, "messages");
-      const snap = await getDocs(
-        q.withConverter(null) // workaround if needed
-      );
+  try {
+    setLoading(true);
 
-      const messageData = [];
-      for (const docSnap of snap.docs) {
-        const data = docSnap.data();
-        if (data.from !== companyUID) continue;
+    // Query messages sent by this company AND not deleted by company
+    const q = query(
+      collectionGroup(db, "messages"),
+      where("from", "==", companyUID),
+      where("deletedByCompany", "==", false) // only fetch messages not deleted
+    );
 
-        const userDocRef = doc(db, "users", data.to);
-        const userSnap = await getDoc(userDocRef);
+    const snap = await getDocs(q);
 
-        const userName = userSnap.exists()
-          ? userSnap.data().personalData?.name
-          : "Unknown User";
-        const profileImg = userSnap.exists()
-          ? userSnap.data().personalData?.imageUrl
-          : null;
+    const messageData = [];
+    for (const docSnap of snap.docs) {
+      const data = docSnap.data();
 
-        messageData.push({
-          id: docSnap.id, // use id consistently
-          ...data,
-          userName,
-          profileImg,
-        });
-      }
+      const userDocRef = doc(db, "users", data.to);
+      const userSnap = await getDoc(userDocRef);
 
-      // group by user
-      const grouped = Object.values(
-        messageData.reduce((acc, msg) => {
-          const uid = msg.to;
-          if (!acc[uid] || msg.messageAt > acc[uid].messageAt) {
-            acc[uid] = msg;
-          }
-          return acc;
-        }, {})
-      );
+      const userName = userSnap.exists()
+        ? userSnap.data().personalData?.name
+        : "Unknown User";
+      const profileImg = userSnap.exists()
+        ? userSnap.data().personalData?.imageUrl
+        : null;
 
-      setMessages(grouped);
-    } catch (e) {
-      console.error("Error fetching chats:", e);
-    } finally {
-      setLoading(false);
+      messageData.push({
+        id: docSnap.id,
+        ...data,
+        userName,
+        profileImg,
+      });
     }
-  };
+
+    // Group by user
+    const grouped = Object.values(
+      messageData.reduce((acc, msg) => {
+        const uid = msg.to;
+        if (!acc[uid] || msg.messageAt > acc[uid].messageAt) {
+          acc[uid] = msg;
+        }
+        return acc;
+      }, {})
+    );
+
+    setMessages(grouped);
+  } catch (e) {
+    console.error("Error fetching chats:", e);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useFocusEffect(
     React.useCallback(() => {
@@ -87,71 +91,18 @@ const CompanyMessages = ({ navigation }) => {
     }, [companyUID])
   );
 
-  const handleToggleSelection = (id) => {
-    setSelectionMode(true);
-    handleSelectMessage(id);
-  };
+ 
 
-  const handleSelectMessage = (id) => {
-    if (selectedMessages.includes(id)) {
-      const updated = selectedMessages.filter((mid) => mid !== id);
-      setSelectedMessages(updated);
-      if (updated.length === 0) setSelectionMode(false);
-    } else {
-      setSelectedMessages((prev) => [...prev, id]);
-    }
-  };
-
-  const handleMessageDeletion = async () => {
-    try {
-      const deletePromises = selectedMessages.map(async (id) => {
-        const ref = doc(db, "companies", companyUID, "messages", id);
-        await deleteDoc(ref);
-      });
-      await Promise.all(deletePromises);
-      setMessages((prev) =>
-        prev.filter((m) => !selectedMessages.includes(m.id))
-      );
-      setSelectionMode(false);
-      setSelectedMessages([]);
-      Alert.alert("Messages deleted successfully");
-    } catch (e) {
-      console.log("Error deleting messages:", e);
-      Alert.alert("Unable to delete the messages");
-    }
-  };
-
-  React.useEffect(() => {
-    navigation.setOptions({
-      headerRight: () =>
-        selectionMode ? (
-          <Pressable
-            onPress={() =>
-              Alert.alert(
-                "Delete Messages",
-                "These messages will be permanently deleted.",
-                [
-                  { text: "Cancel", style: "cancel" },
-                  { text: "OK", onPress: () => handleMessageDeletion() },
-                ]
-              )
-            }
-          >
-            <Ionicons
-              name="trash-outline"
-              color="#000"
-              size={24}
-              style={{ marginRight: 12 }}
-            />
-          </Pressable>
-        ) : null,
-    });
-  }, [selectionMode, selectedMessages]);
+  
 
   return (
     <SafeAreaView style={styles.safeArea}>
       {loading ? (
-        <ActivityIndicator size="large" color="#000" />
+         <View
+                  style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+                >
+                  <ActivityIndicator size="large" color="blue" />
+                </View>
       ) : (
         <FlatList
           data={messages}
@@ -164,32 +115,21 @@ const CompanyMessages = ({ navigation }) => {
               style={[
                 styles.messageCard,
                 {
-                  backgroundColor: selectedMessages.includes(item.id)
-                    ? "rgb(232, 240, 251)"
-                    : "#f9f9f9",
+                  backgroundColor:  "#f9f9f9",
                 },
               ]}
               onPress={() => {
-                if (selectionMode && selectedMessages.includes(item.id)) {
-                  handleSelectMessage(item.id);
-                } else {
+             
                   navigation.navigate("ChatScreen", {
                     to:item.to,
                     userName:item.userName,
                     profileImg:item?.profileImg,
                   });
-                }
+                
               }}
-              onLongPress={() => handleToggleSelection(item.id)}
+            
             >
-              {selectedMessages.includes(item.id) && (
-                <MaterialCommunityIcons
-                  name="checkbox-marked"
-                  color="blue"
-                  size={22}
-                  style={{ marginRight: 6 }}
-                />
-              )}
+      
 
               {item.profileImg ? (
                 <Image

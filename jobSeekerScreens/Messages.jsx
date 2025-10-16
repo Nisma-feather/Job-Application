@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Pressable,
-  
-  ScrollView,
   Image,
   Text,
   View,
   StyleSheet,
   Alert,
   FlatList,
-  SafeAreaView
+  SafeAreaView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { auth, db } from "../firebaseConfig";
@@ -17,105 +15,144 @@ import {
   collection,
   deleteDoc,
   onSnapshot,
-  getDocs,
-  orderBy,
   getDoc,
+  orderBy,
   query,
   doc,
 } from "firebase/firestore";
-import dummyimg from "../assets/logo.png";
-import {
-  MaterialCommunityIcons,
-  Ionicons,
-  Foundation,
-} from "@expo/vector-icons";
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 
+const office = require("../assets/office.png");
 
 const Messages = ({ navigation }) => {
   const [messages, setMessages] = useState([]);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState([]);
   const uid = auth?.currentUser?.uid;
-  const office=require("../assets/office.png")
 
- const fetchUserMessages = async () => {
-   const ref = collection(db, "users", uid, "messages");
-   const q = query(ref, orderBy("messageAt", "desc"));
+  // ✅ Safe date formatter
+  const formatDate = (timeStamp) => {
+    if (!timeStamp || typeof timeStamp.toDate !== "function") return "";
+    const postedDate = timeStamp.toDate();
+    const now = new Date();
+    const diffMs = now - postedDate;
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-   const unsubscribe = onSnapshot(q, async (snapshot) => {
-     const messageFetched = await Promise.all(
-       snapshot.docs.map(async (docSnap) => {
-         const data = docSnap.data();
-         let companyName = data.from;
-
-         // Fetch company details using the UID in "from"
-         try {
-           const companyRef = doc(db, "companies", data.from);
-           const companySnap = await getDoc(companyRef);
-           if (companySnap.exists()) {
-             const companyData = companySnap.data();
-             companyName = companyData.companyName || companyName; // fallback to uid if no name
-            console.log(companyName)
-            }
-         } catch (e) {
-           console.log("Error fetching company:", e);
-         }
-
-         return {
-           id: docSnap.id,
-           ...data,
-           from: companyName, // replace uid with company name
-         };
-       })
-     );
-
-     setMessages(messageFetched);
-   });
-
-   return () => unsubscribe();
- };
-
-  const handleToggleSelection = (messageId) => {
-    setSelectionMode(true);
-    handleSelectMessage(messageId);
+    if (diffDays > 0)
+      return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`;
+    if (diffHours > 0)
+      return diffHours === 1 ? "1 hr ago" : `${diffHours} hrs ago`;
+    if (diffMinutes > 0)
+      return diffMinutes === 1 ? "1 min ago" : `${diffMinutes} mins ago`;
+    return "Just now";
   };
 
-  const handleSelectMessage = (messageId) => {
-    if (selectedMessages.includes(messageId)) {
-      const updated = selectedMessages.filter((id) => id !== messageId);
+  const fetchUserMessages = useCallback(async () => {
+    const ref = collection(db, "users", uid, "messages");
+    const q = query(ref, orderBy("messageAt", "desc"));
+
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      const allMessages = snapshot.docs.map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data(),
+      }));
+
+      // ✅ Group by company UID (data.from)
+      const grouped = allMessages.reduce((acc, msg) => {
+        const from = msg.from;
+        if (!acc[from]) acc[from] = [];
+        acc[from].push(msg);
+        return acc;
+      }, {});
+
+      // ✅ For each company, find last message + unread count
+      const companyData = await Promise.all(
+        Object.keys(grouped).map(async (companyId) => {
+          const messagesFromCompany = grouped[companyId];
+          const lastMessage = messagesFromCompany[0];
+          const unreadCount = messagesFromCompany.filter(
+            (m) => !m.isRead
+          ).length;
+
+          let companyName = companyId;
+          let logoUrl = null;
+
+          try {
+            const companyRef = doc(db, "companies", companyId);
+            const companySnap = await getDoc(companyRef);
+            if (companySnap.exists()) {
+              const data = companySnap.data();
+              companyName = data.companyName || companyName;
+              logoUrl = data.logoUrl || null;
+            }
+          } catch (e) {
+            console.log("Error fetching company:", e);
+          }
+
+          return {
+            companyId,
+            companyName,
+            logoUrl,
+            lastMessage: lastMessage.message || "",
+            messageAt: lastMessage.messageAt,
+            unreadCount,
+          };
+        })
+      );
+
+      setMessages(companyData);
+    });
+
+    return () => unsubscribe();
+  }, [uid]);
+
+  const handleToggleSelection = (companyId) => {
+    setSelectionMode(true);
+    handleSelectMessage(companyId);
+  };
+
+  const handleSelectMessage = (companyId) => {
+    if (selectedMessages.includes(companyId)) {
+      const updated = selectedMessages.filter((id) => id !== companyId);
       setSelectedMessages(updated);
-      if (updated.length === 0) {
-        setSelectionMode(false);
-      }
+      if (updated.length === 0) setSelectionMode(false);
     } else {
-      setSelectedMessages((prev) => [...prev, messageId]);
+      setSelectedMessages((prev) => [...prev, companyId]);
     }
   };
 
   const handleMessageDeletion = async () => {
     try {
-      const deletePromises = selectedMessages.map(async (messageId) => {
-        const messageRef = doc(db, "users", uid, "messages", messageId);
-        await deleteDoc(messageRef);
+      const deletePromises = selectedMessages.map(async (companyId) => {
+        // Delete all messages from that company for this user
+        const ref = collection(db, "users", uid, "messages");
+        const snapshot = await getDocs(ref);
+        const msgsToDelete = snapshot.docs.filter(
+          (docSnap) => docSnap.data().from === companyId
+        );
+        for (const msg of msgsToDelete) {
+          await deleteDoc(doc(db, "users", uid, "messages", msg.id));
+        }
       });
+
       await Promise.all(deletePromises);
       setMessages((prev) =>
-        prev.filter((message) => !selectedMessages.includes(message.id))
+        prev.filter((msg) => !selectedMessages.includes(msg.companyId))
       );
       setSelectedMessages([]);
       setSelectionMode(false);
       Alert.alert("Messages deleted successfully");
     } catch (e) {
+      console.log("Error deleting messages:", e);
       Alert.alert("Unable to delete the messages");
-      console.log("Error deleting the messages:", e);
     }
   };
 
-
-
   useEffect(() => {
     fetchUserMessages();
-  }, []);
+  }, [fetchUserMessages]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -127,156 +164,88 @@ const Messages = ({ navigation }) => {
                 "Delete Messages",
                 "The messages will be permanently deleted from your device.",
                 [
-                  {
-                    text: "Cancel",
-                    style: "cancel",
-                    onPress: () => {
-                      setSelectionMode(false);
-                      setSelectedMessages([]);
-                    },
-                  },
-                  {
-                    text: "OK",
-                    onPress: () => handleMessageDeletion(),
-                  },
+                  { text: "Cancel", style: "cancel" },
+                  { text: "OK", onPress: handleMessageDeletion },
                 ]
               )
             }
           >
-            <Ionicons name="trash-outline" style={{marginLeft:12}} color="#000" size={24} />
+            <Ionicons
+              name="trash-outline"
+              style={{ marginLeft: 12 }}
+              color="#000"
+              size={24}
+            />
           </Pressable>
         ) : null,
     });
   }, [selectionMode, selectedMessages]);
 
-  console.log(selectionMode);
+  const renderItem = ({ item }) => (
+    <Pressable
+      style={[
+        {
+          backgroundColor: selectedMessages.includes(item.companyId)
+            ? "rgb(232, 240, 251)"
+            : "#f9f9f9",
+        },
+        styles.messageCard,
+      ]}
+      onPress={() => {
+        if (selectionMode && selectedMessages.includes(item.companyId)) {
+          handleSelectMessage(item.companyId);
+        } else {
+          navigation.navigate("MessageDetail", { companyId: item.companyId });
+        }
+      }}
+      onLongPress={() => handleToggleSelection(item.companyId)}
+    >
+      {selectedMessages.includes(item.companyId) && (
+        <MaterialCommunityIcons name="checkbox-marked" color="blue" size={24} />
+      )}
+     
+      <Image
+        style={styles.avatar}
+        source={item.logoUrl ? { uri: item.logoUrl } : office}
+      />
+
+      <View style={styles.messageContent}>
+        <View style={styles.row}>
+          <Text style={styles.sender}>{item.companyName}</Text>
+
+          {item.unreadCount > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{item.unreadCount}</Text>
+            </View>
+          )}
+        </View>
+
+        <Text numberOfLines={1} style={styles.preview}>
+          {typeof item.lastMessage === "string"
+            ? item.lastMessage
+            : JSON.stringify(item.lastMessage)}
+        </Text>
+      </View>
+      <Text style={styles.date}>{formatDate(item.messageAt)}</Text>
+    </Pressable>
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <FlatList
         ListEmptyComponent={() => (
-          <View style={{ marginTop: 30, fontFamily: "Poppins-Bold" }}>
-            <Text
-              style={{
-                marginTop: 30,
-                fontFamily: "Poppins-Medium",
-                textAlign: "center",
-                fontSize: 20,
-              }}
-            >
-              No Messages
-            </Text>
+          <View style={{ marginTop: 40 }}>
+            <Text style={styles.emptyText}>No Messages</Text>
           </View>
         )}
         data={messages}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          
-            <Pressable
-              style={[
-                {
-                  backgroundColor: selectedMessages.includes(item.id)
-                    ? "rgb(232, 240, 251)"
-                    : "#f9f9f9",
-                },
-                styles.messageCard,
-              ]}
-              onPress={() => {
-                if (selectionMode && selectedMessages.includes(item.id)) {
-                  handleSelectMessage(item.id);
-                } else {
-                  navigation.navigate("MessageDetail", { message: item });
-                }
-              }}
-              onLongPress={() => handleToggleSelection(item.id)}
-            >
-              {selectedMessages.includes(item.id) && (
-                <View>
-                  <MaterialCommunityIcons
-                    name="checkbox-marked"
-                    color="blue"
-                    size={24}
-                  />
-                </View>
-              )}
-              <Image
-                style={styles.avatar}
-                source={item.profileImg ? item.profileImg : office}
-              />
-              <View style={styles.messageContent}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Text style={styles.sender}>{item.from}</Text>
-                  <Text style={{ color: "#777" }}>
-                    {formatDate(item.messageAt)}
-                  </Text>
-                </View>
-                <Text numberOfLines={1} style={styles.preview}>
-                  {typeof item.message === "string"
-                    ? item.message
-                    : JSON.stringify(item.message)}
-                </Text>
-              </View>
-            </Pressable>
-     
-        )}
+        keyExtractor={(item) => item.companyId}
+        renderItem={renderItem}
+        initialNumToRender={8}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        removeClippedSubviews
       />
-
-      {/* <ScrollView contentContainerStyle={styles.scrollContent}>
-        {messages.map((message, idx) => (
-          <Pressable
-            key={idx}
-            style={[
-              {
-                backgroundColor: selectedMessages.includes(message.id)
-                  ? "rgb(232, 240, 251)"
-                  : "#f9f9f9",
-              },
-              styles.messageCard,
-              { zIndex: -1 },
-            ]}
-            onPress={() => {
-              if (selectionMode && selectedMessages.includes(message.id)) {
-                handleSelectMessage(message.id);
-              }
-              navigation.navigate("MessageDetail", { message });
-            }}
-            onLongPress={() => handleToggleSelection(message.id)}
-          >
-            {selectedMessages.includes(message.id) ? (
-              <View>
-                <MaterialCommunityIcons
-                  name="checkbox-marked"
-                  color="blue"
-                  size={24}
-                />
-              </View>
-            ) : null}
-            <Image style={styles.avatar} source={dummyimg} />
-            <View style={styles.messageContent}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text style={styles.sender}>{message.from}</Text>
-                <Text style={{ color: "#777" }}>
-                  {formatDate(message.messageAt)}
-                </Text>
-              </View>
-              <Text numberOfLines={1} style={styles.preview}>
-                {typeof message.message === "string"
-                  ? message.message
-                  : JSON.stringify(message.message)}
-              </Text>
-            </View>
-          </Pressable>
-        ))}
-      </ScrollView> */}
     </SafeAreaView>
   );
 };
@@ -284,45 +253,22 @@ const Messages = ({ navigation }) => {
 export default Messages;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 12,
-  },
-  body: {
-    fontSize: 16,
-    color: "#333",
-  },
   safeArea: {
     flex: 1,
     backgroundColor: "#fff",
     paddingHorizontal: 16,
   },
-  heading: {
-    fontSize: 22,
-    fontWeight: "600",
-    marginVertical: 16,
-  },
-  scrollContent: {
-    paddingBottom: 20,
-    paddingTop:20
-  },
   messageCard: {
     flexDirection: "row",
     padding: 12,
     borderRadius: 12,
-    marginBottom: 12,
     alignItems: "center",
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 2,
+    marginTop:12,
   },
   avatar: {
     height: 60,
@@ -342,80 +288,29 @@ const styles = StyleSheet.create({
     color: "#555",
     marginTop: 4,
   },
-  Chatpagecontainer: {
-    flex: 1,
-    backgroundColor: "#fff",
-    padding: 16,
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  header: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 12,
-    color: "#333",
+  badge: {
+    backgroundColor: "#007bff",
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginLeft: 8,
   },
-  chatContainer: {
-    flexDirection: "column",
-    alignItems: "flex-start",
-    paddingHorizontal: 18,
-    paddingVertical: 5,
-  },
-  receivedBubble: {
-    backgroundColor: "rgb(232, 240, 251)",
-    padding: 12,
-    borderRadius: 16,
-    borderTopLeftRadius: 0,
-    maxWidth: "80%",
-    alignSelf: "flex-start",
-    marginVertical: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  messageText: {
-    fontSize: 16,
-    color: "#333",
-  },
-  timestamp: {
+  badgeText: {
+    color: "white",
     fontSize: 12,
-    color: "#999",
-    marginTop: 6,
-    textAlign: "right",
+  },
+  date: {
+    color: "#777",
+    marginLeft: 8,
+  },
+  emptyText: {
+    textAlign: "center",
+    fontSize: 18,
+    fontFamily: "Poppins-Medium",
   },
 });
-const formatDate = (timeStamp) => {
-  if (!timeStamp) return "";
-
-  const postedDate = timeStamp.toDate();
-  const now = new Date();
-  const differenceDate = Math.floor((now - postedDate) / (1000 * 60 * 60 * 24));
-
-  if (differenceDate === 0) {
-    const diffHours = Math.floor((now - postedDate) / (1000 * 60 * 60));
-
-    if (diffHours === 0) {
-      const diffMinutes = Math.floor((now - postedDate) / (1000 * 60));
-      return diffMinutes <= 1 ? "1 m ago" : `${diffMinutes} ms ago`;
-    }
-
-    return diffHours === 1 ? "1 hr ago" : `${diffHours} hrs ago`;
-  }
-
-  return differenceDate === 1 ? "1 day ago" : `${differenceDate} days ago`;
-};
-
-export const MessageDetail = ({ route }) => {
-  const { message } = route.params;
-
-  return (
-    <SafeAreaView style={styles.Chatpagecontainer}>
-      <View style={styles.chatContainer}>
-        <View style={styles.receivedBubble}>
-          <Text style={styles.messageText}>{message.message}</Text>
-          <Text style={styles.timestamp}>{formatDate(message.messageAt)}</Text>
-        </View>
-      </View>
-    </SafeAreaView>
-  );
-};
