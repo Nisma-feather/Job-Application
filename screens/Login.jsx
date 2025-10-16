@@ -115,6 +115,7 @@ const Login = ({ navigation }) => {
     }
   };
 
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <ScrollView style={{ flexGrow: 1 }}>
@@ -161,8 +162,15 @@ const Login = ({ navigation }) => {
               style={styles.input}
             />
             <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={{ position: "absolute", right: 15, top: 10 }}
+              onPress={() => {
+                setShowPassword(!showPassword);
+              }}
+              style={{
+                position: "absolute",
+                right: 10,
+                top: "50%",
+                transform: [{ translateY: -10 }], // center vertically
+              }}
             >
               <MaterialCommunityIcons
                 name={showPassword ? "eye-outline" : "eye-off-outline"}

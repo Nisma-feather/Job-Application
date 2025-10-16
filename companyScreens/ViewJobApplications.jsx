@@ -19,7 +19,7 @@ import {
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons, Feather, Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import { auth, db } from '../firebaseConfig';
-import { addDoc, collection, getDocs, query, updateDoc, where,doc, getDoc } from 'firebase/firestore';
+import { addDoc, collection, getDocs, query, updateDoc, where,doc, getDoc, orderBy } from 'firebase/firestore';
 
 const formatDate = (date) => {
   const posted = date.toDate();
@@ -130,29 +130,36 @@ const ViewJobApplications = ({navigation}) => {
 }
 
 export default ViewJobApplications
+
 const ApplicationsList = ({ route }) => {
   const { JobId } = route.params;
-  const [modalVisible, setModalVisible] = useState(false);
   const [applications, setApplications] = useState([]);
+  const [filteredApplications, setFilteredApplications] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [jobData, setJobData] = useState({});
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentApplication, setCurrentApplication] = useState({});
   const [status, setStatus] = useState("");
   const [message, setMessage] = useState("");
-  const [jobData, setJobData] = useState({});
-  const [currentApplication, setCurrentApplication] = useState({});
   const navigation = useNavigation();
+  const [sending,setSending] = useState(false);
 
+  // Fetch all applications sorted by earliest applied first
   const fetchApplications = async () => {
     if (!JobId) return;
-
     try {
       setLoading(true);
       const q = query(
         collection(db, "jobApplications"),
-        where("jobId", "==", JobId)
+        where("jobId", "==", JobId),
+        orderBy("submittedAt", "asc")
       );
       const snap = await getDocs(q);
-      const apps = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const apps = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       setApplications(apps);
+      setFilteredApplications(apps);
     } catch (e) {
       console.log("Error fetching applications:", e);
     } finally {
@@ -162,71 +169,32 @@ const ApplicationsList = ({ route }) => {
 
   const fetchJobData = async () => {
     if (!JobId) return;
-
-    try {
-      const jobSnap = await getDoc(doc(db, "jobs", JobId));
-      if (jobSnap.exists()) setJobData(jobSnap.data());
-    } catch (e) {
-      console.log("Error fetching job:", e);
-    }
+    const jobSnap = await getDoc(doc(db, "jobs", JobId));
+    if (jobSnap.exists()) setJobData(jobSnap.data());
   };
 
   const openCV = async (cvUrl) => {
-    if (!cvUrl || typeof cvUrl !== "string") {
-      Alert.alert("Error", "Invalid CV URL");
-      return;
-    }
-
-    try {
-      const supported = await Linking.canOpenURL(cvUrl);
-      if (supported) await Linking.openURL(cvUrl);
-      else Alert.alert("Error", "Cannot open the CV URL");
-    } catch (e) {
-      console.log("Error opening CV:", e);
-      Alert.alert("Error", "Something went wrong");
-    }
-  };
-
-  const handleViewStatus = async (app) => {
-    if (app.status !== "applied") return;
-
-    try {
-      await updateDoc(doc(db, "jobApplications", app.id), {
-        status: "viewed",
-        viewedAt: new Date(),
-      });
-    } catch (e) {
-      console.log("Failed to mark as viewed", e);
-    }
+    if (!cvUrl) return Alert.alert("No CV available");
+    const supported = await Linking.canOpenURL(cvUrl);
+    if (supported) await Linking.openURL(cvUrl);
+    else Alert.alert("Cannot open CV link");
   };
 
   const handleStatusUpdate = async () => {
     if (!status || !currentApplication?.id) return;
-
+    setSending(true);
     const finalMsg =
       status === "shortlisted"
-        ? `We are pleased to inform you that you have been shortlisted for the position of ${jobData.jobrole} at ${jobData.companyName}.`
-        : `Thank you for your interest in the ${jobData.jobrole} position at ${jobData.companyName}. Unfortunately, you were not shortlisted.`;
-
+        ? `You’ve been shortlisted for the position of ${jobData.jobrole} at ${jobData.companyName}.`
+        : `Unfortunately, you were not shortlisted for the ${jobData.jobrole} role at ${jobData.companyName}.`;
+    
     try {
-      // 1. Update application status
-      const appRef = doc(db, "jobApplications", currentApplication.id);
-      await updateDoc(appRef, {
+      await updateDoc(doc(db, "jobApplications", currentApplication.id), {
         status,
         statusAt: new Date(),
       });
 
-      // 2. Fetch company profileImg using jobData.companyUID
-      let profileImg = null;
-      if (jobData.companyUID) {
-        const companyRef = doc(db, "companies", jobData.companyUID);
-        const companySnap = await getDoc(companyRef);
-        if (companySnap.exists()) {
-          profileImg = companySnap.data()?.profileImg || null;
-        }
-      }
-
-      // 3. Send message to user
+      // Send message to user
       const msgRef = collection(
         db,
         "users",
@@ -236,81 +204,103 @@ const ApplicationsList = ({ route }) => {
       await addDoc(msgRef, {
         message: message || finalMsg,
         messageAt: new Date(),
-        from: jobData.companyUID, // UID of the sender
-        profileImg: profileImg, // send profile image
+        from: jobData.companyUID,
+        to: currentApplication.userId,
         type: "status_update",
         status,
         read: false,
       });
 
-      // Reset and refresh
       setModalVisible(false);
-      setStatus("");
       setMessage("");
+      setStatus("");
       fetchApplications();
     } catch (e) {
       console.log("Error updating status:", e);
       Alert.alert("Failed to update status");
     }
+    finally{
+      setSending(false)
+    }
   };
-  
+
+  const applyFilters = () => {
+    if (selectedStatus) {
+      const filtered = applications.filter(
+        (a) => a.status === selectedStatus
+      );
+      setFilteredApplications(filtered);
+    } else {
+      setFilteredApplications(applications);
+    }
+    setFilterVisible(false);
+  };
+
   useEffect(() => {
     fetchApplications();
     fetchJobData();
   }, []);
 
   const renderItem = ({ item }) => (
-    <View style={[styles.card, { marginHorizontal: 20 }]}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+    <View style={styles.card}>
+      <View style={styles.headerRow}>
         <Text style={styles.name}>{item.name}</Text>
-        <Text style={{fontSize:12,color:"#444"}}>Applied {formatDate(item.submittedAt)}</Text>
+        <Text style={styles.date}>{formatDate(item.submittedAt)}</Text>
       </View>
 
       <Text style={styles.label}>Website:</Text>
-      <Text style={styles.website}>{item.website && item.website}</Text>
+      <Text style={styles.value}>{item.website || "—"}</Text>
 
       <Text style={styles.label}>Cover Letter:</Text>
-      <Text style={styles.coverLetter}>
-        {item.coverLetter && item.coverLetter}
-      </Text>
+      <Text style={styles.value}>{item.coverLetter || "—"}</Text>
 
       {item.cvUrl && (
         <TouchableOpacity
-          onPress={async () => {
-            await openCV(item.cvUrl);
-            await handleViewStatus(item);
-          }}
+          onPress={() => openCV(item.cvUrl)}
+          style={{ marginTop: 5 }}
         >
-          <Text style={{ color: "blue", marginTop: 5,fontSize:12 }}>View CV</Text>
+          <Text style={styles.link}>View CV</Text>
         </TouchableOpacity>
       )}
 
       <TouchableOpacity
-        style={styles.button}
+        style={styles.profileButton}
         onPress={() =>
           navigation.navigate("User Profile", { uid: item.userId })
         }
       >
-        <Text style={styles.buttonText}>View Full Profile</Text>
+        <Text style={styles.profileButtonText}>View Full Profile</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[
-          styles.button,
-          item.status === "shortlisted" && styles.shortlistBackground,
-          item.status === "notShortlisted" && styles.notShortlistBackground,
+          styles.statusButton,
+          item.status === "shortlisted" && styles.shortlisted,
+          item.status === "notShortlisted" && styles.rejected,
         ]}
-        disabled={["shortlisted", "notShortlisted"].includes(item.status)}
         onPress={() => {
-          setCurrentApplication(item);
+           setCurrentApplication(item);
+           setStatus(item.status);
+
+           if (item.status === "shortlisted") {
+             setMessage(
+               `We are pleased to inform you that you have been shortlisted for the position of ${jobData.jobrole} at ${jobData.companyName}.`
+             );
+           } else if (item.status === "notShortlisted") {
+             setMessage(
+               `Thank you for your interest in the ${jobData.jobrole} position at ${jobData.companyName}. Unfortunately, you were not shortlisted.`
+             );
+           } else {
+             setMessage(""); // optional: clear message for other statuses
+           }
           setModalVisible(true);
         }}
       >
-        <Text style={styles.buttonText}>
+        <Text style={styles.statusButtonText}>
           {item.status === "shortlisted"
             ? "Shortlisted"
             : item.status === "notShortlisted"
-            ? "Not Shortlisted"
+            ? "Rejected"
             : "Update Status"}
         </Text>
       </TouchableOpacity>
@@ -318,26 +308,95 @@ const ApplicationsList = ({ route }) => {
   );
 
   return (
-    <SafeAreaView style={styles.safeContainer}>
+    <SafeAreaView style={styles.container}>
       {loading ? (
         <ActivityIndicator size="large" color="#2563EB" style={{ flex: 1 }} />
-      ) : applications.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No Applications Yet</Text>
-        </View>
       ) : (
-        <FlatList
-          data={applications}
-          keyExtractor={(item) => item.id}
-          ListHeaderComponent={() => (
-            <Text style={styles.heading}>Applications</Text>
+        <>
+          <Text style={styles.heading}>Applications</Text>
+
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() => setFilterVisible(true)}
+          >
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={() => setFilterVisible(true)}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Ionicons
+                  name="filter-outline" // pick any icon you like
+                  size={20}
+                  color="#fff"
+                  style={{ marginRight: 8 }}
+                />
+                <Text style={styles.filterButtonText}>Apply Filters</Text>
+              </View>
+            </TouchableOpacity>
+          </TouchableOpacity>
+
+          {filteredApplications.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No applications found</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={filteredApplications}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.list}
+            />
           )}
-          renderItem={renderItem}
-          contentContainerStyle={styles.list}
-        />
+        </>
       )}
 
-      {/* Modal */}
+      {/* Filter Modal */}
+      <Modal
+        visible={filterVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setFilterVisible(false)}
+      >
+        <View style={styles.filterOverlay}>
+          <View style={styles.filterContainer}>
+            <Text style={styles.filterTitle}>Filter by Status</Text>
+
+            {["applied", "viewed", "shortlisted", "notShortlisted"].map(
+              (st) => (
+                <TouchableOpacity
+                  key={st}
+                  style={[
+                    styles.filterOption,
+                    selectedStatus === st && styles.filterSelected,
+                  ]}
+                  onPress={() => setSelectedStatus(st)}
+                >
+                  <Text
+                    style={[
+                      styles.filterText,
+                      selectedStatus === st && styles.filterTextSelected,
+                    ]}
+                  >
+                    {st.charAt(0).toUpperCase() + st.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              )
+            )}
+
+            <View style={styles.filterButtons}>
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={() => setFilterVisible(false)}
+              >
+                <Text style={styles.filterTxt}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.applyBtn} onPress={applyFilters}>
+                <Text style={[styles.filterTxt, { color: "#fff" }]}>Apply</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <Modal
         visible={modalVisible}
         animationType="slide"
@@ -396,6 +455,7 @@ const ApplicationsList = ({ route }) => {
                   setStatus("");
                   setMessage("");
                 }}
+                disabled={sending}
               >
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
@@ -403,8 +463,11 @@ const ApplicationsList = ({ route }) => {
               <TouchableOpacity
                 style={styles.sendButton}
                 onPress={handleStatusUpdate}
+                disabled={sending}
               >
-                <Text style={styles.sendText}>Send</Text>
+                <Text style={styles.sendText}>
+                  {sending ? "Sending..." : "Send"}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -413,6 +476,8 @@ const ApplicationsList = ({ route }) => {
     </SafeAreaView>
   );
 };
+
+
 export  {ApplicationsList}
 
 const styles = StyleSheet.create({
@@ -487,10 +552,10 @@ const styles = StyleSheet.create({
   },
 
   heading: {
-    fontSize: 16,
+    fontSize: 13,
     fontFamily: "Poppins-Bold",
+    color: "#666",
     marginVertical: 13,
-    color: "#1F2937",
     textAlign: "center",
   },
   list: {
@@ -507,12 +572,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
   },
-  name: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#111827",
-    marginBottom: 7,
-  },
+
   label: {
     fontSize: 13,
     fontWeight: "600",
@@ -543,22 +603,19 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 13,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
+
   modalContainer: {
     width: "85%",
+    maxHeight: "80%", // prevents full-screen black
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 20,
     elevation: 5,
+    zIndex: 10000,
   },
   title: {
     fontSize: 15,
-    fontWeight: "600",
+    fontFamily: "Poppins-Bold",
     marginBottom: 10,
     textAlign: "center",
   },
@@ -578,7 +635,7 @@ const styles = StyleSheet.create({
   },
   modalButtonText: {
     color: "#000",
-    fontWeight: "500",
+    fontFamily: "Poppins-Bold",
   },
   textInput: {
     borderWidth: 1,
@@ -587,6 +644,7 @@ const styles = StyleSheet.create({
     padding: 10,
     minHeight: 80,
     marginVertical: 15,
+    fontFamily: "Poppins-Regular",
     textAlignVertical: "top",
   },
   footerButtons: {
@@ -595,6 +653,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     backgroundColor: "#ccc",
+    fontFamily: "Poppins-Bold",
     padding: 10,
     borderRadius: 8,
     width: "48%",
@@ -602,6 +661,7 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     backgroundColor: "#2196F3",
+
     padding: 10,
     borderRadius: 8,
     width: "48%",
@@ -609,11 +669,11 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     color: "#000",
-    fontWeight: "500",
+    fontFamily: "Poppins-Bold",
   },
   sendText: {
     color: "#fff",
-    fontWeight: "500",
+    fontFamily: "Poppins-Bold",
   },
   container: {
     flex: 1,
@@ -693,5 +753,190 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 16,
     color: "#9CA3AF",
+  },
+  filterContainer: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    elevation: 10,
+  },
+
+  filterOption: {
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: "#f3f4f6",
+    marginVertical: 5,
+  },
+  filterSelected: {
+    backgroundColor: "#2563EB",
+  },
+
+  filterButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
+  },
+  filterCancel: {
+    backgroundColor: "#e5e7eb",
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    width: "48%",
+  },
+  filterApply: {
+    backgroundColor: "#2563EB",
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    width: "48%",
+  },
+  container: { flex: 1, backgroundColor: "#f9fafb", padding: 10 },
+  heading: {
+    fontSize: 17,
+    fontFamily: "Poppins-Bold",
+    marginTop: 10,
+    marginBottom: 10,
+    color: "#333",
+  },
+  list: { paddingBottom: 40 },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+  name: { fontSize: 16, fontFamily: "Poppins-Bold", color: "#444" },
+  date: { fontSize: 12, color: "#666", fontFamily: "Poppins-Regular" },
+  label: { fontSize: 13, fontFamily: "Poppins-Bold", marginTop: 4 },
+  value: {
+    fontSize: 13,
+    color: "#444",
+    marginBottom: 2,
+    fontFamily: "Poppins-Regular",
+  },
+  link: { color: "#2563EB", fontSize: 13, fontFamily: "Poppins-Regular" },
+  profileButton: {
+    marginTop: 10,
+
+    backgroundColor: "#E0E7FF",
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: "center",
+  },
+  profileButtonText: {
+    color: "#1E3A8A",
+    fontFamily: "Poppins-Bold",
+    fontWeight: "600",
+  },
+  statusButton: {
+    marginTop: 8,
+    paddingVertical: 8,
+    borderRadius: 6,
+
+    backgroundColor: "#2563EB",
+    alignItems: "center",
+  },
+  shortlisted: { backgroundColor: "#10B981" },
+  rejected: { backgroundColor: "#EF4444" },
+  statusButtonText: { color: "#fff", fontFamily: "Poppins-Bold" },
+  filterButton: {
+    backgroundColor: "#2563EB",
+
+    fontFamily: "Poppins-Bold",
+    borderRadius: 8,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingVertical: 5,
+  },
+  filterButtonText: { color: "#fff", fontFamily: "Poppins-Bold", fontSize: 15 },
+  emptyContainer: { flex: 1, alignItems: "center", marginTop: 50 },
+  emptyText: { color: "#666", fontSize: 16 },
+  filterOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "flex-end",
+  },
+  filterContainer: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  filterTitle: {
+    fontSize: 18,
+    fontFamily: "Poppins-Bold",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  filterOption: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
+  },
+  filterSelected: {
+    backgroundColor: "#E0E7FF",
+  },
+  filterText: {
+    fontSize: 16,
+    textAlign: "center",
+    fontFamily: "Poppins-Regular",
+  },
+  filterTextSelected: { color: "#2563EB" },
+  filterButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
+  },
+  cancelBtn: {
+    backgroundColor: "#F3F4F6",
+    padding: 10,
+    borderRadius: 6,
+    width: "45%",
+    alignItems: "center",
+  },
+  applyBtn: {
+    backgroundColor: "#2563EB",
+    padding: 10,
+    fontFamily: "Poppins-Bold",
+    borderRadius: 6,
+    width: "45%",
+    alignItems: "center",
+  },
+  filterTxt: {
+    fontFamily: "Poppins-Bold",
+  },
+  modalOverlay: {
+    flex: 1,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  filterOverlay: {
+    flex: 1,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
 });

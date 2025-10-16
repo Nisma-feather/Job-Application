@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import {View} from 'react-native'
+import {View, Image,Pressable,Text} from 'react-native'
 
 import {Ionicons} from '@expo/vector-icons';
 import CompanyProfile from "./CompanyProfile";
@@ -11,12 +11,19 @@ import PostJobEdit from "./PostJobEdit";
 import ViewJobApplications, { ApplicationsList } from "./ViewJobApplications";
 import UserProfile from "./UserProfile";
 
+import ChatScreen from "./ChatScreen";
+import ChatList from "./ChatList";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import React from "react";
+
 
 const Tab=createBottomTabNavigator();
 const Stack=createNativeStackNavigator();
 
 
 const CompanyDashboard = () => {
+
+
   
   return (
     <Tab.Navigator
@@ -29,6 +36,10 @@ const CompanyDashboard = () => {
             Iconname = focused ? "browsers" : "browsers-outline";
           } else if (route.name === "View Applications") {
             Iconname = focused ? "home" : "home-outline";
+          } else if (route.name === "Messages") {
+            Iconname = focused
+              ? "chatbox-ellipses"
+              : "chatbox-ellipses-outline";
           }
           return <Ionicons name={Iconname} color={color} size={24} />;
         },
@@ -54,6 +65,18 @@ const CompanyDashboard = () => {
         name="Posted Jobs"
         component={CompanyPostJobStack}
         options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="Messages"
+        component={ChatStack}
+        options={{ headerShown: false }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            // Prevent default tab behavior and reset Chat stack to ChatList
+            e.preventDefault();
+            navigation.navigate("Messages", { screen: "ChatList" });
+          },
+        })}
       />
       {/* <Tab.Screen name="notfication" component={Notifications}/> */}
     </Tab.Navigator>
@@ -92,5 +115,23 @@ const CompanyPostJobStack=()=>{
     </Stack.Navigator>
     
   )
+}
+
+const ChatStack=()=>{
+
+  return (
+    <Stack.Navigator initialRouteName="ChatList">
+      <Stack.Screen
+        name="ChatList"
+        component={ChatList}
+        options={{ title: "Messages" }}
+      />
+      <Stack.Screen
+        name="ChatScreen"
+        component={ChatScreen}
+        
+      />
+    </Stack.Navigator>
+  );
 }
 export default CompanyDashboard

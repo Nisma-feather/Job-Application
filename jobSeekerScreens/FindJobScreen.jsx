@@ -55,7 +55,13 @@ const FindJobScreen = ({ navigation }) => {
 
   const optionData = ['jobs', 'companies'];
   const expYeardata = ['Fresher', '0 - 1 year', '2-5 Years', 'More than 5 Years', 'More than 10 Years'];
-  const JobTypedata = ['Full Time', 'Part Time', 'Internship'];
+  const JobTypedata = [
+    "Full Time",
+    "Part Time",
+    "Internship",
+    "Freelance",
+    "Contract",
+  ];
   const JobModedata = ['Hybrid', 'Remote', 'Offline'];
   const uid = auth.currentUser?.uid;
 

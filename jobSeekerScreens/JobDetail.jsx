@@ -525,7 +525,7 @@ const JobDetail = ({ route, navigation }) => {
               )}
 
               {/* Reviews List */}
-              <Text style={styles.reviewSectionTitle}>Employee Reviews</Text>
+              <Text style={styles.reviewSectionTitle}>Reviews</Text>
               {company.reviews?.map((item, index) => (
                 <View style={styles.reviewCard} key={index}>
                   <View style={styles.reviewHeader}>

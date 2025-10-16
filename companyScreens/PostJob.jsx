@@ -58,6 +58,7 @@ const PostJob = ({ navigation }) => {
     "Contract",
     "Freelance",
     "Internship",
+    
   ];
   const JobModedata = ["", "Hybrid", "Remote", "OnSite"];
 

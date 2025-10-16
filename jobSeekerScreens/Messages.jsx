@@ -111,6 +111,8 @@ const Messages = ({ navigation }) => {
     }
   };
 
+
+
   useEffect(() => {
     fetchUserMessages();
   }, []);
@@ -153,7 +155,14 @@ const Messages = ({ navigation }) => {
       <FlatList
         ListEmptyComponent={() => (
           <View style={{ marginTop: 30, fontFamily: "Poppins-Bold" }}>
-            <Text style={{ marginTop: 30, fontFamily: "Poppins-Medium",textAlign:'center',fontSize:20}}>
+            <Text
+              style={{
+                marginTop: 30,
+                fontFamily: "Poppins-Medium",
+                textAlign: "center",
+                fontSize: 20,
+              }}
+            >
               No Messages
             </Text>
           </View>
@@ -161,53 +170,58 @@ const Messages = ({ navigation }) => {
         data={messages}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <Pressable
-            style={[
-              {
-                backgroundColor: selectedMessages.includes(item.id)
-                  ? "rgb(232, 240, 251)"
-                  : "#f9f9f9",
-              },
-              styles.messageCard,
-            ]}
-            onPress={() => {
-              if (selectionMode && selectedMessages.includes(item.id)) {
-                handleSelectMessage(item.id);
-              } else {
-                navigation.navigate("MessageDetail", { message: item });
-              }
-            }}
-            onLongPress={() => handleToggleSelection(item.id)}
-          >
-            {selectedMessages.includes(item.id) && (
-              <View>
-                <MaterialCommunityIcons
-                  name="checkbox-marked"
-                  color="blue"
-                  size={24}
-                />
-              </View>
-            )}
-            <Image style={styles.avatar} source={item.profileImg?item.profileImg:office} />
-            <View style={styles.messageContent}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text style={styles.sender}>{item.from}</Text>
-                <Text style={{ color: "#777" }}>
-                  {formatDate(item.messageAt)}
+          
+            <Pressable
+              style={[
+                {
+                  backgroundColor: selectedMessages.includes(item.id)
+                    ? "rgb(232, 240, 251)"
+                    : "#f9f9f9",
+                },
+                styles.messageCard,
+              ]}
+              onPress={() => {
+                if (selectionMode && selectedMessages.includes(item.id)) {
+                  handleSelectMessage(item.id);
+                } else {
+                  navigation.navigate("MessageDetail", { message: item });
+                }
+              }}
+              onLongPress={() => handleToggleSelection(item.id)}
+            >
+              {selectedMessages.includes(item.id) && (
+                <View>
+                  <MaterialCommunityIcons
+                    name="checkbox-marked"
+                    color="blue"
+                    size={24}
+                  />
+                </View>
+              )}
+              <Image
+                style={styles.avatar}
+                source={item.profileImg ? item.profileImg : office}
+              />
+              <View style={styles.messageContent}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Text style={styles.sender}>{item.from}</Text>
+                  <Text style={{ color: "#777" }}>
+                    {formatDate(item.messageAt)}
+                  </Text>
+                </View>
+                <Text numberOfLines={1} style={styles.preview}>
+                  {typeof item.message === "string"
+                    ? item.message
+                    : JSON.stringify(item.message)}
                 </Text>
               </View>
-              <Text numberOfLines={1} style={styles.preview}>
-                {typeof item.message === "string"
-                  ? item.message
-                  : JSON.stringify(item.message)}
-              </Text>
-            </View>
-          </Pressable>
+            </Pressable>
+     
         )}
       />
 

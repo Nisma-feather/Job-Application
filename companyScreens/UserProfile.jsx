@@ -91,7 +91,7 @@ const UserProfile = ({ route }) => {
             {personalData?.name || "Lina Jamasin"}
           </Text>
           <Text style={styles.profileTitle}>
-            {personalData?.title || "Designer UI | UX"}
+            {personalData?.title }
           </Text>
           <Text style={styles.profileDescription}>
             {description ||
@@ -157,7 +157,7 @@ const UserProfile = ({ route }) => {
                       <View style={styles.companyInfo}>
                         <Text style={styles.dates}>
                           {formatTimestamp(edu.from)} -{" "}
-                          {formatTimestamp(edu.to)}
+                          {formatTimestamp(edu.to) || "Present"}
                         </Text>
                         <Text style={styles.companyName}>{edu.institute}</Text>
                       </View>
@@ -267,13 +267,13 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   section: {
-    marginBottom: 15,
+    marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 15,
     fontFamily:"Poppins-Bold",
     color: "#2563EB",
-    marginBottom: 16,
+    marginBottom: 4,
   },
   skillContainer: {
     flexDirection: "row",

@@ -9,7 +9,8 @@ const PositionScreen = ({ selected, onSelect }) => {
     'Marketing Executive',
     'Buisness Management',
     'SEO Analyst',
-    'Networking'
+    'Networking',
+    "Other"
   ];
 
   return (
