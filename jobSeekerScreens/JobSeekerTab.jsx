@@ -203,19 +203,7 @@ const MessagesStack=()=>{
     },
    }}>
       <Stack.Screen name="Messages" component={Messages}/>
-      <Stack.Screen name="MessageDetail" component={MessageDetail} options={({route})=>({
-      headerTitle:()=>(
-        <View style={{flexDirection:'row',alignItems:'center',paddingVertical:'10px'}}>
-          <View style={{height:50,width:50,borderRadius:'5px'}}>
-            <Image style={{width:'100%',height:'100%'}} source={route.params.message?.logo 
-    ? {uri: route.params.message.logo} 
-    : require("../assets/office.png")}/>
-          </View>
-          <Text style={{marginLeft:10,fontWeight:'bold'}}>{route.params.message.from}</Text>
-        </View>
-      )
-
-      })}/>
+      <Stack.Screen name="MessageDetail" component={MessageDetail} />
     </Stack.Navigator>
   )
 }
